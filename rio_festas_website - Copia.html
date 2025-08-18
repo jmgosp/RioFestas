@@ -1,0 +1,2527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RioFestas • Guia de Festas do Rio</title>
+
+  <!-- Tailwind + Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+    .shadow-soft{box-shadow:0 12px 26px rgba(17,17,18,.08)}
+    .ring-subtle{box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+    .fade{animation:fade .18s ease-out}
+    .pop{animation:pop .18s ease-out}
+    @keyframes fade{from{opacity:0}to{opacity:1}}
+    @keyframes pop{from{transform:translateY(6px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+    ::-webkit-scrollbar{width:10px;height:10px}
+    ::-webkit-scrollbar-thumb{background:#dedede;border-radius:999px}
+    ::-webkit-scrollbar-track{background:transparent}
+    .star-rating input[type="radio"] { display: none; }
+    .star-rating label { font-size: 28px; color: #ddd; cursor: pointer; transition: color 0.2s; }
+    .star-rating input[type="radio"]:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label { color: #facc15; /* yellow-400 */ }
+    .progress-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 4px;
+        background-color: #f472b6; /* pink-500 */
+        transition: width 0.2s ease-out;
+    }
+    /* Custom styles for mobile admin view */
+    @media (max-width: 767px) {
+      .admin-table-container table {
+        display: block;
+      }
+      .admin-table-container thead {
+        display: none; /* Hide table header on mobile */
+      }
+      .admin-table-container tr {
+        display: block;
+        border-radius: 1.5rem; /* rounded-3xl */
+        background-color: white;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        margin-bottom: 1rem;
+        border: 1px solid #e5e7eb; /* border-gray-200 */
+        padding: 1rem;
+      }
+      .admin-table-container td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-left: 0;
+        padding-right: 0;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        border: none;
+      }
+      .admin-table-container td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #4b5563; /* text-gray-600 */
+      }
+      .admin-table-container td.actions-cell {
+        justify-content: flex-end; /* Align buttons to the right */
+        padding-top: 1rem;
+      }
+       .admin-table-container td.actions-cell:before {
+        display: none; /* No label for actions */
+      }
+       .admin-table-container td.event-cell {
+         flex-direction: column;
+         align-items: flex-start;
+         gap: 0.5rem;
+         padding-bottom: 1rem;
+         border-bottom: 1px solid #f3f4f6;
+      }
+      .admin-table-container td.event-cell:before {
+         display: none;
+      }
+
+      /* Carousel de fotos do evento na visualização mobile */
+      #view-gallery {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch; /* Rolagem suave no iOS */
+        padding-bottom: 8px; /* Espaço para a barra de rolagem */
+        gap: 0.75rem; /* Adiciona espaço entre as imagens */
+      }
+      #view-gallery::-webkit-scrollbar {
+        height: 6px;
+      }
+      #view-gallery::-webkit-scrollbar-thumb {
+        background-color: #e5e7eb; /* bg-gray-200 */
+        border-radius: 999px;
+      }
+      #view-gallery > img {
+        width: 85%; /* Cada imagem ocupa 85% da largura do container */
+        flex-shrink: 0;
+        scroll-snap-align: center; /* Centraliza a imagem ao parar de rolar */
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 md:bg-white text-gray-900 selection:bg-pink-600/10">
+  <!-- HEADER -->
+  <header class="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-gray-200">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="#/" id="logo-link" class="text-2xl font-extrabold tracking-tight">RioFestas</a>
+        <button id="btn-home-header" class="inline-flex items-center justify-center h-10 w-10 rounded-full border border-gray-200 bg-white text-gray-600 hover:bg-gray-50" title="Início">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        </button>
+      </div>
+      <nav class="flex items-center gap-2">
+        <button id="btn-about-header" class="inline-flex items-center rounded-full bg-gray-100 border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200">Sobre</button>
+        <button id="btn-social-header" class="inline-flex items-center rounded-full bg-pink-600/5 border border-pink-600/20 px-4 py-2 text-sm font-semibold text-pink-700 hover:bg-pink-600/10">Rede</button>
+        
+        <!-- Visitante -->
+        <div id="nav-auth" class="flex items-center gap-2">
+          <button id="btn-open-login" class="inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50">Entrar</button>
+          <button id="btn-open-register" class="hidden sm:inline-flex items-center rounded-full bg-pink-600 px-4 py-2 text-sm font-semibold text-white hover:opacity-90">Registrar-se</button>
+        </div>
+        <!-- Logado -->
+        <div id="nav-user" class="hidden relative">
+          <button id="btn-user" class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white pl-1.5 pr-3 py-1.5 text-sm font-semibold hover:bg-gray-50">
+            <img id="user-avatar-img" class="h-8 w-8 rounded-full object-cover bg-gray-200" src="https://placehold.co/32x32/f472b6/ffffff?text=U" alt="Avatar">
+            <span id="user-avatar-text" class="grid h-8 w-8 place-items-center rounded-full bg-pink-600 text-white font-bold hidden">U</span>
+            <span id="user-label" class="hidden md:inline">Usuário</span>
+            <svg class="hidden md:block" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <div id="user-menu" class="absolute right-0 mt-2 hidden w-56 rounded-2xl bg-white p-2 shadow-xl ring-1 ring-gray-200">
+            <a id="go-profile" class="block rounded-xl px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer">Meu Perfil</a>
+            <a id="go-organizer" class="block rounded-xl px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer hidden">Organizador</a>
+            <a id="go-admin" class="block rounded-xl px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer hidden">Área Admin</a>
+            <button id="btn-logout" class="mt-1 block w-full rounded-xl px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50">Sair</button>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section id="hero-section" class="relative bg-white">
+    <div class="max-w-6xl mx-auto px-4 py-8 md:py-14 grid items-center gap-8 md:grid-cols-[1.2fr_.8fr]">
+      <div class="text-center md:text-left">
+        <h1 class="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight">Descubra e<br/>reserve as<br/>melhores festas do<br/>Rio.</h1>
+        <p class="mt-5 text-base text-gray-600 max-w-xl mx-auto md:mx-0">Sua curadoria definitiva para os eventos mais exclusivos e vibrantes da cidade.</p>
+        <div class="mt-6 relative">
+          <input id="search-input" class="w-full rounded-full border border-gray-200 bg-white px-5 py-3.5 pr-12 text-base outline-none focus:ring-2 focus:ring-pink-600/40 shadow-soft" placeholder="Pesquise por festas, DJs..." />
+          <svg class="absolute right-4 top-1/2 -translate-y-1/2" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15.5 15.5L20 20" stroke="#888" stroke-width="2" stroke-linecap="round"/><circle cx="10.5" cy="10.5" r="6.5" stroke="#888" stroke-width="2"/></svg>
+        </div>
+      </div>
+      <div class="rounded-3xl overflow-hidden shadow-soft ring-subtle">
+        <img class="w-full h-[280px] md:h-[420px] object-cover" src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=1600&auto=format&fit=crop" alt="Brinde em festa no Rio"/>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOME SECTIONS -->
+  <main id="home-view" class="max-w-6xl mx-auto px-4 pb-24 space-y-12">
+    <section>
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Destaques da Semana</h2>
+      </div>
+      <div id="carousel-week-top" class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"></div>
+      <div id="empty-week-top" class="hidden mt-6 text-center text-gray-500">Nenhum evento nos próximos 7 dias.</div>
+    </section>
+    
+    <section>
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos Populares</h2>
+      </div>
+      <div id="carousel-popular" class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"></div>
+      <div id="empty-popular" class="hidden mt-6 text-center text-gray-500">Nenhum evento com confirmações ainda.</div>
+    </section>
+
+    <section>
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos por Dia</h2>
+      </div>
+      <div id="weekday-menu" class="mt-3 flex gap-2 overflow-x-auto pb-2 -mx-4 px-4"></div>
+      <div id="carousel-byday" class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"></div>
+      <div id="empty-byday" class="hidden mt-6 text-center text-gray-500">Sem eventos nesse dia.</div>
+    </section>
+
+    <section>
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Outros Eventos</h2>
+      </div>
+      <div id="carousel-others" class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"></div>
+      <div id="empty-others" class="hidden mt-6 text-center text-gray-500">Nenhum outro evento encontrado.</div>
+    </section>
+
+    <section>
+      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Resultados da Busca</h2>
+      <div class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="grid-events"></div>
+      <div id="empty-feed" class="hidden mt-10 text-center text-gray-500">Nenhum evento encontrado.</div>
+    </section>
+  </main>
+
+  <!-- PÁGINA SOBRE -->
+  <section id="view-about" class="hidden max-w-3xl mx-auto px-4 pb-28">
+    <div class="bg-white rounded-3xl p-6 md:p-10 shadow-soft ring-subtle">
+      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-center">Sobre o RioFestas</h2>
+      <div class="mt-6 prose prose-lg max-w-none text-gray-700">
+        <p>O Rio Festas é um aplicativo criado para conectar pessoas e experiências na noite carioca. Nosso propósito é simples: aproximar você das festas mais comentadas do Rio de Janeiro e mostrar em quais eventos seus amigos e conhecidos estarão presentes. Acreditamos que sair de casa fica muito mais divertido quando você sabe onde sua galera vai estar.</p>
+        
+        <h3>Nosso Objetivo</h3>
+        <p>O app nasceu para facilitar a vida de quem ama curtir festas, música e encontros sociais. Com o Rio Festas, você pode:</p>
+        <ul>
+          <li>Descobrir em quais eventos seus amigos, amigos de amigos e pessoas que você segue vão marcar presença.</li>
+          <li>Confirmar sua ida a festas, permitindo que seus seguidores acompanhem sua agenda de rolês.</li>
+          <li>Ser redirecionado para sites de venda de ingressos, garantindo sua entrada nos melhores eventos.</li>
+          <li>Explorar a aba principal com as festas mais em alta e os eventos da semana, sempre atualizados.</li>
+        </ul>
+        <p>Além disso, o Rio Festas tem um sistema de seguidores, permitindo interação com amigos e troca de experiências sobre festas passadas e futuras.</p>
+        <p>Nosso compromisso é tornar a sua busca por diversão mais prática e social, transformando cada noite no Rio em uma oportunidade de viver momentos inesquecíveis com as pessoas certas.</p>
+      </div>
+
+      <div class="mt-8 text-center">
+        <a id="whatsapp-support-link" href="https://wa.me/5521000000000" target="_blank" class="inline-flex items-center gap-3 rounded-full bg-emerald-500 px-6 py-3 text-lg font-semibold text-white shadow-lg hover:bg-emerald-600 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Suporte via WhatsApp
+        </a>
+      </div>
+
+      <div class="mt-10 text-center text-sm text-gray-500">
+        <p>Veja nossa <a href="https://firebasestorage.googleapis.com/v0/b/riofestas2.firebasestorage.app/o/termos%20de%20uso.html?alt=media&token=f7f7a4f3-b414-4bb8-b631-e2704652eb83" target="_blank" class="font-semibold text-pink-600 hover:underline">Política de Privacidade e Termos de Uso</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PÁGINA SOCIAL -->
+  <section id="view-social" class="hidden max-w-6xl mx-auto px-4 pb-28">
+      <main class="space-y-12">
+        <section>
+          <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+            <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Notificações</h2>
+            <div class="flex items-center gap-4 w-full md:w-auto">
+                <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer flex-1"><input id="account-notify-check" type="checkbox" class="h-4 w-4 cursor-pointer"> Notificação de confirmação dos meus amigos</label>
+                <button id="clear-all-notifs-btn" class="text-sm font-semibold text-red-600 hover:text-red-800 flex-shrink-0">Limpar Tudo</button>
+            </div>
+          </div>
+          <div id="notifications-list" class="mt-4 space-y-3"></div>
+          <div id="empty-notifications" class="hidden mt-6 text-center text-gray-500">Nenhuma notificação nova.</div>
+        </section>
+
+        <section>
+          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Encontre Pessoas</h2>
+          <div class="mt-4">
+            <input id="user-search-input" class="w-full rounded-full border border-gray-200 bg-white px-5 py-3 text-base outline-none focus:ring-2 focus:ring-pink-600/40 shadow-soft" placeholder="Buscar por nome de usuário..." />
+          </div>
+          <div id="user-search-results" class="mt-6 grid gap-4"></div>
+        </section>
+        
+        <section>
+          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos que seus amigos vão</h2>
+          <div id="carousel-friends-popular" class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"></div>
+          <div id="empty-friends-popular" class="hidden mt-6 text-center text-gray-500">Ninguém que você segue confirmou presença ainda.</div>
+        </section>
+
+        <section>
+          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos mais populares da rede</h2>
+          <div id="carousel-social-popular" class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"></div>
+          <div id="empty-social-popular" class="hidden mt-6 text-center text-gray-500">Nenhum evento com confirmações ainda.</div>
+        </section>
+      </main>
+  </section>
+
+  <!-- PÁGINA DE PERFIL -->
+  <section id="view-profile" class="hidden max-w-xl mx-auto px-4 pb-28">
+    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Meu Perfil</h2>
+    <form id="account-form" class="mt-4 space-y-4 rounded-3xl bg-white p-6 shadow-soft ring-subtle">
+      <div>
+        <label class="text-sm font-medium text-gray-700">Nome de Exibição</label>
+        <input id="account-name" type="text" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" required />
+      </div>
+      <div>
+        <label class="text-sm font-medium text-gray-700">Nome de Usuário (@...)</label>
+        <input id="account-username" type="text" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" required readonly />
+        <p class="text-xs text-gray-500 mt-1">O nome de usuário não pode ser alterado.</p>
+      </div>
+      <div>
+        <label class="text-sm font-medium text-gray-700">Foto de Perfil</label>
+        <div class="mt-1 flex items-center gap-4">
+            <img id="account-photo-preview" src="https://placehold.co/64x64/f472b6/ffffff?text=U" class="h-16 w-16 rounded-full object-cover bg-gray-200 ring-4 ring-white shadow-sm">
+            <label for="account-photo-upload" class="cursor-pointer rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50">
+                Trocar Foto
+            </label>
+            <input id="account-photo-upload" type="file" class="hidden" accept="image/jpeg,image/png,image/webp">
+        </div>
+      </div>
+      <div>
+        <label class="text-sm font-medium text-gray-700">Sua Bio</label>
+        <textarea id="account-bio" class="mt-1 w-full min-h-[80px] rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" placeholder="Fale um pouco sobre você..."></textarea>
+      </div>
+      <div id="account-error" class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
+      <div class="flex justify-end">
+        <button type="submit" class="inline-flex items-center rounded-full bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90">Salvar Perfil</button>
+      </div>
+    </form>
+    <div class="mt-6 rounded-3xl bg-white p-6 shadow-soft ring-subtle">
+        <div class="flex border-b border-gray-200">
+            <button data-tab="followers" class="tab-btn flex-1 pb-3 font-semibold border-b-2 border-pink-600 text-pink-600">Seguidores</button>
+            <button data-tab="following" class="tab-btn flex-1 pb-3 font-semibold border-b-2 border-transparent text-gray-500">Seguindo</button>
+        </div>
+        <div id="followers-list" class="mt-4 space-y-3"></div>
+        <div id="following-list" class="mt-4 space-y-3 hidden"></div>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="view-admin" class="hidden max-w-6xl mx-auto px-4 pb-28">
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Painel Admin</h2>
+      <div class="flex items-center gap-2">
+        <button id="btn-new-event" class="inline-flex items-center rounded-full bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90">Novo Evento</button>
+      </div>
+    </div>
+    <div class="mt-6 grid gap-4 md:grid-cols-3">
+      <div class="rounded-3xl bg-white p-4 shadow-soft ring-subtle md:col-span-2">
+        <h3 class="text-lg font-semibold">Gerenciar administradores</h3>
+        <p class="text-sm text-gray-600 mb-3">Conceda ou remova acesso de administrador por e-mail.</p>
+        <div class="flex flex-col gap-2 sm:flex-row">
+          <input id="role-email" type="email" placeholder="email@exemplo.com" class="flex-1 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35"/>
+          <button id="btn-grant-admin" class="rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90">Tornar Admin</button>
+          <button id="btn-revoke-admin" class="rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90">Remover Admin</button>
+        </div>
+        <div id="role-error" class="hidden mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
+      </div>
+      <div class="rounded-3xl bg-white p-4 shadow-soft ring-subtle">
+        <h3 class="text-lg font-semibold mb-2">Admins atuais</h3>
+        <ul id="admins-list" class="space-y-2 text-sm text-gray-700"></ul>
+      </div>
+    </div>
+    <div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
+        <h3 class="text-lg font-semibold">Configurações Gerais</h3>
+        <p class="text-sm text-gray-600 mb-3">Gerencie links e outras configurações globais.</p>
+        <form id="general-settings-form" class="space-y-3">
+            <div>
+                <label for="whatsapp-link-input" class="text-sm font-medium">Link do WhatsApp para Suporte</label>
+                <input id="whatsapp-link-input" type="url" placeholder="https://wa.me/55..." class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35"/>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90">Salvar Configurações</button>
+            </div>
+        </form>
+    </div>
+    <div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
+      <h3 class="text-lg font-semibold">Gerenciar Locais/Eventos Recorrentes</h3>
+      <p class="text-sm text-gray-600 mb-3">Adicione locais que recebem eventos com frequência para agrupar avaliações.</p>
+      <form id="recurring-event-form" class="flex gap-2">
+        <input id="recurring-event-name" type="text" placeholder="Nome do Local/Evento Recorrente" class="flex-1 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" required />
+        <button type="submit" class="rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90">Salvar</button>
+      </form>
+      <div id="recurring-event-error" class="hidden mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
+      <div id="recurring-events-list" class="mt-4 divide-y divide-gray-100"></div>
+    </div>
+    <div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
+      <h3 class="text-lg font-semibold">Solicitações de Organizadores</h3>
+      <p class="text-sm text-gray-600 mb-3">Aprovar ou recusar cadastro de empresas.</p>
+      <div id="org-requests" class="divide-y divide-gray-100"></div>
+    </div>
+    <div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
+      <h3 class="text-lg font-semibold">Gerenciar Organizadores</h3>
+      <p class="text-sm text-gray-600 mb-3">Remover acesso de organizadores aprovados.</p>
+      <div id="approved-organizers-list" class="divide-y divide-gray-100"></div>
+    </div>
+    <div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
+      <h3 class="text-lg font-semibold">Eventos pendentes</h3>
+      <p class="text-sm text-gray-600 mb-3">Aguardando aprovação. Você pode editar antes de aprovar.</p>
+      <div id="pending-events" class="grid gap-3"></div>
+    </div>
+    <div class="mt-6 rounded-3xl md:bg-white md:shadow-soft md:ring-subtle md:overflow-hidden">
+      <div class="admin-table-container max-h-[60vh] md:overflow-auto">
+        <table class="min-w-full md:divide-y md:divide-gray-200">
+          <thead class="bg-gray-50/60">
+            <tr class="text-left text-sm text-gray-600">
+              <th class="px-4 py-3 font-semibold">Evento</th>
+              <th class="px-4 py-3 font-semibold">Local</th>
+              <th class="px-4 py-3 font-semibold">Data</th>
+              <th class="px-4 py-3 font-semibold">Importância (0–10)</th>
+              <th class="px-4 py-3 font-semibold">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="admin-tbody" class="bg-transparent md:divide-y md:divide-gray-200 md:bg-white"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL: LOGIN -->
+  <div id="auth-login" class="fixed inset-0 z-[80] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="auth-login"></div>
+    <div class="relative z-[81] mx-auto mt-20 w-[92%] max-w-md rounded-3xl bg-white p-8 shadow-soft ring-subtle pop">
+      <button class="absolute right-3 top-3 rounded-full p-2 hover:bg-gray-100" data-close="auth-login" aria-label="Fechar">✕</button>
+      <div class="text-center mb-6">
+        <h3 class="text-2xl font-extrabold">Bem-vindo!</h3>
+        <p class="text-sm text-gray-500">Acesse sua conta para continuar.</p>
+      </div>
+      <form id="form-login" class="space-y-4">
+        <input id="login-email" type="email" class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" placeholder="E-mail" required />
+        <input id="login-pass" type="password" class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" placeholder="Senha" required />
+        <div class="flex items-center justify-between text-sm">
+          <button type="button" id="btn-forgot" class="text-pink-600 font-semibold">Esqueceu a senha?</button>
+          <button type="button" id="switch-register" class="text-pink-600 font-semibold" onclick="document.getElementById('auth-login').classList.add('hidden');document.getElementById('auth-register').classList.remove('hidden')">Registrar-se</button>
+        </div>
+        <div id="err-login" class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
+        <button id="submit-login" class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90">Entrar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTER (com opção de organizador) -->
+  <div id="auth-register" class="fixed inset-0 z-[80] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="auth-register"></div>
+    <div class="relative z-[81] mx-auto mt-20 w-[92%] max-w-xl rounded-3xl bg-white p-8 shadow-soft ring-subtle pop">
+      <button class="absolute right-3 top-3 rounded-full p-2 hover:bg-gray-100" data-close="auth-register" aria-label="Fechar">✕</button>
+      <div class="text-center mb-6">
+        <h3 class="text-2xl font-extrabold">Crie sua Conta</h3>
+        <p class="text-sm text-gray-500">Leva menos de um minuto.</p>
+      </div>
+      <form id="form-register" class="space-y-4">
+        <div class="grid gap-3 md:grid-cols-2">
+          <input id="reg-name"  type="text"     class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" placeholder="Nome completo" required />
+          <input id="reg-username" type="text"  class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" placeholder="Nome de usuário (@exemplo)" required />
+          <input id="reg-email" type="email"    class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" placeholder="E-mail" required />
+          <input id="reg-pass"  type="password" class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" placeholder="Senha (mín. 6)" required />
+        </div>
+        <label class="flex items-center gap-2 select-none text-sm"><input id="reg-organizer-check" type="checkbox" class="h-4 w-4"> Sou organizador de eventos</label>
+        <div id="reg-organizer-form" class="hidden grid gap-3 md:grid-cols-2">
+          <input id="org-company"  class="rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" placeholder="Nome da empresa"/>
+          <input id="org-cnpj"     class="rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" placeholder="CNPJ (opcional)"/>
+          <input id="org-phone"    class="rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" placeholder="Telefone"/>
+          <input id="org-website"  class="rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" placeholder="Site ou Instagram"/>
+          <textarea id="org-about" class="md:col-span-2 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" placeholder="Sobre a empresa"></textarea>
+        </div>
+        <div class="flex items-start gap-2 text-sm">
+          <input type="checkbox" id="reg-terms" class="mt-0.5" required>
+          <label for="reg-terms" class="text-gray-600">Eu li e aceito os <a href="https://firebasestorage.googleapis.com/v0/b/riofestas2.firebasestorage.app/o/termos%20de%20uso.html?alt=media&token=f7f7a4f3-b414-4bb8-b631-e2704652eb83" target="_blank" class="text-pink-600 hover:underline">Termos de Uso e a Política de Privacidade</a>.</label>
+        </div>
+        <div id="err-register" class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
+        <button id="submit-register" class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90">Registrar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: NEW / EDIT EVENT (ADMIN) -->
+  <div id="event-modal" class="fixed inset-0 z-[60] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="event"></div>
+    <div class="relative z-[61] mx-auto mt-8 w-[94%] max-w-2xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[88vh] flex flex-col">
+      <div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
+        <h3 id="event-modal-title" class="text-xl font-semibold">Novo Evento</h3>
+        <button class="rounded-full p-2 hover:bg-gray-100" data-close="event" aria-label="Fechar">✕</button>
+      </div>
+      <form id="event-form" class="px-6 pb-3 overflow-y-auto">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div class="md:col-span-2">
+            <label class="text-[13px] font-medium text-gray-700">Nome do Evento</label>
+            <input id="ev-name" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="text" required />
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Data</label>
+            <input id="ev-date" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="date" required />
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Horário (início)</label>
+            <input id="ev-time-start" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="time" />
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Horário (fim)</label>
+            <input id="ev-time-end" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="time" />
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Local (ex: Lapa)</label>
+            <input id="ev-local" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="text" required />
+          </div>
+          <div class="md:col-span-2">
+            <label class="text-[13px] font-medium text-gray-700">Local/Evento Recorrente (Opcional)</label>
+            <select id="ev-recurring" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35">
+              <option value="">Nenhum</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label class="text-[13px] font-medium text-gray-700">Descrição</label>
+            <textarea id="ev-desc" class="mt-1 w-full min-h-[100px] rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" placeholder="Detalhes do evento..."></textarea>
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Estilo Musical</label>
+            <input id="ev-style" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="text" placeholder="Funk / Eletrônica / Samba" />
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Link de Compra</label>
+            <input id="ev-buy" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="url" placeholder="https://..." />
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Cupom de Desconto</label>
+            <input id="ev-coupon" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="text" placeholder="RIO10" />
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Importância (0–10)</label>
+            <div class="mt-1 flex items-center gap-3">
+              <input id="ev-importance" class="w-full" type="range" min="0" max="10" value="5" step="1" />
+              <span id="ev-importance-value" class="w-10 text-right font-semibold">5</span>
+            </div>
+          </div>
+          <div class="md:col-span-2">
+            <label class="text-[13px] font-medium text-gray-700">Fotos do Evento</label>
+            <div class="mt-1">
+                <label for="ev-photo-upload" class="w-full inline-block text-center rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white cursor-pointer hover:opacity-90">
+                    Selecionar Fotos
+                </label>
+                <input id="ev-photo-upload" type="file" class="hidden" multiple accept="image/jpeg,image/png,image/webp">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Selecione uma ou mais imagens (JPG, PNG, WEBP). Você pode remover imagens abaixo.</p>
+            <div id="preview-photos" class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4"></div>
+          </div>
+          <div id="event-error" class="md:col-span-2 hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
+        </div>
+        <div class="sticky bottom-0 z-10 -mx-6 mt-4 bg-gradient-to-t from-white via-white/95 to-white/0 px-6 pt-3 pb-4 border-t border-gray-100 flex items-center justify-end gap-2">
+          <button type="button" class="inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="event">Cancelar</button>
+          <button id="btn-save-event" type="submit" class="inline-flex items-center rounded-full bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90">Salvar Evento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: EVENTO (ORGANIZADOR) sem prioridade -->
+  <div id="org-event-modal" class="fixed inset-0 z-[60] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="org-event"></div>
+    <div class="relative z-[61] mx-auto mt-8 w-[94%] max-w-2xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[88vh] flex flex-col">
+      <div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
+        <h3 class="text-xl font-semibold">Criar evento (Organizador)</h3>
+        <button class="rounded-full p-2 hover:bg-gray-100" data-close="org-event" aria-label="Fechar">✕</button>
+      </div>
+      <form id="org-event-form" class="px-6 pb-3 overflow-y-auto">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div class="md:col-span-2">
+            <label class="text-[13px] font-medium text-gray-700">Nome do Evento</label>
+            <input id="org-ev-name" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="text" required />
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Data</label>
+            <input id="org-ev-date" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="date" required />
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Horário (início)</label>
+            <input id="org-ev-time-start" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="time" />
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Horário (fim)</label>
+            <input id="org-ev-time-end" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="time" />
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Local</label>
+            <input id="org-ev-local" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="text" required />
+          </div>
+          <div class="md:col-span-2">
+            <label class="text-[13px] font-medium text-gray-700">Local/Evento Recorrente (Opcional)</label>
+            <select id="org-ev-recurring" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35">
+              <option value="">Nenhum</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label class="text-[13px] font-medium text-gray-700">Descrição</label>
+            <textarea id="org-ev-desc" class="mt-1 w-full min-h-[100px] rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" placeholder="Detalhes do evento..."></textarea>
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Estilo Musical</label>
+            <input id="org-ev-style" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="text" />
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Link de Compra</label>
+            <input id="org-ev-buy" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="url" />
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Cupom de Desconto</label>
+            <input id="org-ev-coupon" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="text" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="text-[13px] font-medium text-gray-700">Fotos</label>
+            <div class="mt-1">
+                <label for="org-ev-photo-upload" class="w-full inline-block text-center rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white cursor-pointer hover:opacity-90">
+                    Selecionar Fotos
+                </label>
+                <input id="org-ev-photo-upload" type="file" class="hidden" multiple accept="image/jpeg,image/png,image/webp">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Selecione uma ou mais imagens (JPG, PNG, WEBP). Você pode remover imagens abaixo.</p>
+            <div id="org-preview-photos" class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4"></div>
+          </div>
+          <div id="org-event-error" class="md:col-span-2 hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
+        </div>
+        <div class="sticky bottom-0 z-10 -mx-6 mt-4 bg-gradient-to-t from-white via-white/95 to-white/0 px-6 pt-3 pb-4 border-t border-gray-100 flex items-center justify-end gap-2">
+          <button type="button" class="inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="org-event">Cancelar</button>
+          <button id="org-btn-save" type="submit" class="inline-flex items-center rounded-full bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white">Enviar para aprovação</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: VISUALIZAÇÃO DO EVENTO -->
+  <div id="event-view" class="fixed inset-0 z-[60] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="view"></div>
+    <div class="relative z-[61] mx-auto mt-8 w-[96%] max-w-4xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[92vh] overflow-hidden flex flex-col">
+      <div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
+        <h3 id="view-title" class="text-xl font-semibold">Evento</h3>
+        <button class="rounded-full p-2 hover:bg-gray-100" data-close="view" aria-label="Fechar">✕</button>
+      </div>
+      <div class="grid md:grid-cols-[1.2fr_.8fr] gap-6 p-6 overflow-y-auto">
+        <div>
+          <div id="view-gallery" class="grid grid-cols-1 md:gap-3"></div>
+        </div>
+        <aside class="space-y-4">
+          <div class="rounded-3xl ring-subtle p-4">
+            <div class="text-sm text-gray-500">Data</div>
+            <div id="view-date" class="text-lg font-semibold">—</div>
+            <div class="mt-3 text-sm text-gray-500">Local</div>
+            <div id="view-local" class="text-lg font-semibold">—</div>
+            <div class="mt-3 text-sm text-gray-500">Estilo</div>
+            <div id="view-style" class="text-lg font-semibold">—</div>
+          </div>
+          <div id="view-rating-display-container" class="hidden rounded-3xl ring-subtle p-4"></div>
+          <div class="rounded-3xl ring-subtle p-4">
+            <div class="text-sm text-gray-500">Descrição</div>
+            <p id="view-desc" class="mt-1 text-[15px] leading-relaxed text-gray-700">—</p>
+          </div>
+          <div class="rounded-3xl ring-subtle p-4 space-y-2">
+            <a id="view-buy" target="_blank" class="block w-full text-center rounded-full bg-pink-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">Comprar Ingresso</a>
+            <div class="text-center text-sm text-gray-600">Cupom: <span id="view-coupon" class="font-semibold">—</span></div>
+          </div>
+          <div class="rounded-3xl ring-subtle p-4">
+            <button id="btn-going" class="w-full inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span id="btn-going-text">Confirmar Presença</span>
+            </button>
+            <div id="going-count" class="mt-2 text-center text-xs text-gray-500"></div>
+            <!-- Amigos que vão -->
+            <div id="friends-going-container" class="mt-2 text-center hidden">
+                <button id="friends-going-button" class="inline-flex items-center gap-2 rounded-full bg-pink-50 px-3 py-1.5 text-sm font-semibold text-pink-700 hover:bg-pink-100">
+                    <!-- Text set by JS -->
+                </button>
+            </div>
+          </div>
+          <div id="view-rating-input-container" class="hidden rounded-3xl ring-subtle p-4"></div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE PERFIL DE USUÁRIO -->
+  <div id="user-profile-modal" class="fixed inset-0 z-[70] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="user-profile"></div>
+    <div class="relative z-[71] mx-auto mt-8 w-[96%] max-w-2xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[92vh] overflow-hidden flex flex-col">
+      <div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
+        <h3 id="profile-title" class="text-xl font-semibold">Perfil de Usuário</h3>
+        <button class="rounded-full p-2 hover:bg-gray-100" data-close="user-profile" aria-label="Fechar">✕</button>
+      </div>
+      <div id="profile-content" class="p-6 overflow-y-auto"></div>
+    </div>
+  </div>
+  
+  <!-- MODAL: LISTA DE AMIGOS -->
+  <div id="friends-list-modal" class="fixed inset-0 z-[70] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="friends-list"></div>
+    <div class="relative z-[71] mx-auto mt-20 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xl font-semibold">Amigos que vão</h3>
+        <button class="rounded-full p-2 hover:bg-gray-100" data-close="friends-list" aria-label="Fechar">✕</button>
+      </div>
+      <div id="friends-list-content" class="mt-4 max-h-[60vh] overflow-y-auto space-y-3">
+          <!-- Friends list will be populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LISTA DE SEGUIDORES/SEGUINDO -->
+  <div id="follow-list-modal" class="fixed inset-0 z-[75] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="follow-list"></div>
+    <div class="relative z-[76] mx-auto mt-20 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
+      <div class="flex items-center justify-between">
+        <h3 id="follow-list-title" class="text-xl font-semibold">Lista</h3>
+        <button class="rounded-full p-2 hover:bg-gray-100" data-close="follow-list" aria-label="Fechar">✕</button>
+      </div>
+      <div id="follow-list-content" class="mt-4 max-h-[60vh] overflow-y-auto space-y-2">
+          <!-- User list will be populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Aprovar pendente -->
+  <div id="approve-modal" class="fixed inset-0 z-[70] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="approve"></div>
+    <div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-sm rounded-2xl bg-white p-5 shadow-soft ring-subtle">
+      <h4 class="text-lg font-semibold">Definir importância (0–10)</h4>
+      <div class="mt-3 flex items-center gap-3">
+        <input id="approve-importance" type="range" min="0" max="10" value="5" class="w-full"/>
+        <span id="approve-importance-value" class="w-8 text-right font-semibold">5</span>
+      </div>
+      <div class="mt-4 flex justify-end gap-2">
+        <button class="rounded-full border border-gray-200 px-4 py-2.5 text-sm" data-close="approve">Cancelar</button>
+        <button id="approve-confirm" class="rounded-full bg-pink-600 px-4 py-2.5 text-sm font-semibold text-white">Aprovar</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="organizer-details-modal" class="fixed inset-0 z-[70] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="organizer-details"></div>
+    <div class="relative z-[71] mx-auto mt-20 w-[92%] max-w-lg rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xl font-semibold">Detalhes do Organizador</h3>
+        <button class="rounded-full p-2 hover:bg-gray-100" data-close="organizer-details" aria-label="Fechar">✕</button>
+      </div>
+      <div id="organizer-details-content" class="mt-4 space-y-3 text-sm"></div>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmação para Excluir -->
+  <div id="delete-modal" class="fixed inset-0 z-[70] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="delete"></div>
+    <div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
+      <h4 class="text-lg font-bold">Confirmar Exclusão</h4>
+      <p class="mt-2 text-sm text-gray-600">Você tem certeza que deseja excluir o evento "<span id="delete-event-name" class="font-semibold"></span>"? Esta ação não pode ser desfeita.</p>
+      <div class="mt-5 flex justify-end gap-2">
+        <button class="rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="delete">Cancelar</button>
+        <button id="delete-confirm-btn" class="rounded-full bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="pointer-events-none fixed inset-x-0 top-3 z-[90] flex justify-center"></div>
+
+  <!-- Firebase (ESM) -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+    import {
+      getAuth, setPersistence, browserLocalPersistence, signInAnonymously,
+      onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+      updateProfile, sendPasswordResetEmail, signOut
+    } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+    import {
+      getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc,
+      onSnapshot, serverTimestamp, Timestamp, query, where, getDocs, getDoc,
+      runTransaction, increment, writeBatch, orderBy, limit
+    } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+    import { 
+      getStorage, ref, uploadBytesResumable, getDownloadURL 
+    } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js';
+
+    // --- Config do seu projeto ---
+    const firebaseConfig = {
+      apiKey: 'AIzaSyA_9DrafoKA0dfaprtFvRG5qDt3itFu3Ms',
+      authDomain: 'riofestas2.firebaseapp.com',
+      projectId: 'riofestas2',
+      storageBucket: 'riofestas2.firebasestorage.app',
+      messagingSenderId: '50086400997',
+      appId: '1:50086400997:web:d7440f7bf48d0e087b150c',
+      measurementId: 'G-CCD25NKM4L'
+    };
+
+    // --- Inicialização ---
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // Caminhos
+    const appId = firebaseConfig.appId;
+    const EVENTS_PATH   = `artifacts/${appId}/public/data/events`;
+    const PENDING_PATH  = `artifacts/${appId}/public/data/events_pending`;
+    const USERS_PATH    = `artifacts/${appId}/public/data/users`;
+    const USERNAMES_PATH = `artifacts/${appId}/public/data/usernames`;
+    const ORG_PATH      = `artifacts/${appId}/public/data/organizers`;
+    const RECURRING_EVENTS_PATH = `artifacts/${appId}/public/data/recurringEvents`;
+    const SETTINGS_PATH = `artifacts/${appId}/public/data/settings`;
+
+    // ===== Utils (ÚNICOS) =====
+    const $  = (s)=>document.querySelector(s);
+    const $$ = (s)=>document.querySelectorAll(s);
+    const show = (el)=> el?.classList.remove('hidden');
+    const hide = (el)=> el?.classList.add('hidden');
+    const toast = (msg, ok=true)=>{ const el=document.createElement('div'); el.className=`pointer-events-auto rounded-xl px-4 py-2 text-sm shadow-soft ring-1 ${ok?'bg-white ring-gray-200 text-gray-800':'bg-red-50 ring-red-200 text-red-700'}`; el.textContent=msg; $('#toast').appendChild(el); setTimeout(()=>el.remove(), 3600); };
+    const initials = (s='U') => (s.split(/[\s@._-]+/).filter(Boolean).slice(0,2).map(x=>x[0]?.toUpperCase()).join('')||'U');
+
+    const weekdayLabels = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    const weekdayLong   = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+    const fmtDate = (ts)=>{ try{ const d = ts?.toDate ? ts.toDate() : new Date(ts); if(isNaN(d)) return ''; return `${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})} (${weekdayLabels[d.getDay()]})`; }catch{return ''} };
+    const parseDateInput = (yyyyMmDd)=>{ try{ const [y,m,d]=yyyyMmDd.split('-').map(Number); return new Date(y, (m||1)-1, d||1); }catch{ return new Date(yyyyMmDd) } };
+    
+    function startOfToday(){ const x=new Date(); x.setHours(0,0,0,0); return x; }
+    function next7End(){ const x=startOfToday(); x.setDate(x.getDate()+6); x.setHours(23,59,59,999); return x; }
+
+    // ===== Sessão & roles =====
+    const state = { events:[], pending:[], users:{}, recurringEvents: [], settings: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, userGoingTo: new Set(), userFollowing: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} } };
+    let _unsubRole = null, _unsubEvents=null, _unsubPending=null, _unsubGoingTo=null, _unsubFollowing=null, _unsubNotifications=null, _unsubRecurring=null, _unsubSettings=null;
+
+    const renderHeader = ()=>{
+      const goAdmin = $('#go-admin'), goOrg = $('#go-organizer'), goProfile = $('#go-profile');
+      if(auth.currentUser && !auth.currentUser.isAnonymous){
+        hide($('#nav-auth')); show($('#nav-user'));
+        const user = state.currentUserData;
+        $('#user-label').textContent = user?.name || auth.currentUser.displayName || auth.currentUser.email;
+        if(user?.photoUrl){
+          show($('#user-avatar-img')); hide($('#user-avatar-text'));
+          $('#user-avatar-img').src = user.photoUrl;
+          $('#user-avatar-img').onerror = () => { $('#user-avatar-img').src = 'https://placehold.co/32x32/f472b6/ffffff?text='+initials(user.name); };
+        } else {
+          hide($('#user-avatar-img')); show($('#user-avatar-text'));
+          $('#user-avatar-text').textContent = initials(user?.name || auth.currentUser.displayName || auth.currentUser.email);
+        }
+        goAdmin.classList.toggle('hidden', !state.isAdmin);
+        goOrg.classList.toggle('hidden', !state.isOrganizer);
+        show(goProfile);
+      }else{
+        show($('#nav-auth')); hide($('#nav-user'));
+        hide($('#view-admin'));
+        hide(goProfile);
+      }
+    };
+
+    const openLogin = ()=> show($('#auth-login'));
+    const openRegister = ()=> show($('#auth-register'));
+    const closeLogin = ()=> hide($('#auth-login'));
+    const closeRegister = ()=> hide($('#auth-register'));
+
+    $('#btn-open-login').addEventListener('click', openLogin);
+    $('#btn-open-register').addEventListener('click', openRegister);
+
+    document.addEventListener('click', (e)=>{
+      const el = e.target.closest('[data-close]');
+      if(!el) return;
+      const id = el.dataset.close;
+      
+      let modal;
+      if (id === 'view') {
+        modal = $('#event-view');
+      } else if (id === 'follow-list') {
+        modal = $('#follow-list-modal');
+      } else {
+        modal = $(`#${id}-modal`) || $(`#${id}`);
+      }
+
+      if(modal) hide(modal);
+
+      if(id === 'event') {
+        Object.values(state.eventForm.uploadTasks).forEach(t => t.task.cancel());
+        state.eventForm.uploadTasks = {};
+      }
+      if(id === 'org-event') {
+        Object.values(state.orgEventForm.uploadTasks).forEach(t => t.task.cancel());
+        state.orgEventForm.uploadTasks = {};
+      }
+      if(id==='view') { state.currentViewEvent = null; }
+      if(id==='delete') { state.deleteTarget = null; }
+    });
+
+    // ===== Login =====
+    $('#form-login').addEventListener('submit', async (e)=>{
+      e.preventDefault(); const email=$('#login-email').value.trim(); const pass=$('#login-pass').value; const btn=$('#submit-login'); const old=btn.textContent; btn.textContent='Entrando…'; btn.disabled=true; $('#err-login').classList.add('hidden');
+      try{ 
+        await setPersistence(auth, browserLocalPersistence);
+        await signInWithEmailAndPassword(auth,email,pass); 
+        closeLogin(); 
+        toast('Login realizado!'); 
+      }
+      catch(err){ const b=$('#err-login'); b.textContent=mapAuthErr(err); b.classList.remove('hidden'); }
+      finally{ btn.textContent=old; btn.disabled=false; }
+    });
+
+    // Recuperar senha
+    $('#btn-forgot').addEventListener('click', async()=>{
+      const email=$('#login-email').value.trim(); if(!email){ const b=$('#err-login'); b.textContent='Informe seu e-mail.'; b.classList.remove('hidden'); return; }
+      try{ await sendPasswordResetEmail(auth,email); toast('Enviamos um e-mail para redefinir sua senha. Confira também a caixa de spam.'); }
+      catch(err){ const b=$('#err-login'); b.textContent=mapAuthErr(err); b.classList.remove('hidden'); }
+    });
+
+    $('#reg-organizer-check').addEventListener('change', (e)=> $('#reg-organizer-form').classList.toggle('hidden', !e.target.checked) );
+
+    // Registro
+    $('#form-register').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const name=$('#reg-name').value.trim();
+      let username=$('#reg-username').value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+      const email=$('#reg-email').value.trim(); const pass=$('#reg-pass').value; const isOrg=$('#reg-organizer-check').checked;
+      const btn=$('#submit-register'); const old=btn.textContent; btn.textContent='Registrando…'; btn.disabled=true;
+      const errEl = $('#err-register'); hide(errEl);
+
+      if (!username || !name || !email || pass.length < 6) {
+        errEl.textContent = 'Preencha todos os campos corretamente.'; show(errEl);
+        btn.textContent=old; btn.disabled=false; return;
+      }
+
+      try {
+        await setPersistence(auth, browserLocalPersistence);
+        const usernameRef = doc(db, USERNAMES_PATH, username);
+        const usernameDoc = await getDoc(usernameRef);
+        if (usernameDoc.exists()) {
+          throw new Error(`Usuário @${username} já existe. Tente outro.`);
+        }
+
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        await updateProfile(cred.user, { displayName: name });
+
+        const userData = {
+          admin: false, organizer: false, name, username, email,
+          photoUrl: null, createdAt: serverTimestamp(), bio: '',
+          followersCount: 0, followingCount: 0,
+          settings: { notifyOnFriendGoing: true }
+        };
+        await setDoc(doc(db, USERS_PATH, cred.user.uid), userData);
+        await setDoc(usernameRef, { uid: cred.user.uid }); // Reserva o username
+
+        if (isOrg) {
+          const orgData={ uid:cred.user.uid, email, name, company:$('#org-company').value.trim()||null, cnpj:$('#org-cnpj').value.trim()||null, phone:$('#org-phone').value.trim()||null, website:$('#org-website').value.trim()||null, about:$('#org-about').value.trim()||null, status:'pending', createdAt:serverTimestamp() };
+          await addDoc(collection(db, ORG_PATH), orgData);
+          toast('Solicitação de organizador enviada! Aguarde aprovação.');
+        } else {
+          toast('Conta criada com sucesso!');
+        }
+        closeRegister();
+      } catch(err) {
+        errEl.textContent = err.message.includes('@') ? err.message : mapAuthErr(err);
+        show(errEl);
+      } finally {
+        btn.textContent=old; btn.disabled=false;
+      }
+    });
+
+    onAuthStateChanged(auth, (user)=>{
+      const unsubAll = () => {
+        if(_unsubRole) _unsubRole();
+        if(_unsubGoingTo) _unsubGoingTo();
+        if(_unsubFollowing) _unsubFollowing();
+        if(_unsubNotifications) _unsubNotifications();
+        _unsubRole = _unsubGoingTo = _unsubFollowing = _unsubNotifications = null;
+      };
+      unsubAll();
+      
+      state.isAdmin=false; state.isOrganizer=false; state.currentUserData=null; state.userGoingTo.clear(); state.userFollowing.clear();
+
+      if (user && !user.isAnonymous) {
+        _unsubRole = onSnapshot(doc(db, USERS_PATH, user.uid), (d)=>{
+          const u=d.data()||{};
+          state.isAdmin=!!u.admin;
+          state.isOrganizer=!!u.organizer;
+          state.currentUserData = u;
+          renderHeader();
+          if(!state.isAdmin) hide($('#view-admin'));
+        }, ()=>{ state.isAdmin=false; state.isOrganizer=false; renderHeader(); hide($('#view-admin')); });
+
+        const goingToRef = collection(db, `artifacts/${appId}/users/${user.uid}/goingTo`);
+        _unsubGoingTo = onSnapshot(goingToRef, (snap) => {
+          state.userGoingTo.clear();
+          snap.forEach(doc => state.userGoingTo.add(doc.id));
+          updateGoingButtonUI();
+          updateFriendsGoingMap();
+        });
+
+        const followingRef = collection(db, `artifacts/${appId}/users/${user.uid}/following`);
+        _unsubFollowing = onSnapshot(followingRef, (snap) => {
+            state.userFollowing.clear();
+            snap.forEach(doc => state.userFollowing.add(doc.id));
+            renderSocialFeeds();
+            updateFriendsGoingMap();
+        });
+
+        const notificationsRef = query(collection(db, `artifacts/${appId}/users/${user.uid}/notifications`), orderBy('timestamp', 'desc'), limit(20));
+        _unsubNotifications = onSnapshot(notificationsRef, (snap) => {
+            const notifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderNotifications(notifications);
+        });
+      } else {
+        if (!user) {
+          signInAnonymously(auth).catch(err => console.error("Anonymous sign-in failed:", err));
+        }
+        renderHeader();
+      }
+    });
+
+    $('#btn-user').addEventListener('click', (e)=>{ e.stopPropagation(); $('#user-menu').classList.toggle('hidden'); });
+    document.addEventListener('click', ()=> $('#user-menu').classList.add('hidden'));
+    $('#btn-logout').addEventListener('click', async()=>{ await signOut(auth); toast('Você saiu da sua conta.'); hide($('#view-admin')); });
+
+    // ===== Navegação =====
+    const allViews = ['#home-view', '#view-admin', '#view-social', '#hero-section', '#view-profile', '#view-about'];
+    function showView(viewId) {
+      allViews.forEach(v => hide($(v)));
+      show($(viewId));
+      if (viewId === '#home-view') show($('#hero-section'));
+      window.scrollTo(0, 0);
+    }
+    $('#logo-link').addEventListener('click', () => showView('#home-view'));
+    $('#btn-home-header').addEventListener('click', () => showView('#home-view'));
+    $('#btn-about-header').addEventListener('click', () => showView('#view-about'));
+    $('#btn-social-header').addEventListener('click', () => {
+      if (auth.currentUser && !auth.currentUser.isAnonymous) {
+        openSocialView();
+      } else {
+        openLogin();
+      }
+    });
+    $('#go-profile').addEventListener('click', () => {
+        if (auth.currentUser && !auth.currentUser.isAnonymous) {
+            openProfileView();
+        } else {
+            openLogin();
+        }
+    });
+    $('#go-admin').addEventListener('click', ()=>{ if(!ensureAdmin()) return; showView('#view-admin'); });
+    
+    function openSocialView() {
+        if (!state.currentUserData) return;
+        $('#account-notify-check').checked = state.currentUserData.settings?.notifyOnFriendGoing ?? true;
+        showView('#view-social');
+        renderSocialFeeds();
+    }
+    
+    function openProfileView() {
+        if (!state.currentUserData) return;
+        const u = state.currentUserData;
+        $('#account-name').value = u.name || '';
+        $('#account-username').value = u.username || '';
+        $('#account-bio').value = u.bio || '';
+        $('#account-photo-preview').src = u.photoUrl || `https://placehold.co/64x64/f472b6/ffffff?text=${initials(u.name)}`;
+        state.newProfilePhotoUrl = null;
+        showView('#view-profile');
+        loadFollowLists();
+    }
+
+    // ===== Realtime: eventos e usuários =====
+    function subEvents(){
+      if(_unsubEvents) _unsubEvents();
+      _unsubEvents = onSnapshot(collection(db, EVENTS_PATH), (snap)=>{
+        state.events = snap.docs.map(d=>({ _id: d.id, _ref: d.ref, _path: d.ref.path, ...d.data() }));
+        renderAllHome(); renderAdminTable(); renderSocialFeeds();
+      }, (err)=>{ console.error(err); toast('Erro ao carregar eventos.', false); });
+    }
+    subEvents();
+
+    function subPending(){
+      if(_unsubPending) _unsubPending();
+      _unsubPending = onSnapshot(collection(db, PENDING_PATH), (snap)=>{
+        state.pending = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+        renderPending();
+      }, ()=>{});
+    }
+    subPending();
+    
+    function subRecurringEvents() {
+        if (_unsubRecurring) _unsubRecurring();
+        _unsubRecurring = onSnapshot(collection(db, RECURRING_EVENTS_PATH), (snap) => {
+            state.recurringEvents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderRecurringEventsAdmin();
+            populateRecurringEventsDropdown();
+        });
+    }
+    subRecurringEvents();
+
+    function subSettings() {
+      if (_unsubSettings) _unsubSettings();
+      _unsubSettings = onSnapshot(doc(db, SETTINGS_PATH, 'global'), (doc) => {
+        if (doc.exists()) {
+          state.settings = doc.data();
+          // Update UI elements that depend on global settings
+          $('#whatsapp-support-link').href = state.settings.whatsappLink || 'https://wa.me/5521000000000';
+          $('#whatsapp-link-input').value = state.settings.whatsappLink || '';
+        }
+      });
+    }
+    subSettings();
+
+    onSnapshot(collection(db, USERS_PATH), (snap) => {
+        const newUsers = {};
+        snap.forEach(d => {
+            newUsers[d.id] = { id: d.id, ...d.data() };
+        });
+        state.users = newUsers;
+    });
+
+    // ===== Admin gate =====
+    function ensureAdmin(){ if(!auth.currentUser || auth.currentUser.isAnonymous){ openLogin(); toast('Faça login para acessar o Admin.', false); return false } if(!state.isAdmin){ toast('Sua conta não possui acesso de administrador.', false); return false } return true; }
+    $('#btn-new-event').addEventListener('click', ()=>{ if(!ensureAdmin()) return; openEventModal('create') });
+
+    // ===== Organizador =====
+    $('#go-organizer').addEventListener('click', ()=>{ openEventModal('org-create'); });
+    $('#org-event-form').addEventListener('submit', async (e)=>{
+      e.preventDefault(); if(!auth.currentUser || auth.currentUser.isAnonymous){ openLogin(); return }
+      if(!state.isOrganizer){ toast('Apenas organizadores aprovados podem enviar eventos.', false); return }
+      
+      const formState = state.orgEventForm;
+      if (Object.values(formState.uploadTasks).some(t => t.status === 'running')) {
+        return showOrgEventError('Aguarde o fim de todos os uploads.');
+      }
+
+      const name=$('#org-ev-name').value.trim(); const dateS=$('#org-ev-date').value; const local=$('#org-ev-local').value.trim();
+      if(!name||!dateS||!local) return showOrgEventError('Preencha nome, data e local.');
+      if(formState.imageUrls.length===0) return showOrgEventError('Adicione pelo menos uma foto.');
+      
+      try{
+        const when=parseDateInput(dateS); const payload={ name, local, description:$('#org-ev-desc').value.trim(), style:$('#org-ev-style').value.trim(), buyLink:$('#org-ev-buy').value.trim(), coupon:$('#org-ev-coupon').value.trim(), imageUrls: formState.imageUrls, date: Timestamp.fromDate(when), timeStart: $('#org-ev-time-start').value||null, timeEnd: $('#org-ev-time-end').value||null, createdBy: auth.currentUser.uid, createdAt: serverTimestamp(), status:'pending', recurringEventId: $('#org-ev-recurring').value || null };
+        await addDoc(collection(db, PENDING_PATH), payload); hide($('#org-event-modal')); toast('Evento enviado para aprovação!');
+      }catch(err){ console.error(err); showOrgEventError('Falha ao enviar evento.'); }
+    });
+    function showOrgEventError(m){ const b=$('#org-event-error'); b.textContent=m; b.classList.remove('hidden'); }
+
+    // ===== Gestão de admins =====
+    async function findUserByEmail(email){ const qRef=query(collection(db, USERS_PATH), where('email','==',email)); const snap=await getDocs(qRef); return snap.docs.map(d=>({id:d.id, ...d.data()})); }
+    async function refreshAdminsList(){ const ul=$('#admins-list'); ul.innerHTML=''; const qRef=query(collection(db, USERS_PATH), where('admin','==', true)); const snap=await getDocs(qRef); if(snap.empty){ ul.innerHTML='<li class="text-gray-500">Nenhum admin definido.</li>'; return } snap.forEach(docu=>{ const u={ id:docu.id, ...docu.data() }; const li=document.createElement('li'); li.className='flex items-center justify-between rounded-xl border border-gray-200 px-3 py-2'; li.innerHTML=`<div class='flex items-center gap-2'><span class='inline-grid h-7 w-7 place-items-center rounded-full bg-pink-600 text-white text-xs font-bold'>${initials(u.name||u.email||'U')}</span><div><div class='font-medium text-sm'>${u.name||'—'}</div><div class='text-xs text-gray-500'>${u.email||''}</div></div></div><button class='text-red-600 text-sm font-semibold' data-remove='${u.id}'>Remover</button>`; li.querySelector('[data-remove]').addEventListener('click', async()=>{ if(!ensureAdmin()) return; await setDoc(doc(db, USERS_PATH, u.id), {admin:false}, {merge:true}); toast('Admin removido.'); refreshAdminsList(); }); ul.appendChild(li); }); }
+    $('#btn-grant-admin').addEventListener('click', async()=>{ if(!ensureAdmin()) return; const email=$('#role-email').value.trim(); const err=$('#role-error'); err.classList.add('hidden'); try{ if(!email) throw new Error('Informe o e-mail.'); const users=await findUserByEmail(email); if(!users.length) throw new Error('Usuário não encontrado.'); await setDoc(doc(db, USERS_PATH, users[0].id), { admin:true }, { merge:true }); toast('Admin concedido.'); refreshAdminsList(); }catch(e){ err.textContent=e.message||'Falha ao conceder.'; err.classList.remove('hidden'); } });
+    $('#btn-revoke-admin').addEventListener('click', async()=>{ if(!ensureAdmin()) return; const email=$('#role-email').value.trim(); const err=$('#role-error'); err.classList.add('hidden'); try{ if(!email) throw new Error('Informe o e-mail.'); const users=await findUserByEmail(email); if(!users.length) throw new Error('Usuário não encontrado.'); await setDoc(doc(db, USERS_PATH, users[0].id), { admin:false }, { merge:true }); toast('Admin removido.'); refreshAdminsList(); }catch(e){ err.textContent=e.message||'Falha ao remover.'; err.classList.remove('hidden'); } });
+
+    // ===== Solicitações de organizador (admin) =====
+    function openOrganizerDetailsModal(orgData) {
+      const content = $('#organizer-details-content');
+      content.innerHTML = `
+        <p><strong>Empresa:</strong> ${orgData.company || 'Não informado'}</p>
+        <p><strong>Nome:</strong> ${orgData.name || 'Não informado'}</p>
+        <p><strong>Email:</strong> ${orgData.email || 'Não informado'}</p>
+        <p><strong>CNPJ:</strong> ${orgData.cnpj || 'Não informado'}</p>
+        <p><strong>Telefone:</strong> ${orgData.phone || 'Não informado'}</p>
+        <p><strong>Site/Social:</strong> ${orgData.website ? `<a href="${orgData.website}" target="_blank" class="text-pink-600 hover:underline">${orgData.website}</a>` : 'Não informado'}</p>
+        <p><strong>Sobre:</strong> ${orgData.about || 'Não informado'}</p>
+      `;
+      show($('#organizer-details-modal'));
+    }
+
+    async function renderOrgRequests(){
+      const wrap=$('#org-requests'); wrap.innerHTML='';
+      const qSnap=await getDocs(query(collection(db, ORG_PATH), where('status','==','pending')));
+      if(qSnap.empty){ wrap.innerHTML='<div class="py-3 text-sm text-gray-500">Sem solicitações pendentes.</div>'; return }
+      qSnap.forEach(d=>{
+        const r={id:d.id,...d.data()};
+        const el=document.createElement('div');
+        el.className='py-3 flex items-start justify-between gap-3';
+        el.innerHTML=`
+          <div>
+            <div class='font-medium'>${r.company||r.name||r.email}</div>
+            <div class='text-xs text-gray-500'>${r.email}</div>
+          </div>
+          <div class='flex items-center flex-shrink-0 gap-2'>
+            <button class='rounded-full border border-gray-200 px-3 py-1.5 text-xs' data-details>Ver mais</button>
+            <button class='rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white' data-approve>Aprovar</button>
+            <button class='rounded-full bg-red-600 px-3 py-1.5 text-xs font-semibold text-white' data-reject>Recusar</button>
+          </div>`;
+        el.querySelector('[data-details]').addEventListener('click', () => openOrganizerDetailsModal(r));
+        el.querySelector('[data-approve]').addEventListener('click', async()=>{ if(!ensureAdmin()) return; await setDoc(doc(db, ORG_PATH, r.id), {status:'approved', approvedAt:serverTimestamp()}, {merge:true}); await setDoc(doc(db, USERS_PATH, r.uid), {organizer:true}, {merge:true}); toast('Organizador aprovado.'); renderOrgRequests(); renderApprovedOrganizers(); });
+        el.querySelector('[data-reject]').addEventListener('click', async()=>{ if(!ensureAdmin()) return; await setDoc(doc(db, ORG_PATH, r.id), {status:'rejected', rejectedAt:serverTimestamp()}, {merge:true}); toast('Solicitação recusada.'); renderOrgRequests(); });
+        wrap.appendChild(el);
+      });
+    }
+
+    async function renderApprovedOrganizers() {
+      const listEl = $('#approved-organizers-list');
+      listEl.innerHTML = '';
+      const qSnap = await getDocs(query(collection(db, ORG_PATH), where('status', '==', 'approved')));
+      if (qSnap.empty) {
+        listEl.innerHTML = '<div class="py-3 text-sm text-gray-500">Nenhum organizador aprovado.</div>';
+        return;
+      }
+      qSnap.forEach(d => {
+        const org = { id: d.id, ...d.data() };
+        const el = document.createElement('div');
+        el.className = 'py-3 flex items-center justify-between gap-3';
+        el.innerHTML = `
+          <div>
+            <div class="font-medium">${org.company || org.name}</div>
+            <div class="text-xs text-gray-500">${org.email}</div>
+          </div>
+          <button class="rounded-full bg-red-600 px-3 py-1.5 text-xs font-semibold text-white" data-remove>Remover</button>`;
+        el.querySelector('[data-remove]').addEventListener('click', async () => {
+          if (!ensureAdmin()) return;
+          await updateDoc(doc(db, ORG_PATH, org.id), { status: 'revoked' });
+          await updateDoc(doc(db, USERS_PATH, org.uid), { organizer: false });
+          toast('Organizador removido.');
+          renderApprovedOrganizers();
+        });
+        listEl.appendChild(el);
+      });
+    }
+
+    // ===== Eventos pendentes (admin) =====
+    let _approveTarget=null;
+    function renderPending(){ const wrap=$('#pending-events'); wrap.innerHTML=''; if(!state.pending.length){ wrap.innerHTML='<div class="text-sm text-gray-500">Nenhum evento pendente.</div>'; return } state.pending.forEach(ev=>{ const card=document.createElement('div'); card.className='rounded-2xl border border-gray-200 p-3 flex items-start gap-3'; const cover=ev.imageUrls?.[0]||''; card.innerHTML=`<img src='${cover}' class='h-16 w-20 rounded-lg object-cover ring-subtle'/><div class='flex-1'><div class='font-medium'>${ev.name||''}</div><div class='text-xs text-gray-500'>${fmtDate(ev.date)} • ${ev.local||''}</div><div class='text-xs text-gray-500'>Enviado por ${ev.createdBy||'—'}</div></div><div class='flex gap-2'><button class='rounded-full border border-gray-200 px-3 py-1.5 text-xs' data-edit='${ev.id}'>Editar</button><button class='rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white' data-approve='${ev.id}'>Aprovar</button><button class='rounded-full bg-red-600 px-3 py-1.5 text-xs font-semibold text-white' data-reject='${ev.id}'>Recusar</button></div>`; card.querySelector(`[data-edit='${ev.id}']`).addEventListener('click',()=>{ if(!ensureAdmin()) return; openEventModal('edit-pending', ev); }); card.querySelector(`[data-approve='${ev.id}']`).addEventListener('click',()=>{ if(!ensureAdmin()) return; _approveTarget=ev; $('#approve-importance').value=5; $('#approve-importance-value').textContent='5'; show($('#approve-modal')); }); card.querySelector(`[data-reject='${ev.id}']`).addEventListener('click', async()=>{ if(!ensureAdmin()) return; await deleteDoc(doc(db, PENDING_PATH, ev.id)); toast('Evento recusado.'); }); wrap.appendChild(card); }); }
+
+    $('#approve-importance').addEventListener('input', e=> $('#approve-importance-value').textContent=e.target.value );
+    $('#approve-confirm').addEventListener('click', async()=>{ if(!_approveTarget) return; try{ const imp=Number($('#approve-importance').value)||0; const payload={ ..._approveTarget, importance:imp, status:'approved', approvedAt:serverTimestamp() }; delete payload.id; await addDoc(collection(db, EVENTS_PATH), payload); await deleteDoc(doc(db, PENDING_PATH, _approveTarget.id)); hide($('#approve-modal')); toast('Evento aprovado!'); }catch(e){ console.error(e); toast('Falha ao aprovar.', false) } finally{ _approveTarget=null; }
+    });
+
+    // ===== Render helpers =====
+    function isEventActive(ev){ try{ const d = ev.date?.toDate? ev.date.toDate(): new Date(ev.date); const now=new Date(); const end = (ev.timeEnd? new Date(`${d.toISOString().slice(0,10)}T${ev.timeEnd}:00`) : new Date(d)); if(!ev.timeEnd){ end.setHours(23,59,59,999); } return now<=end; }catch{return true} }
+
+    function eventCard(ev){
+        const url=ev.imageUrls?.[0]||'';
+        const el=document.createElement('article');
+        el.className='group w-[180px] md:w-[280px] shrink-0 snap-start rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer';
+        
+        const friendsGoingCount = state.friendsGoingMap.get(ev._id)?.size || 0;
+        const friendsGoingHTML = friendsGoingCount > 0 
+            ? `<div class="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-black/50 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>${friendsGoingCount} amigo${friendsGoingCount > 1 ? 's' : ''} ${friendsGoingCount > 1 ? 'vão' : 'vai'}</span>
+               </div>` 
+            : '';
+
+        el.innerHTML=`
+          <div class="relative h-32 md:h-44 w-full bg-gray-100 overflow-hidden">
+            <img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" onerror="this.src='https://placehold.co/280x176/f9a8d4/ffffff?text=RioFestas'" alt="${ev.name||''}" loading="lazy" />
+            ${friendsGoingHTML}
+          </div>
+          <div class="p-4 md:p-5 space-y-1.5">
+            <h3 class="text-base md:text-lg font-semibold line-clamp-1">${ev.name||''}</h3>
+            <div class="text-xs md:text-sm text-gray-600">${fmtDate(ev.date)} • ${ev.local||''}</div>
+            ${ev.style?`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-1 text-xs font-medium text-pink-600">${ev.style}</div>`:''}
+          </div>`;
+        el.addEventListener('click',()=>openViewModal(ev));
+        return el;
+    }
+
+    function renderCarousel(containerId, list, emptyId){ const wrap=$('#'+containerId); const emptyEl=$('#'+emptyId); wrap.innerHTML=''; if(!list || !list.length){ show(emptyEl); hide(wrap); return } else { hide(emptyEl); show(wrap); } list.forEach(ev=> wrap.appendChild(eventCard(ev)) ); }
+
+    function buildNext7Menu(){ const menu=$('#weekday-menu'); menu.innerHTML=''; const today=startOfToday(); const labels=[]; for(let i=0;i<7;i++){ const d=new Date(today); d.setDate(today.getDate()+i); labels.push({date:d,label:weekdayLong[d.getDay()]}); } labels.forEach((it,idx)=>{ const b=document.createElement('button'); b.className='flex-shrink-0 rounded-full border px-4 py-2 text-sm '+(idx===state.byDayOffset? 'bg-pink-600 text-white border-pink-600':'bg-white border-gray-200 hover:bg-gray-50'); b.textContent=it.label; b.addEventListener('click', ()=>{ state.byDayOffset=idx; renderByDay(); buildNext7Menu(); }); menu.appendChild(b); }); }
+
+    function renderAllHome(){
+      const evs=[...state.events].sort((a,b)=>(b.importance||0)-(a.importance||0));
+      const start=startOfToday(); const end=next7End();
+      const inNext7 = evs.filter(ev=>{ const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); return d>=start && d<=end; });
+      const others=evs.filter(ev=>{ const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); return !(d>=start && d<=end); });
+      const popular = [...state.events].sort((a, b) => (b.goingCount || 0) - (a.goingCount || 0)).slice(0, 10);
+      renderCarousel('carousel-week-top', inNext7, 'empty-week-top');
+      renderCarousel('carousel-popular', popular, 'empty-popular');
+      buildNext7Menu();
+      renderByDay();
+      renderCarousel('carousel-others', others, 'empty-others');
+      renderFeed();
+    }
+
+    function renderByDay(){ const start=startOfToday(); const target=new Date(start); target.setDate(start.getDate()+state.byDayOffset); const a=new Date(target); a.setHours(0,0,0,0); const b=new Date(target); b.setHours(23,59,59,999); const list=state.events.filter(ev=>{ const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); return d>=a && d<=b; }); renderCarousel('carousel-byday', list, 'empty-byday'); }
+
+    function renderFeed(){ const grid=$('#grid-events'); const empty=$('#empty-feed'); grid.innerHTML=''; const q=$('#search-input').value.trim().toLowerCase(); if (!q) { hide(grid.parentElement); return; } show(grid.parentElement); const list=state.events.filter(ev=> isEventActive(ev) && ([ev.name,ev.style,ev.local,ev.description].filter(Boolean).some(v=>String(v).toLowerCase().includes(q)))); if(!list.length){ show(empty); hide(grid); return } else { hide(empty); show(grid); } list.forEach(ev=>{ const url=ev.imageUrls?.[0]||''; const card=document.createElement('article'); card.className='group rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer'; card.innerHTML=`<div class="relative h-48 w-full bg-gray-100 overflow-hidden"><img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" alt="${ev.name||''}" loading="lazy" /></div><div class="p-5 space-y-2"><h3 class="text-lg font-semibold line-clamp-1">${ev.name||''}</h3><div class="text-sm text-gray-600">${fmtDate(ev.date)} • ${ev.local||''}</div>${ev.style?`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-1 text-xs font-medium text-pink-600">${ev.style}</div>`:''}</div>`; card.addEventListener('click', ()=> openViewModal(ev)); grid.appendChild(card); }); }
+    $('#search-input').addEventListener('input', renderFeed);
+
+    function refreshAllAdminViews() {
+      renderAdminTable();
+      refreshAdminsList();
+      renderOrgRequests();
+      renderApprovedOrganizers();
+      renderRecurringEventsAdmin();
+    }
+
+    // Admin tabela + exclusão
+    function renderAdminTable(){
+      const tbody=$('#admin-tbody'); if(!tbody) return;
+      tbody.innerHTML='';
+      state.events.forEach(ev=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+          <td class="event-cell" data-label='Evento'>
+            <div class='flex items-center gap-3'>
+              <img src='${ev.imageUrls?.[0]||''}' onerror="this.src='https://placehold.co/64x48/f9a8d4/ffffff?text=RioFestas'" class='h-12 w-16 rounded-lg object-cover ring-subtle' />
+              <div>
+                <div class='font-medium'>${ev.name||''}</div>
+                <div class='text-xs text-gray-500'>${ev.style||''}</div>
+              </div>
+            </div>
+          </td>
+          <td data-label='Local' class='text-sm text-gray-700'>${ev.local||''}</td>
+          <td data-label='Data' class='text-sm text-gray-700'>${fmtDate(ev.date)}</td>
+          <td data-label='Importância' class='text-sm'>${Number(ev.importance||0)}</td>
+          <td class="actions-cell">
+            <div class='flex gap-2 justify-end'>
+              <button class='inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-gray-50' data-act='edit'>Editar</button>
+              <button class='inline-flex items-center rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100' data-act='del'>Excluir</button>
+            </div>
+          </td>`;
+
+        tr.querySelector('[data-act="edit"]').addEventListener('click',()=>{ if(!ensureAdmin()) return; openEventModal('edit', ev) });
+        tr.querySelector('[data-act="del"]').addEventListener('click',()=>{
+            if(!ensureAdmin()) return;
+            state.deleteTarget = { path: ev._path, name: ev.name };
+            $('#delete-event-name').textContent = ev.name || 'este evento';
+            show($('#delete-modal'));
+        });
+        tbody.appendChild(tr);
+      });
+      refreshAdminsList();
+      renderOrgRequests();
+      renderApprovedOrganizers();
+    }
+
+    $('#delete-confirm-btn').addEventListener('click', async (e)=>{
+        if (!state.deleteTarget) return;
+        const { path, name } = state.deleteTarget;
+        const btn = e.target;
+        const oldText = btn.textContent;
+        btn.textContent = 'Excluindo...';
+        btn.disabled = true;
+        try {
+            if (!path) throw new Error("Caminho do documento não encontrado.");
+            const ref = doc(db, path);
+            await deleteDoc(ref);
+            toast(`Evento "${name}" excluído.`);
+        } catch (err) {
+            console.error('[Excluir] falhou', err);
+            toast(`Falha ao excluir: ${err?.message || 'ver console'}`, false);
+        } finally {
+            btn.textContent = oldText;
+            btn.disabled = false;
+            hide($('#delete-modal'));
+            state.deleteTarget = null;
+        }
+    });
+
+    // ===== Create/Edit: UPLOAD LÓGICA =====
+    function handleFileUpload(files, context) {
+        console.log(`[Upload] Seleção de arquivos. Contexto: ${context}. Arquivos:`, files);
+        const formState = context === 'admin' ? state.eventForm : state.orgEventForm;
+        const saveBtn = context === 'admin' ? $('#btn-save-event') : $('#org-btn-save');
+        
+        for (const file of files) {
+            if (!file.type.startsWith('image/')) {
+                console.warn('[Upload] Arquivo ignorado (não é imagem):', file.name);
+                continue;
+            }
+            const uniqueId = `upload_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+            const filePath = `event-images/${auth.currentUser.uid}/${uniqueId}-${file.name}`;
+            const storageRef = ref(storage, filePath);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            console.log(`[Upload] Iniciando upload para ${file.name} com ID: ${uniqueId}`);
+            formState.uploadTasks[uniqueId] = { status: 'running', progress: 0, file, task: uploadTask };
+            
+            uploadTask.on('state_changed', 
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    if(formState.uploadTasks[uniqueId]) {
+                      formState.uploadTasks[uniqueId].progress = progress;
+                    }
+                    console.log(`[Upload Progress] ${uniqueId}: ${progress.toFixed(2)}%`);
+                    renderPhotoPreview(context);
+                    if (saveBtn) {
+                        saveBtn.disabled = true;
+                        saveBtn.textContent = 'Aguarde o upload...';
+                    }
+                },
+                (error) => {
+                    if (error.code !== 'storage/canceled') {
+                      console.error(`[Upload Error] ${uniqueId}:`, error);
+                      toast(`Erro no upload de ${file.name}`, false);
+                    } else {
+                      console.log(`[Upload Canceled] ${uniqueId}`);
+                    }
+                    delete formState.uploadTasks[uniqueId];
+                    renderPhotoPreview(context);
+                    checkAllUploadsDone(context);
+                },
+                async () => {
+                    try {
+                        console.log(`[Upload Success] ${uniqueId}. Obtendo URL...`);
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                        console.log(`[Upload Complete] ${uniqueId}. URL: ${downloadURL}`);
+                        formState.imageUrls.push(downloadURL);
+                        delete formState.uploadTasks[uniqueId];
+                        renderPhotoPreview(context);
+                        checkAllUploadsDone(context);
+                    } catch (error) {
+                        console.error(`[Upload URL Error] ${uniqueId}:`, error);
+                        toast(`Erro ao obter URL de ${file.name}`, false);
+                        delete formState.uploadTasks[uniqueId];
+                        renderPhotoPreview(context);
+                        checkAllUploadsDone(context);
+                    }
+                }
+            );
+        }
+        renderPhotoPreview(context);
+    }
+
+    function checkAllUploadsDone(context) {
+        const formState = context === 'admin' ? state.eventForm : state.orgEventForm;
+        const saveBtn = context === 'admin' ? $('#btn-save-event') : $('#org-btn-save');
+        const defaultText = context === 'admin' ? 'Salvar Evento' : 'Enviar para aprovação';
+
+        if (Object.keys(formState.uploadTasks).length === 0) {
+            console.log('[Upload] Todas as tarefas concluídas.');
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.textContent = defaultText;
+            }
+        }
+    }
+
+    function renderPhotoPreview(context) {
+        const formState = context === 'admin' ? state.eventForm : state.orgEventForm;
+        const previewEl = context === 'admin' ? $('#preview-photos') : $('#org-preview-photos');
+        if (!previewEl) return;
+        previewEl.innerHTML = '';
+
+        // Render completed/existing URLs
+        formState.imageUrls.forEach((url, index) => {
+            const el = document.createElement('div');
+            el.className = 'relative group';
+            el.innerHTML = `
+                <img src="${url}" class="h-24 w-full rounded-lg object-cover ring-subtle"/>
+                <button type="button" class="absolute right-1.5 top-1.5 hidden group-hover:inline-flex items-center justify-center h-7 w-7 rounded-full bg-white/90 text-gray-700 shadow ring-1 ring-gray-200">✕</button>
+            `;
+            el.querySelector('button').addEventListener('click', () => {
+                formState.imageUrls.splice(index, 1);
+                renderPhotoPreview(context);
+            });
+            previewEl.appendChild(el);
+        });
+
+        // Render ongoing uploads
+        Object.values(formState.uploadTasks).forEach(task => {
+            const el = document.createElement('div');
+            el.className = 'relative group overflow-hidden rounded-lg';
+            const localUrl = URL.createObjectURL(task.file);
+            el.innerHTML = `
+                <img src="${localUrl}" class="h-24 w-full object-cover ring-subtle opacity-60"/>
+                <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+                    <span class="text-white text-sm font-semibold">${task.progress.toFixed(0)}%</span>
+                </div>
+                <div class="progress-bar" style="width: ${task.progress}%"></div>
+            `;
+            previewEl.appendChild(el);
+        });
+    }
+
+    // ===== Create/Edit: ADMIN =====
+    $('#ev-photo-upload').addEventListener('change', (e) => handleFileUpload(e.target.files, 'admin'));
+    $('#org-ev-photo-upload').addEventListener('change', (e) => handleFileUpload(e.target.files, 'organizer'));
+
+    function resetEventForm(context){
+        const formState = context === 'admin' ? state.eventForm : state.orgEventForm;
+        const formEl = context === 'admin' ? $('#event-form') : $('#org-event-form');
+        const previewEl = context === 'admin' ? $('#preview-photos') : $('#org-preview-photos');
+        const errorEl = context === 'admin' ? $('#event-error') : $('#org-event-error');
+        
+        formEl.reset();
+        if (context === 'admin') {
+            $('#ev-importance').value=5; 
+            $('#ev-importance-value').textContent='5';
+        }
+        previewEl.innerHTML='';
+        hide(errorEl);
+        
+        state.editingId=null;
+        formState.imageUrls = [];
+        // Não cancele tarefas aqui, isso será feito ao fechar o modal
+        formState.uploadTasks = {};
+    }
+
+    function openEventModal(mode='create', ev=null){
+        let context = 'admin';
+        if (mode.startsWith('org-')) {
+            context = 'organizer';
+        }
+        
+        const modal = context === 'admin' ? $('#event-modal') : $('#org-event-modal');
+        const titleEl = context === 'admin' ? $('#event-modal-title') : modal.querySelector('h3');
+        const formState = context === 'admin' ? state.eventForm : state.orgEventForm;
+
+        if (context === 'admin' && !ensureAdmin()) return;
+        if (context === 'organizer' && (!auth.currentUser || auth.currentUser.isAnonymous)) return openLogin();
+
+        // Limpa estado anterior ANTES de popular
+        formState.imageUrls = [];
+        formState.uploadTasks = {};
+        resetEventForm(context);
+
+        const isEdit = (mode==='edit'&&ev) || (mode==='edit-pending'&&ev) || (mode==='org-edit'&&ev);
+        
+        titleEl.textContent = isEdit ? 'Editar Evento' : (context === 'admin' ? 'Novo Evento' : 'Criar Evento');
+
+        if(isEdit){
+            state.editingId = ev._id || ev.id;
+            const prefix = context === 'admin' ? 'ev' : 'org-ev';
+            $(`#${prefix}-name`).value=ev.name||'';
+            if(ev.date){ const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); $(`#${prefix}-date`).valueAsDate=d }
+            $(`#${prefix}-time-start`).value=ev.timeStart||'';
+            $(`#${prefix}-time-end`).value=ev.timeEnd||'';
+            $(`#${prefix}-local`).value=ev.local||'';
+            $(`#${prefix}-desc`).value=ev.description||'';
+            $(`#${prefix}-style`).value=ev.style||'';
+            $(`#${prefix}-buy`).value=ev.buyLink||'';
+            $(`#${prefix}-coupon`).value=ev.coupon||'';
+            if (context === 'admin') {
+                $('#ev-importance').value=Number(ev.importance??5);
+                $('#ev-importance-value').textContent=Number(ev.importance??5);
+            }
+            $(`#${prefix}-recurring`).value = ev.recurringEventId || '';
+            formState.imageUrls = [...(ev.imageUrls||[])];
+            state._editPending = (mode==='edit-pending');
+        }
+        renderPhotoPreview(context);
+        checkAllUploadsDone(context);
+        show(modal);
+    }
+
+    $('#event-form').addEventListener('submit', onSaveEvent);
+    async function onSaveEvent(e){ 
+      e.preventDefault(); 
+      if(!ensureAdmin()) return; 
+      const formState = state.eventForm;
+      const errorEl = $('#event-error');
+      hide(errorEl);
+
+      if (Object.values(formState.uploadTasks).some(t => t.status === 'running')) {
+        errorEl.textContent = 'Aguarde o fim de todos os uploads.'; show(errorEl); return;
+      }
+      
+      const name=$('#ev-name').value.trim(); const dateS=$('#ev-date').value; const local=$('#ev-local').value.trim();
+      if(!name||!dateS||!local) { errorEl.textContent = 'Preencha nome, data e local.'; show(errorEl); return; }
+      if(formState.imageUrls.length===0) { errorEl.textContent = 'Adicione pelo menos uma foto.'; show(errorEl); return; }
+      
+      try{
+        const when=parseDateInput(dateS);
+        const payload={ 
+          name, local, date: Timestamp.fromDate(when),
+          description:$('#ev-desc').value.trim(), style:$('#ev-style').value.trim(), 
+          buyLink:$('#ev-buy').value.trim(), coupon:$('#ev-coupon').value.trim(), 
+          timeStart:$('#ev-time-start').value||null, timeEnd:$('#ev-time-end').value||null, 
+          importance:Number($('#ev-importance').value), imageUrls: formState.imageUrls, 
+          recurringEventId: $('#ev-recurring').value || null, updatedAt: serverTimestamp() 
+        };
+        
+        if(state._editPending){ await updateDoc(doc(db, PENDING_PATH, state.editingId), payload); toast('Rascunho pendente atualizado!'); } 
+        else if(state.editingId){ await updateDoc(doc(db, EVENTS_PATH, state.editingId), payload); toast('Evento atualizado!'); } 
+        else { await addDoc(collection(db, EVENTS_PATH), { ...payload, createdAt: serverTimestamp(), goingCount: 0 }); toast('Evento criado com sucesso!'); } 
+        
+        hide($('#event-modal')); 
+      }catch(err){ console.error(err); errorEl.textContent = err?.message||'Falha ao salvar.'; show(errorEl); } 
+    }
+
+    // ===== Visualização =====
+    async function openViewModal(ev){
+      state.currentViewEvent = ev;
+      $('#view-title').textContent=ev.name||'Evento'; const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); const dateStr = `${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})} (${weekdayLabels[d.getDay()]})`; $('#view-date').textContent = dateStr + (ev.timeStart?` • ${ev.timeStart}${ev.timeEnd?`–${ev.timeEnd}`:''}`:''); $('#view-local').textContent=ev.local||'—'; $('#view-style').textContent=ev.style||'—'; $('#view-desc').textContent=ev.description||'—'; const buy=$('#view-buy'); if(ev.buyLink){ buy.href=ev.buyLink; buy.classList.remove('pointer-events-none','opacity-50'); } else { buy.href='#'; buy.classList.add('pointer-events-none','opacity-50'); } $('#view-coupon').textContent=ev.coupon||'—'; const g=$('#view-gallery'); g.innerHTML=''; (ev.imageUrls||[]).forEach((u,i)=> g.insertAdjacentHTML('beforeend', `<img src="${u}" alt="${ev.name||''} - foto ${i+1}" class="w-full aspect-[16/10] object-cover rounded-2xl ring-subtle"/>`) );
+      updateGoingButtonUI();
+      await renderFriendsGoing(ev._id);
+      await renderRatingSection(ev.recurringEventId);
+      show($('#event-view'));
+    }
+
+    // ===== Social: "Vou nesse" =====
+    function updateGoingButtonUI() {
+      if (!state.currentViewEvent) return;
+      const evId = state.currentViewEvent._id;
+      const isGoing = state.userGoingTo.has(evId);
+      const btn = $('#btn-going');
+      const btnText = $('#btn-going-text');
+      const countEl = $('#going-count');
+
+      btn.classList.toggle('bg-gray-500', isGoing);
+      btn.classList.toggle('bg-emerald-600', !isGoing);
+      btnText.textContent = isGoing ? 'Presença Confirmada' : 'Confirmar Presença';
+      const count = state.currentViewEvent.goingCount || 0;
+      
+      if (count > 0) {
+        countEl.innerHTML = `${count} pessoa${count > 1 ? 's' : ''} ${count > 1 ? 'vão' : 'vai'} nesse evento.`;
+      } else {
+        countEl.innerHTML = 'Seja o primeiro a confirmar presença!';
+      }
+    }
+
+    $('#btn-going').addEventListener('click', async () => {
+      if (!auth.currentUser || auth.currentUser.isAnonymous) return openLogin();
+      if (!state.currentViewEvent) return;
+
+      const evId = state.currentViewEvent._id;
+      const userId = auth.currentUser.uid;
+      const isCurrentlyGoing = state.userGoingTo.has(evId);
+      const batch = writeBatch(db);
+
+      const eventRef = doc(db, EVENTS_PATH, evId);
+      const goingToRef = doc(db, `artifacts/${appId}/users/${userId}/goingTo`, evId);
+      const attendeeRef = doc(db, `artifacts/${appId}/public/data/events/${evId}/attendees`, userId);
+
+      if (isCurrentlyGoing) {
+        batch.delete(goingToRef);
+        batch.delete(attendeeRef);
+        batch.update(eventRef, { goingCount: increment(-1) });
+      } else {
+        batch.set(goingToRef, { eventId: evId, addedAt: serverTimestamp() });
+        batch.set(attendeeRef, { userId: userId, addedAt: serverTimestamp() });
+        batch.update(eventRef, { goingCount: increment(1) });
+      }
+
+      try {
+        await batch.commit();
+        toast(isCurrentlyGoing ? 'Presença removida.' : 'Presença confirmada!');
+        if (!isCurrentlyGoing) {
+            notifyFollowersOfGoing(userId, evId);
+        }
+      } catch (err) {
+        console.error("Erro ao confirmar presença:", err);
+        toast('Erro ao confirmar presença.', false);
+      }
+    });
+
+    // ===== Social: Sistema de Seguir =====
+    async function toggleFollow(targetUserId, buttonEl = null) {
+        const currentUser = auth.currentUser;
+        if (!currentUser || currentUser.isAnonymous) return openLogin();
+        if (currentUser.uid === targetUserId) return;
+
+        const targetUserRef = doc(db, USERS_PATH, targetUserId);
+        try {
+            const targetUserDoc = await getDoc(targetUserRef);
+            if (!targetUserDoc.exists()) {
+                toast('Este utilizador já não existe.', false);
+                if ($('#user-search-input').value) {
+                    $('#user-search-input').dispatchEvent(new Event('input'));
+                }
+                return;
+            }
+        } catch (e) {
+            console.error("Error checking user existence:", e);
+            toast("Ocorreu um erro de verificação.", false);
+            return;
+        }
+
+        const isFollowing = state.userFollowing.has(targetUserId);
+        
+        if (buttonEl) {
+            buttonEl.disabled = true;
+            if (isFollowing) {
+                buttonEl.textContent = 'Seguir';
+                buttonEl.classList.remove('bg-gray-200', 'text-gray-800');
+                buttonEl.classList.add('bg-pink-600', 'text-white');
+            } else {
+                buttonEl.textContent = 'Seguindo';
+                buttonEl.classList.add('bg-gray-200', 'text-gray-800');
+                buttonEl.classList.remove('bg-pink-600', 'text-white');
+            }
+        }
+        
+        const batch = writeBatch(db);
+        const currentUserRef = doc(db, USERS_PATH, currentUser.uid);
+        const followingRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/following`, targetUserId);
+        const followerRef = doc(db, `artifacts/${appId}/users/${targetUserId}/followers`, currentUser.uid);
+        const notificationRef = doc(db, `artifacts/${appId}/users/${targetUserId}/notifications`, `follow_${currentUser.uid}`);
+
+        if (isFollowing) {
+            batch.delete(followingRef);
+            batch.delete(followerRef);
+            batch.delete(notificationRef);
+            batch.update(currentUserRef, { followingCount: increment(-1) });
+            batch.update(targetUserRef, { followersCount: increment(-1) });
+        } else {
+            batch.set(followingRef, { followedAt: serverTimestamp() });
+            batch.set(followerRef, { followerAt: serverTimestamp() });
+            batch.update(currentUserRef, { followingCount: increment(1) });
+            batch.update(targetUserRef, { followersCount: increment(1) });
+            batch.set(notificationRef, {
+                type: 'new_follower',
+                fromUserId: currentUser.uid,
+                timestamp: serverTimestamp(),
+                read: false
+            });
+        }
+
+        try {
+            await batch.commit();
+        } catch (err) {
+            console.error("Erro ao seguir/deixar de seguir:", err);
+            toast("Ocorreu um erro.", false);
+            if (buttonEl) { // Revert UI on error
+                if (isFollowing) {
+                    buttonEl.textContent = 'Seguindo';
+                    buttonEl.classList.add('bg-gray-200', 'text-gray-800');
+                    buttonEl.classList.remove('bg-pink-600', 'text-white');
+                } else {
+                    buttonEl.textContent = 'Seguir';
+                    buttonEl.classList.remove('bg-gray-200', 'text-gray-800');
+                    buttonEl.classList.add('bg-pink-600', 'text-white');
+                }
+            }
+        } finally {
+            if (buttonEl) buttonEl.disabled = false;
+        }
+    }
+    
+    async function removeFollower(followerId) {
+        const currentUser = auth.currentUser;
+        if (!currentUser || currentUser.isAnonymous) return;
+
+        const followerUserRef = doc(db, USERS_PATH, followerId);
+         try {
+            const followerUserDoc = await getDoc(followerUserRef);
+            if (!followerUserDoc.exists()) {
+                toast('Este seguidor já não existe.', false);
+                loadFollowLists(); // Refresh list to remove them
+                return;
+            }
+        } catch (e) {
+            console.error("Error checking follower existence:", e);
+            toast("Ocorreu um erro de verificação.", false);
+            return;
+        }
+
+        const batch = writeBatch(db);
+        const currentUserRef = doc(db, USERS_PATH, currentUser.uid);
+        const myFollowerRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/followers`, followerId);
+        const theirFollowingRef = doc(db, `artifacts/${appId}/users/${followerId}/following`, currentUser.uid);
+
+        batch.delete(myFollowerRef);
+        batch.delete(theirFollowingRef);
+        batch.update(currentUserRef, { followersCount: increment(-1) });
+        batch.update(followerUserRef, { followingCount: increment(-1) });
+
+        try {
+            await batch.commit();
+            toast('Seguidor removido.');
+            loadFollowLists(); // Refresh list
+        } catch (err) {
+            console.error("Erro ao remover seguidor:", err);
+            toast("Ocorreu um erro ao remover seguidor.", false);
+        }
+    }
+
+    // ===== Social: Feeds =====
+    async function renderSocialFeeds() {
+        const popular = [...state.events].sort((a, b) => (b.goingCount || 0) - (a.goingCount || 0)).slice(0, 10);
+        renderCarousel('carousel-social-popular', popular, 'empty-social-popular');
+
+        const friendsEvents = await getFriendsEvents();
+        renderCarousel('carousel-friends-popular', friendsEvents, 'empty-friends-popular');
+    }
+    
+    async function updateFriendsGoingMap() {
+        state.friendsGoingMap.clear();
+        if (state.userFollowing.size === 0) {
+            renderAllHome(); // Re-render to remove counters
+            return;
+        }
+
+        const friendIds = Array.from(state.userFollowing);
+        const promises = friendIds.map(friendId => 
+            getDocs(collection(db, `artifacts/${appId}/users/${friendId}/goingTo`))
+        );
+        const results = await Promise.all(promises);
+
+        results.forEach((snap, index) => {
+            const friendId = friendIds[index];
+            snap.forEach(doc => {
+                const eventId = doc.id;
+                if (!state.friendsGoingMap.has(eventId)) {
+                    state.friendsGoingMap.set(eventId, new Set());
+                }
+                state.friendsGoingMap.get(eventId).add(friendId);
+            });
+        });
+        renderAllHome(); // Re-render carousels with new data
+    }
+
+    async function getFriendsEvents() {
+        if (state.userFollowing.size === 0) return [];
+        const friendsIds = Array.from(state.userFollowing);
+        const eventCounts = {};
+        for (const friendId of friendsIds) {
+            const goingToSnap = await getDocs(collection(db, `artifacts/${appId}/users/${friendId}/goingTo`));
+            goingToSnap.forEach(doc => {
+                const eventId = doc.id;
+                eventCounts[eventId] = (eventCounts[eventId] || 0) + 1;
+            });
+        }
+        const sortedEventIds = Object.keys(eventCounts).sort((a, b) => eventCounts[b] - eventCounts[a]);
+        return sortedEventIds.map(id => state.events.find(ev => ev._id === id)).filter(Boolean);
+    }
+
+    // ===== Social: Busca e Perfil =====
+    $('#user-search-input').addEventListener('input', (e) => {
+      const query = e.target.value.trim().toLowerCase();
+      const resultsEl = $('#user-search-results');
+      resultsEl.innerHTML = '';
+      if (query.length < 2) return;
+
+      const results = Object.values(state.users).filter(u =>
+        u.id !== auth.currentUser?.uid && !u.organizer && (u.username?.toLowerCase().includes(query) || u.name?.toLowerCase().includes(query))
+      );
+
+      if (results.length === 0) {
+        resultsEl.innerHTML = '<div class="text-center text-gray-500 py-4">Nenhum usuário encontrado.</div>';
+        return;
+      }
+
+      results.forEach(user => {
+        const isFollowing = state.userFollowing.has(user.id);
+        const userCard = document.createElement('div');
+        userCard.className = 'flex items-center gap-4 p-3 rounded-2xl hover:bg-gray-50';
+        userCard.innerHTML = `
+          <img src="${user.photoUrl || 'https://placehold.co/48x48/f472b6/ffffff?text='+initials(user.name)}" class="h-12 w-12 rounded-full object-cover bg-gray-200 cursor-pointer" data-profile-id="${user.id}">
+          <div class="flex-1 cursor-pointer" data-profile-id="${user.id}">
+            <div class="font-semibold">${user.name}</div>
+            <div class="text-sm text-gray-500">@${user.username}</div>
+          </div>
+          <button class="rounded-full px-4 py-2 text-sm font-semibold ${isFollowing ? 'bg-gray-200 text-gray-800' : 'bg-pink-600 text-white'}" data-follow-id="${user.id}">${isFollowing ? 'Seguindo' : 'Seguir'}</button>
+        `;
+        const followBtn = userCard.querySelector(`[data-follow-id]`);
+        followBtn.addEventListener('click', () => toggleFollow(user.id, followBtn));
+        userCard.querySelectorAll(`[data-profile-id]`).forEach(el => el.addEventListener('click', () => openUserProfileModal(user.id)));
+        resultsEl.appendChild(userCard);
+      });
+    });
+
+    async function openUserProfileModal(userId) {
+      const user = state.users[userId];
+      if (!user) return toast('Usuário não encontrado.', false);
+
+      const contentEl = $('#profile-content');
+      contentEl.innerHTML = '<div class="text-center py-8">Carregando...</div>';
+      show($('#user-profile-modal'));
+
+      const goingToSnap = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/goingTo`));
+      const eventIds = goingToSnap.docs.map(d => d.id);
+
+      const upcomingEvents = [], pastEvents = [];
+      const now = startOfToday();
+
+      for (const eventId of eventIds) {
+        const eventData = state.events.find(e => e._id === eventId);
+        if (eventData) {
+          const eventDate = eventData.date?.toDate ? eventData.date.toDate() : new Date();
+          (eventDate >= now ? upcomingEvents : pastEvents).push(eventData);
+        }
+      }
+      
+      const isFollowing = state.userFollowing.has(userId);
+      const isOwnProfile = auth.currentUser?.uid === userId;
+      
+      contentEl.innerHTML = `
+        <div class="flex flex-col items-center text-center">
+          <img src="${user.photoUrl || 'https://placehold.co/96x96/f472b6/ffffff?text='+initials(user.name)}" class="h-24 w-24 rounded-full object-cover bg-gray-200 ring-4 ring-white shadow-md">
+          <h4 class="mt-4 text-2xl font-bold">${user.name}</h4>
+          <p class="text-gray-500">@${user.username}</p>
+          <div class="mt-2 flex gap-4 text-sm">
+            <button class="hover:underline" data-action="view-follow-list" data-user-id="${userId}" data-list-type="followers">
+                <strong>${user.followersCount || 0}</strong> seguidores
+            </button>
+            <button class="hover:underline" data-action="view-follow-list" data-user-id="${userId}" data-list-type="following">
+                <strong>${user.followingCount || 0}</strong> seguindo
+            </button>
+          </div>
+          ${user.bio ? `<p class="mt-3 max-w-md text-gray-600">${user.bio}</p>` : ''}
+          ${!isOwnProfile ? `<button id="profile-follow-btn" class="mt-4 rounded-full px-5 py-2.5 text-sm font-semibold ${isFollowing ? 'bg-gray-200 text-gray-800' : 'bg-pink-600 text-white'}">${isFollowing ? 'Seguindo' : 'Seguir'}</button>` : ''}
+        </div>
+        <div class="mt-8">
+          <h5 class="font-semibold">Próximos Eventos</h5>
+          <div id="upcoming-list" class="mt-2 space-y-2">${renderProfileEventList(upcomingEvents)}</div>
+        </div>
+        <div class="mt-6">
+          <h5 class="font-semibold">Eventos Anteriores</h5>
+          <div id="past-list" class="mt-2 space-y-2">${renderProfileEventList(pastEvents)}</div>
+        </div>`;
+        
+        if (!isOwnProfile) {
+            const followBtn = $('#profile-follow-btn');
+            followBtn.addEventListener('click', () => toggleFollow(userId, followBtn));
+        }
+        
+        contentEl.querySelectorAll('[data-action="view-follow-list"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetUserId = btn.dataset.userId;
+                const listType = btn.dataset.listType;
+                openFollowListModal(targetUserId, listType);
+            });
+        });
+    }
+
+    function renderProfileEventList(eventList) {
+      if (eventList.length === 0) return '<p class="text-sm text-gray-500">Nenhum evento aqui.</p>';
+      return eventList.map(ev => `
+        <div class="flex items-center gap-3 p-2 rounded-lg bg-gray-50 ring-subtle cursor-pointer hover:bg-gray-100" data-event-id="${ev._id}">
+          <img src="${ev.imageUrls?.[0] || ''}" class="h-12 w-16 rounded-md object-cover">
+          <div>
+            <div class="font-medium text-sm">${ev.name}</div>
+            <div class="text-xs text-gray-500">${fmtDate(ev.date)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    document.addEventListener('click', (e) => {
+        const card = e.target.closest('[data-event-id]');
+        if (card) {
+            const eventId = card.dataset.eventId;
+            const eventData = state.events.find(ev => ev._id === eventId);
+            if (eventData) {
+                hide($('#user-profile-modal'));
+                openViewModal(eventData);
+            }
+        }
+    });
+
+    // ===== Meu Perfil (Salvar & Upload Foto) =====
+    $('#account-photo-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file || !file.type.startsWith('image/')) return;
+        
+        const previewEl = $('#account-photo-preview');
+        previewEl.src = URL.createObjectURL(file);
+        
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const filePath = `profile-pictures/${user.uid}/${Date.now()}-${file.name}`;
+        const storageRef = ref(storage, filePath);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+        
+        toast('Enviando nova foto...');
+
+        uploadTask.on('state_changed', null, 
+            (error) => {
+                console.error("Profile photo upload error:", error);
+                toast('Erro ao enviar a foto.', false);
+                previewEl.src = state.currentUserData?.photoUrl || `https://placehold.co/64x64/f472b6/ffffff?text=${initials(state.currentUserData.name)}`;
+            },
+            async () => {
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                state.newProfilePhotoUrl = downloadURL;
+                toast('Foto pronta para salvar.');
+            }
+        );
+    });
+
+    $('#account-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const name = $('#account-name').value.trim();
+      const bio = $('#account-bio').value.trim();
+      const errEl = $('#account-error');
+      hide(errEl);
+
+      const updateData = { name, bio };
+      if (state.newProfilePhotoUrl) {
+          updateData.photoUrl = state.newProfilePhotoUrl;
+      }
+
+      try {
+        await updateDoc(doc(db, USERS_PATH, user.uid), updateData);
+        if (updateData.photoUrl) {
+            await updateProfile(user, { photoURL: updateData.photoUrl });
+        }
+        await updateProfile(user, { displayName: name });
+        
+        toast('Perfil atualizado com sucesso!');
+        state.newProfilePhotoUrl = null;
+      } catch (err) {
+        errEl.textContent = 'Falha ao atualizar o perfil.';
+        show(errEl);
+      }
+    });
+
+    // ===== Social: Lista de amigos que vão no evento =====
+    async function renderFriendsGoing(eventId) {
+        const container = $('#friends-going-container');
+        const button = $('#friends-going-button');
+        const modalContent = $('#friends-list-content');
+        hide(container);
+        button.innerHTML = '';
+        modalContent.innerHTML = '';
+
+        if (state.userFollowing.size === 0) return;
+
+        const attendeesSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/events/${eventId}/attendees`));
+        const attendeeIds = new Set(attendeesSnap.docs.map(d => d.id));
+        
+        const friendsGoing = Array.from(state.userFollowing).filter(friendId => attendeeIds.has(friendId));
+
+        if (friendsGoing.length > 0) {
+            const count = friendsGoing.length;
+            button.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>${count} amigo${count > 1 ? 's' : ''} ${count > 1 ? 'vão' : 'vai'}</span>
+            `;
+            
+            friendsGoing.forEach(friendId => {
+                const friendData = state.users[friendId];
+                if (friendData) {
+                    const userCard = document.createElement('div');
+                    userCard.className = 'flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-gray-50';
+                    userCard.innerHTML = `
+                        <img src="${friendData.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(friendData.name)}`}" class="h-10 w-10 rounded-full object-cover">
+                        <div>
+                            <div class="font-semibold text-sm">${friendData.name}</div>
+                            <div class="text-xs text-gray-500">@${friendData.username}</div>
+                        </div>
+                    `;
+                    userCard.addEventListener('click', () => {
+                        hide($('#event-view'));
+                        hide($('#friends-list-modal'));
+                        openUserProfileModal(friendId);
+                    });
+                    modalContent.appendChild(userCard);
+                }
+            });
+
+            button.onclick = () => show($('#friends-list-modal'));
+            show(container);
+        }
+    }
+
+    // ===== Sistema de Notificações =====
+    $('#account-notify-check').addEventListener('change', async (e) => {
+        const user = auth.currentUser;
+        if (!user) return;
+        try {
+            await updateDoc(doc(db, USERS_PATH, user.uid), { 'settings.notifyOnFriendGoing': e.target.checked });
+            toast('Configuração de notificação salva.');
+        } catch {
+            toast('Erro ao salvar configuração.', false);
+        }
+    });
+
+    $('#clear-all-notifs-btn').addEventListener('click', async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+        const notifsRef = collection(db, `artifacts/${appId}/users/${user.uid}/notifications`);
+        const notifsSnap = await getDocs(notifsRef);
+        if (notifsSnap.empty) return;
+
+        const batch = writeBatch(db);
+        notifsSnap.forEach(doc => batch.delete(doc.ref));
+        try {
+            await batch.commit();
+            toast('Notificações limpas.');
+        } catch {
+            toast('Erro ao limpar notificações.', false);
+        }
+    });
+
+    async function notifyFollowersOfGoing(userId, eventId) {
+        const followersSnap = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/followers`));
+        if (followersSnap.empty) return;
+        
+        const eventData = state.events.find(e => e._id === eventId);
+        if (!eventData) return;
+
+        for (const followerDoc of followersSnap.docs) {
+            const followerId = followerDoc.id;
+            const followerData = state.users[followerId];
+            
+            if (followerData?.settings?.notifyOnFriendGoing ?? true) {
+                const notificationRef = doc(collection(db, `artifacts/${appId}/users/${followerId}/notifications`));
+                await setDoc(notificationRef, {
+                    type: 'event_going',
+                    fromUserId: userId,
+                    eventId: eventId,
+                    eventName: eventData.name,
+                    timestamp: serverTimestamp(),
+                    read: false
+                });
+            }
+        }
+    }
+
+    function renderNotifications(notifications) {
+        const listEl = $('#notifications-list');
+        const emptyEl = $('#empty-notifications');
+        listEl.innerHTML = '';
+
+        if (notifications.length === 0) {
+            show(emptyEl);
+            return;
+        }
+        hide(emptyEl);
+
+        notifications.forEach(notif => {
+            const fromUser = state.users[notif.fromUserId];
+            if (!fromUser) return;
+
+            const el = document.createElement('div');
+            el.className = 'group flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50/80 relative';
+            
+            let content = '';
+            if (notif.type === 'new_follower') {
+                const isFollowingBack = state.userFollowing.has(notif.fromUserId);
+                content = `
+                  <img src="${fromUser.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(fromUser.name)}`}" class="h-10 w-10 rounded-full object-cover cursor-pointer" data-profile-id="${fromUser.id}">
+                  <div class="flex-1 text-sm cursor-pointer" data-profile-id="${fromUser.id}">
+                    <span class="font-semibold">${fromUser.name}</span> começou a seguir você.
+                  </div>
+                  <button class="rounded-full px-3 py-1.5 text-xs font-semibold ${isFollowingBack ? 'bg-gray-200 text-gray-800' : 'bg-pink-600 text-white'}" data-follow-id="${fromUser.id}">${isFollowingBack ? 'Seguindo' : 'Seguir de volta'}</button>
+                `;
+            } else if (notif.type === 'event_going') {
+                content = `
+                  <img src="${fromUser.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(fromUser.name)}`}" class="h-10 w-10 rounded-full object-cover cursor-pointer" data-profile-id="${fromUser.id}">
+                  <div class="flex-1 text-sm">
+                    <span class="font-semibold">${fromUser.name}</span> confirmou presença em <strong class="cursor-pointer hover:underline" data-event-id="${notif.eventId}">${notif.eventName || 'um evento'}</strong>.
+                  </div>
+                `;
+            }
+            
+            el.innerHTML = content + `<button data-delete-notif-id="${notif.id}" class="absolute top-1 right-1 h-6 w-6 rounded-full bg-gray-200 text-gray-600 hidden group-hover:flex items-center justify-center text-xs">✕</button>`;
+            
+            const followBtn = el.querySelector(`[data-follow-id]`);
+            if(followBtn) followBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFollow(notif.fromUserId, followBtn); });
+            
+            el.querySelectorAll(`[data-profile-id]`).forEach(p => p.addEventListener('click', (e) => { e.stopPropagation(); openUserProfileModal(notif.fromUserId); }));
+            
+            const eventLink = el.querySelector(`[data-event-id]`);
+            if (eventLink) eventLink.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const eventData = state.events.find(ev => ev._id === notif.eventId);
+                if (eventData) openViewModal(eventData);
+            });
+            
+            const deleteBtn = el.querySelector(`[data-delete-notif-id]`);
+            if(deleteBtn) deleteBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const user = auth.currentUser;
+                if (!user) return;
+                try {
+                    await deleteDoc(doc(db, `artifacts/${appId}/users/${user.uid}/notifications`, notif.id));
+                } catch { toast('Erro ao apagar notificação.', false); }
+            });
+
+            listEl.appendChild(el);
+        });
+    }
+    
+    // ===== Meu Perfil: Abas Seguidores/Seguindo =====
+    $$('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.dataset.tab;
+            $$('.tab-btn').forEach(b => {
+                b.classList.remove('border-pink-600', 'text-pink-600');
+                b.classList.add('border-transparent', 'text-gray-500');
+            });
+            btn.classList.add('border-pink-600', 'text-pink-600');
+            btn.classList.remove('border-transparent', 'text-gray-500');
+
+            if (tab === 'followers') {
+                show($('#followers-list'));
+                hide($('#following-list'));
+            } else {
+                hide($('#followers-list'));
+                show($('#following-list'));
+            }
+        });
+    });
+
+    async function loadFollowLists() {
+        const user = auth.currentUser;
+        if (!user) return;
+        const followersListEl = $('#followers-list');
+        const followingListEl = $('#following-list');
+        followersListEl.innerHTML = 'Carregando...';
+        followingListEl.innerHTML = 'Carregando...';
+
+        // Carregar Seguidores
+        const followersSnap = await getDocs(collection(db, `artifacts/${appId}/users/${user.uid}/followers`));
+        if (followersSnap.empty) {
+            followersListEl.innerHTML = '<p class="text-sm text-gray-500">Nenhum seguidor ainda.</p>';
+        } else {
+            followersListEl.innerHTML = '';
+            followersSnap.forEach(doc => {
+                const followerUser = state.users[doc.id];
+                if (followerUser) followersListEl.appendChild(createFollowUserCard(followerUser, 'follower'));
+            });
+        }
+
+        // Carregar Seguindo
+        const followingSnap = await getDocs(collection(db, `artifacts/${appId}/users/${user.uid}/following`));
+        if (followingSnap.empty) {
+            followingListEl.innerHTML = '<p class="text-sm text-gray-500">Você não segue ninguém ainda.</p>';
+        } else {
+            followingListEl.innerHTML = '';
+            followingSnap.forEach(doc => {
+                const followingUser = state.users[doc.id];
+                if (followingUser) followingListEl.appendChild(createFollowUserCard(followingUser, 'following'));
+            });
+        }
+    }
+
+    function createFollowUserCard(userData, type) {
+        const el = document.createElement('div');
+        el.className = 'flex items-center gap-3';
+        
+        let buttonHTML = '';
+        if (type === 'follower') {
+            buttonHTML = `<button class="ml-auto rounded-full border border-gray-300 px-3 py-1.5 text-xs font-semibold" data-remove-follower-id="${userData.id}">Remover</button>`;
+        } else { // following
+            buttonHTML = `<button class="ml-auto rounded-full bg-gray-200 px-3 py-1.5 text-xs font-semibold" data-unfollow-id="${userData.id}">Seguindo</button>`;
+        }
+
+        el.innerHTML = `
+            <div class="flex-1 flex items-center gap-3 cursor-pointer" data-profile-id="${userData.id}">
+                <img src="${userData.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(userData.name)}`}" class="h-10 w-10 rounded-full object-cover">
+                <div>
+                    <div class="font-semibold text-sm">${userData.name}</div>
+                    <div class="text-xs text-gray-500">@${userData.username}</div>
+                </div>
+            </div>
+            ${buttonHTML}
+        `;
+
+        el.querySelector('[data-profile-id]').addEventListener('click', () => openUserProfileModal(userData.id));
+        const removeBtn = el.querySelector('[data-remove-follower-id]');
+        if (removeBtn) removeBtn.addEventListener('click', () => removeFollower(userData.id));
+        
+        const unfollowBtn = el.querySelector('[data-unfollow-id]');
+        if (unfollowBtn) unfollowBtn.addEventListener('click', () => {
+            toggleFollow(userData.id);
+            el.remove(); // Optimistic removal from list
+        });
+
+        return el;
+    }
+
+    // ===== Social: Modal de Lista de Seguidores/Seguindo (Público) =====
+    async function openFollowListModal(targetUserId, listType) {
+        const modal = $('#follow-list-modal');
+        const titleEl = $('#follow-list-title');
+        const contentEl = $('#follow-list-content');
+
+        titleEl.textContent = listType === 'followers' ? 'Seguidores' : 'Seguindo';
+        contentEl.innerHTML = '<div class="text-center text-gray-500 py-4">Carregando...</div>';
+        show(modal);
+
+        try {
+            const collectionRef = collection(db, `artifacts/${appId}/users/${targetUserId}/${listType}`);
+            const listSnap = await getDocs(collectionRef);
+
+            if (listSnap.empty) {
+                contentEl.innerHTML = `<div class="text-center text-gray-500 py-4">${listType === 'followers' ? 'Nenhum seguidor.' : 'Não segue ninguém.'}</div>`;
+                return;
+            }
+
+            contentEl.innerHTML = ''; // Clear loading
+            listSnap.docs.forEach(doc => {
+                const userId = doc.id;
+                const userData = state.users[userId];
+                if (userData) {
+                    const userCard = createPublicFollowUserCard(userData);
+                    contentEl.appendChild(userCard);
+                }
+            });
+        } catch (err) {
+            console.error(`Erro ao carregar lista de ${listType}:`, err);
+            contentEl.innerHTML = '<div class="text-center text-red-500 py-4">Erro ao carregar a lista.</div>';
+        }
+    }
+
+    function createPublicFollowUserCard(userData) {
+        const el = document.createElement('div');
+        el.className = 'flex items-center gap-3 p-2 rounded-xl';
+        
+        const currentUserId = auth.currentUser?.uid;
+        const isCurrentUserInList = currentUserId === userData.id;
+        
+        let buttonHTML = '';
+        if (!isCurrentUserInList && currentUserId) {
+            const isFollowing = state.userFollowing.has(userData.id);
+            buttonHTML = `<button class="ml-auto rounded-full px-4 py-2 text-xs font-semibold ${isFollowing ? 'bg-gray-200 text-gray-800' : 'bg-pink-600 text-white'}" data-follow-id="${userData.id}">${isFollowing ? 'Seguindo' : 'Seguir'}</button>`;
+        }
+
+        el.innerHTML = `
+            <div class="flex-1 flex items-center gap-3 cursor-pointer" data-profile-id="${userData.id}">
+                <img src="${userData.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(userData.name)}`}" class="h-10 w-10 rounded-full object-cover">
+                <div>
+                    <div class="font-semibold text-sm">${userData.name}</div>
+                    <div class="text-xs text-gray-500">@${userData.username}</div>
+                </div>
+            </div>
+            ${buttonHTML}
+        `;
+
+        el.querySelector('[data-profile-id]').addEventListener('click', () => {
+            hide($('#follow-list-modal'));
+            openUserProfileModal(userData.id);
+        });
+        
+        const followBtn = el.querySelector('[data-follow-id]');
+        if (followBtn) {
+            followBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleFollow(userData.id, followBtn);
+            });
+        }
+
+        return el;
+    }
+    
+    // ===== Admin: Eventos Recorrentes =====
+    $('#recurring-event-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!ensureAdmin()) return;
+        const nameInput = $('#recurring-event-name');
+        const name = nameInput.value.trim();
+        const errEl = $('#recurring-event-error');
+        hide(errEl);
+
+        if (!name) {
+            errEl.textContent = 'O nome não pode estar vazio.';
+            show(errEl);
+            return;
+        }
+
+        try {
+            if (state.editingRecurringEventId) {
+                await updateDoc(doc(db, RECURRING_EVENTS_PATH, state.editingRecurringEventId), { name });
+                toast('Evento recorrente atualizado!');
+            } else {
+                await addDoc(collection(db, RECURRING_EVENTS_PATH), { name, ratingCount: 0, totalRatingSum: 0 });
+                toast('Evento recorrente adicionado!');
+            }
+            state.editingRecurringEventId = null;
+            nameInput.value = '';
+        } catch (err) {
+            console.error(err);
+            errEl.textContent = 'Erro ao salvar.';
+            show(errEl);
+        }
+    });
+
+    function renderRecurringEventsAdmin() {
+        const listEl = $('#recurring-events-list');
+        listEl.innerHTML = '';
+        if (state.recurringEvents.length === 0) {
+            listEl.innerHTML = '<div class="py-3 text-sm text-gray-500">Nenhum evento recorrente cadastrado.</div>';
+            return;
+        }
+        state.recurringEvents.forEach(rev => {
+            const el = document.createElement('div');
+            el.className = 'py-3 flex items-center justify-between';
+            el.innerHTML = `
+                <span class="font-medium">${rev.name}</span>
+                <div class="flex gap-2">
+                    <button class="rounded-full border border-gray-200 px-3 py-1.5 text-xs font-semibold" data-edit-id="${rev.id}">Editar</button>
+                    <button class="rounded-full bg-red-600 px-3 py-1.5 text-xs font-semibold text-white" data-delete-id="${rev.id}">Excluir</button>
+                </div>
+            `;
+            el.querySelector('[data-edit-id]').addEventListener('click', () => {
+                $('#recurring-event-name').value = rev.name;
+                state.editingRecurringEventId = rev.id;
+            });
+            el.querySelector('[data-delete-id]').addEventListener('click', async () => {
+                if (ensureAdmin() && confirm(`Tem certeza que quer excluir "${rev.name}"?`)) {
+                    await deleteDoc(doc(db, RECURRING_EVENTS_PATH, rev.id));
+                    toast('Excluído com sucesso.');
+                }
+            });
+            listEl.appendChild(el);
+        });
+    }
+
+    function populateRecurringEventsDropdown() {
+        const selects = ['#ev-recurring', '#org-ev-recurring'];
+        selects.forEach(selId => {
+            const select = $(selId);
+            if (!select) return;
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">Nenhum</option>';
+            state.recurringEvents.forEach(rev => {
+                const option = document.createElement('option');
+                option.value = rev.id;
+                option.textContent = rev.name;
+                select.appendChild(option);
+            });
+            select.value = currentVal;
+        });
+    }
+
+    // ===== Sistema de Avaliação (Rating) =====
+    async function renderRatingSection(recurringEventId) {
+        const displayContainer = $('#view-rating-display-container');
+        const inputContainer = $('#view-rating-input-container');
+        hide(displayContainer);
+        hide(inputContainer);
+
+        if (!recurringEventId) return;
+
+        const recurringEvent = state.recurringEvents.find(r => r.id === recurringEventId);
+        if (!recurringEvent) return;
+
+        // Display de Média
+        const { ratingCount = 0, totalRatingSum = 0 } = recurringEvent;
+        const average = ratingCount > 0 ? (totalRatingSum / ratingCount).toFixed(1) : 0;
+        
+        let starsHTML = '';
+        for (let i = 1; i <= 5; i++) {
+            let starClass = 'text-gray-300';
+            if (average >= i) starClass = 'text-yellow-400';
+            else if (average >= i - 0.5) starClass = 'text-yellow-400';
+            starsHTML += `<svg class="w-5 h-5 ${starClass}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>`;
+        }
+
+        displayContainer.innerHTML = `
+            <div class="text-sm text-gray-500">Avaliação do Local</div>
+            <div class="flex items-center gap-2 mt-1">
+                <div class="flex">${starsHTML}</div>
+                <div class="text-lg font-semibold">${average}</div>
+                <div class="text-sm text-gray-500">(${ratingCount} avaliações)</div>
+            </div>
+        `;
+        show(displayContainer);
+
+        // Input do Usuário
+        const user = auth.currentUser;
+        if (!user || user.isAnonymous) return;
+
+        const ratingDocRef = doc(db, `${RECURRING_EVENTS_PATH}/${recurringEventId}/ratings`, user.uid);
+        const ratingDoc = await getDoc(ratingDocRef);
+        const currentUserRating = ratingDoc.exists() ? ratingDoc.data().rating : 0;
+        
+        inputContainer.innerHTML = `
+            <div class="text-sm font-medium text-gray-700 mb-2">${currentUserRating > 0 ? 'Sua avaliação:' : 'Avalie este local:'}</div>
+            <div class="flex items-center gap-2">
+                <div class="star-rating flex flex-row-reverse justify-end items-center" data-recurring-id="${recurringEventId}">
+                    <input type="radio" id="star5" name="rating" value="5" ${currentUserRating == 5 ? 'checked' : ''} /><label for="star5">★</label>
+                    <input type="radio" id="star4" name="rating" value="4" ${currentUserRating == 4 ? 'checked' : ''} /><label for="star4">★</label>
+                    <input type="radio" id="star3" name="rating" value="3" ${currentUserRating == 3 ? 'checked' : ''} /><label for="star3">★</label>
+                    <input type="radio" id="star2" name="rating" value="2" ${currentUserRating == 2 ? 'checked' : ''} /><label for="star2">★</label>
+                    <input type="radio" id="star1" name="rating" value="1" ${currentUserRating == 1 ? 'checked' : ''} /><label for="star1">★</label>
+                </div>
+                ${currentUserRating > 0 ? `<button id="remove-rating-btn" class="flex items-center justify-center h-7 w-7 rounded-full bg-gray-200 text-gray-600 hover:bg-red-100 hover:text-red-600 transition-colors text-xs">✕</button>` : ''}
+            </div>
+        `;
+        show(inputContainer);
+
+        inputContainer.querySelectorAll('input[name="rating"]').forEach(radio => {
+            radio.addEventListener('change', async (e) => {
+                const newRating = parseInt(e.target.value);
+                await submitRating(recurringEventId, newRating, currentUserRating);
+            });
+        });
+        
+        const removeBtn = inputContainer.querySelector('#remove-rating-btn');
+        if (removeBtn) {
+            removeBtn.addEventListener('click', () => {
+                removeRating(recurringEventId, currentUserRating);
+            });
+        }
+    }
+
+    async function submitRating(recurringEventId, newRating, oldRating) {
+        const user = auth.currentUser;
+        if (!user || user.isAnonymous) return openLogin();
+        
+        const recurringEventRef = doc(db, RECURRING_EVENTS_PATH, recurringEventId);
+        const ratingRef = doc(db, `${RECURRING_EVENTS_PATH}/${recurringEventId}/ratings`, user.uid);
+
+        try {
+            await runTransaction(db, async (transaction) => {
+                const recurringEventDoc = await transaction.get(recurringEventRef);
+                if (!recurringEventDoc.exists()) throw "Evento recorrente não existe!";
+                
+                const isNewRating = oldRating === 0;
+                const ratingDiff = newRating - oldRating;
+
+                const newCount = isNewRating ? increment(1) : increment(0);
+                const newSum = increment(ratingDiff);
+
+                transaction.set(ratingRef, { rating: newRating, updatedAt: serverTimestamp() }, { merge: true });
+                transaction.update(recurringEventRef, {
+                    ratingCount: newCount,
+                    totalRatingSum: newSum
+                });
+            });
+            toast('Avaliação enviada, obrigado!');
+            if (state.currentViewEvent) {
+                renderRatingSection(state.currentViewEvent.recurringEventId);
+            }
+        } catch (error) {
+            console.error("Erro ao enviar avaliação: ", error);
+            toast('Não foi possível enviar sua avaliação.', false);
+        }
+    }
+    
+    async function removeRating(recurringEventId, ratingToRemove) {
+        const user = auth.currentUser;
+        if (!user || user.isAnonymous) return;
+
+        const recurringEventRef = doc(db, RECURRING_EVENTS_PATH, recurringEventId);
+        const ratingRef = doc(db, `${RECURRING_EVENTS_PATH}/${recurringEventId}/ratings`, user.uid);
+
+        try {
+            await runTransaction(db, async (transaction) => {
+                const ratingDoc = await transaction.get(ratingRef);
+                if (!ratingDoc.exists()) return; 
+
+                transaction.update(recurringEventRef, {
+                    ratingCount: increment(-1),
+                    totalRatingSum: increment(-ratingToRemove)
+                });
+                transaction.delete(ratingRef);
+            });
+            toast('Avaliação removida.');
+            if (state.currentViewEvent) {
+                renderRatingSection(state.currentViewEvent.recurringEventId);
+            }
+        } catch (error) {
+            console.error("Erro ao remover avaliação: ", error);
+            toast('Não foi possível remover sua avaliação.', false);
+        }
+    }
+
+    // ===== Admin: Configurações Gerais =====
+    $('#general-settings-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!ensureAdmin()) return;
+        const whatsappLink = $('#whatsapp-link-input').value.trim();
+        try {
+            await setDoc(doc(db, SETTINGS_PATH, 'global'), { whatsappLink }, { merge: true });
+            toast('Configurações salvas com sucesso!');
+        } catch (err) {
+            console.error("Erro ao salvar configurações:", err);
+            toast('Falha ao salvar as configurações.', false);
+        }
+    });
+
+
+    // ===== Aux =====
+    function mapAuthErr(err){ const c=String(err?.code||''); if(c.includes('auth/invalid-email')) return 'E-mail inválido.'; if(c.includes('auth/user-not-found')) return 'Usuário não encontrado.'; if(c.includes('auth/wrong-password')) return 'Senha incorreta.'; if(c.includes('auth/email-already-in-use')) return 'E-mail já cadastrado.'; if(c.includes('auth/weak-password')) return 'A senha precisa ter no mínimo 6 caracteres.'; return 'Falha de autenticação.'; }
+  </script>
+</body>
+</html>
