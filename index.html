@@ -227,6 +227,13 @@
           <input id="search-input" class="w-full rounded-full border border-gray-200 bg-white px-5 py-3.5 pr-12 text-base outline-none focus:ring-2 focus:ring-pink-600/40 shadow-soft" placeholder="Pesquise por festas, DJs..." />
           <svg class="absolute right-4 top-1/2 -translate-y-1/2" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15.5 15.5L20 20" stroke="#888" stroke-width="2" stroke-linecap="round"/><circle cx="10.5" cy="10.5" r="6.5" stroke="#888" stroke-width="2"/></svg>
         </div>
+        <!-- NOVO: Botão para a página de locais -->
+        <div class="mt-4 flex justify-center md:justify-start items-center gap-2">
+            <button id="btn-locations-view" class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                Ver por Local
+            </button>
+        </div>
       </div>
       <div class="rounded-3xl overflow-hidden shadow-soft ring-subtle">
         <img class="w-full h-[280px] md:h-[420px] object-cover" src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=1600&auto=format&fit=crop" alt="Brinde em festa no Rio"/>
@@ -306,6 +313,14 @@
         <p>Veja nossa <a href="https://firebasestorage.googleapis.com/v0/b/riofestas2.firebasestorage.app/o/termos%20de%20uso.html?alt=media&token=f7f7a4f3-b414-4bb8-b631-e2704652eb83" target="_blank" class="font-semibold text-pink-600 hover:underline">Política de Privacidade e Termos de Uso</a>.</p>
       </div>
     </div>
+  </section>
+
+  <!-- NOVO: PÁGINA DE LOCAIS -->
+  <section id="view-locations" class="hidden max-w-6xl mx-auto px-4 pb-28">
+      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Eventos por Local</h2>
+      <div id="locations-container" class="mt-8 space-y-12">
+          <!-- Carrosséis de locais serão injetados aqui pelo JavaScript -->
+      </div>
   </section>
 
   <!-- PÁGINA SOCIAL -->
@@ -1193,16 +1208,18 @@
     $('#btn-logout').addEventListener('click', async()=>{ await signOut(auth); toast('Você saiu da sua conta.'); hide($('#view-admin')); });
 
     // ===== Navegação =====
-    const allViews = ['#home-view', '#view-admin', '#view-social', '#hero-section', '#view-profile', '#view-about'];
+    const allViews = ['#home-view', '#view-admin', '#view-social', '#hero-section', '#view-profile', '#view-about', '#view-locations'];
     function showView(viewId) {
       allViews.forEach(v => hide($(v)));
       show($(viewId));
       if (viewId === '#home-view') show($('#hero-section'));
+      if (viewId === '#view-locations') renderLocationsPage();
       window.scrollTo(0, 0);
     }
     $('#logo-link').addEventListener('click', () => showView('#home-view'));
     $('#btn-home-header').addEventListener('click', () => showView('#home-view'));
     $('#btn-about-header').addEventListener('click', () => showView('#view-about'));
+    $('#btn-locations-view').addEventListener('click', () => showView('#view-locations'));
     $('#btn-social-header').addEventListener('click', () => {
       if (auth.currentUser && !auth.currentUser.isAnonymous) {
         openSocialView();
@@ -1483,6 +1500,53 @@
       renderOrgRequests();
       renderApprovedOrganizers();
       renderRecurringEventsAdmin();
+    }
+
+    // ===== NOVO: Renderização da Página de Locais =====
+    function renderLocationsPage() {
+        const container = $('#locations-container');
+        container.innerHTML = ''; 
+
+        const activeEvents = state.events.filter(isEventActive);
+
+        const eventsByLocation = activeEvents.reduce((acc, event) => {
+            if (event.recurringEventId) {
+                if (!acc[event.recurringEventId]) {
+                    acc[event.recurringEventId] = [];
+                }
+                acc[event.recurringEventId].push(event);
+            }
+            return acc;
+        }, {});
+
+        let hasContent = false;
+        state.recurringEvents.forEach(location => {
+            const locationEvents = eventsByLocation[location.id];
+
+            if (locationEvents && locationEvents.length > 0) {
+                hasContent = true;
+                locationEvents.sort((a, b) => (b.goingCount || 0) - (a.goingCount || 0));
+
+                const sectionEl = document.createElement('section');
+                const carouselId = `carousel-location-${location.id}`;
+                
+                sectionEl.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-2xl md:text-3xl font-extrabold tracking-tight">${location.name}</h3>
+                    </div>
+                    <div id="${carouselId}" class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"></div>
+                `;
+                
+                container.appendChild(sectionEl);
+                
+                const carouselContainer = sectionEl.querySelector(`#${carouselId}`);
+                locationEvents.forEach(ev => carouselContainer.appendChild(eventCard(ev)));
+            }
+        });
+
+        if (!hasContent) {
+            container.innerHTML = '<div class="mt-10 text-center text-gray-500">Nenhum evento encontrado para os locais cadastrados.</div>';
+        }
     }
 
     // ===== Admin: Gerenciamento de Eventos Unificado =====
