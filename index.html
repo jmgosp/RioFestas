@@ -2222,37 +2222,26 @@
     });
 
     async function openUserProfileModal(userId) {
-      const user = state.users[userId];
-      if (!user) return toast('Usuário não encontrado.', 'error');
+        const user = state.users[userId];
+        if (!user) return toast('Usuário não encontrado.', 'error');
 
-      const contentEl = $('#profile-content');
-      contentEl.innerHTML = '<div class="text-center py-8">Carregando...</div>';
-      show($('#user-profile-modal'));
+        const contentEl = $('#profile-content');
+        contentEl.innerHTML = '<div class="text-center py-8">Carregando...</div>';
+        show($('#user-profile-modal'));
 
-      const goingToSnap = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/goingTo`));
-      const eventIds = goingToSnap.docs.map(d => d.id);
+        const isFollowing = state.userFollowing.has(userId);
+        const isFollower = state.userFollowers.has(userId);
+        const hasRequested = state.userOutgoingRequests.has(userId);
+        const hasPendingRequestFromUser = state.incomingFollowRequests.has(userId);
+        const isOwnProfile = auth.currentUser?.uid === userId;
+        
+        // CORREÇÃO: Lógica de permissão de visualização
+        const canViewDetails = !user.isPrivate || isFollowing || isOwnProfile;
 
-      const upcomingEvents = [], pastEvents = [];
-      const now = startOfToday();
-
-      for (const eventId of eventIds) {
-        const eventData = state.events.find(e => e._id === eventId);
-        if (eventData) {
-          const eventDate = eventData.date?.toDate ? eventData.date.toDate() : new Date();
-          (eventDate >= now ? upcomingEvents : pastEvents).push(eventData);
-        }
-      }
-      
-      const isFollowing = state.userFollowing.has(userId);
-      const isFollower = state.userFollowers.has(userId);
-      const hasRequested = state.userOutgoingRequests.has(userId);
-      const hasPendingRequestFromUser = state.incomingFollowRequests.has(userId);
-      const isOwnProfile = auth.currentUser?.uid === userId;
-      
-      let actionButtonsHTML = '';
-      if (!isOwnProfile) {
-          if (hasPendingRequestFromUser) {
-              actionButtonsHTML = `
+        let actionButtonsHTML = '';
+        if (!isOwnProfile) {
+            if (hasPendingRequestFromUser) {
+                actionButtonsHTML = `
                 <div id="profile-request-banner" class="mt-4 w-full p-3 rounded-2xl bg-gray-100 text-center">
                     <p class="text-sm font-medium">${user.name} quer seguir você.</p>
                     <div class="mt-2 flex justify-center gap-2">
@@ -2260,51 +2249,77 @@
                         <button class="rounded-full bg-gray-200 text-gray-800 px-4 py-2 text-xs font-semibold" data-profile-decline-request="${userId}">Recusar</button>
                     </div>
                 </div>`;
-          } else {
-              let btnClass, btnText;
-              if (isFollowing) {
-                  btnClass = 'bg-gray-200 text-gray-800';
-                  btnText = 'Seguindo';
-              } else if (hasRequested) {
-                  btnClass = 'bg-gray-100 text-gray-600 border border-gray-300';
-                  btnText = 'Solicitado';
-              } else {
-                  btnClass = 'bg-pink-600 text-white';
-                  btnText = 'Seguir';
-              }
-              actionButtonsHTML = `<button id="profile-follow-btn" class="mt-4 rounded-full px-5 py-2.5 text-sm font-semibold ${btnClass}">${btnText}</button>`;
-          }
+            } else {
+                let btnClass, btnText;
+                if (isFollowing) {
+                    btnClass = 'bg-gray-200 text-gray-800';
+                    btnText = 'Seguindo';
+                } else if (hasRequested) {
+                    btnClass = 'bg-gray-100 text-gray-600 border border-gray-300';
+                    btnText = 'Solicitado';
+                } else {
+                    btnClass = 'bg-pink-600 text-white';
+                    btnText = 'Seguir';
+                }
+                actionButtonsHTML = `<button id="profile-follow-btn" class="mt-4 rounded-full px-5 py-2.5 text-sm font-semibold ${btnClass}">${btnText}</button>`;
+            }
 
-          if (isFollower) {
-              actionButtonsHTML += `<button id="profile-remove-follower-btn" class="mt-3 w-full rounded-full bg-red-50 border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors">Remover seguidor</button>`;
-          }
-      }
-
-      contentEl.innerHTML = `
-        <div class="flex flex-col items-center text-center">
-          <img src="${user.photoUrl || 'https://placehold.co/96x96/f472b6/ffffff?text='+initials(user.name)}" class="h-24 w-24 rounded-full object-cover bg-gray-200 ring-4 ring-white shadow-md">
-          <h4 class="mt-4 text-2xl font-bold">${user.name}</h4>
-          <p class="text-gray-500">@${user.username}</p>
-          <div class="mt-2 flex gap-4 text-sm">
-            <button class="hover:underline" data-action="view-follow-list" data-user-id="${userId}" data-list-type="followers">
-                <strong>${user.followersCount || 0}</strong> seguidores
-            </button>
-            <button class="hover:underline" data-action="view-follow-list" data-user-id="${userId}" data-list-type="following">
-                <strong>${user.followingCount || 0}</strong> seguindo
-            </button>
-          </div>
-          ${user.bio ? `<p class="mt-3 max-w-md text-gray-600">${user.bio}</p>` : ''}
-          <div id="profile-action-buttons" class="w-full">${actionButtonsHTML}</div>
-        </div>
-        <div class="mt-8">
-          <h5 class="font-semibold">Próximos Eventos</h5>
-          <div id="upcoming-list" class="mt-2 space-y-2">${renderProfileEventList(upcomingEvents)}</div>
-        </div>
-        <div class="mt-6">
-          <h5 class="font-semibold">Eventos Anteriores</h5>
-          <div id="past-list" class="mt-2 space-y-2">${renderProfileEventList(pastEvents)}</div>
-        </div>`;
+            if (isFollower) {
+                actionButtonsHTML += `<button id="profile-remove-follower-btn" class="mt-3 w-full rounded-full bg-red-50 border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors">Remover seguidor</button>`;
+            }
+        }
         
+        // CORREÇÃO: HTML condicional para eventos e listas
+        let detailsHTML = '';
+        if (canViewDetails) {
+            const goingToSnap = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/goingTo`));
+            const eventIds = goingToSnap.docs.map(d => d.id);
+            const upcomingEvents = [], pastEvents = [];
+            const now = startOfToday();
+            for (const eventId of eventIds) {
+                const eventData = state.events.find(e => e._id === eventId);
+                if (eventData) {
+                    const eventDate = eventData.date?.toDate ? eventData.date.toDate() : new Date();
+                    (eventDate >= now ? upcomingEvents : pastEvents).push(eventData);
+                }
+            }
+            detailsHTML = `
+                <div class="mt-8">
+                    <h5 class="font-semibold">Próximos Eventos</h5>
+                    <div id="upcoming-list" class="mt-2 space-y-2">${renderProfileEventList(upcomingEvents)}</div>
+                </div>
+                <div class="mt-6">
+                    <h5 class="font-semibold">Eventos Anteriores</h5>
+                    <div id="past-list" class="mt-2 space-y-2">${renderProfileEventList(pastEvents)}</div>
+                </div>`;
+        } else {
+            detailsHTML = `
+                <div class="mt-8 text-center p-6 rounded-2xl bg-gray-50 border border-gray-200">
+                    <svg class="mx-auto h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                    <h5 class="mt-2 font-semibold">Este perfil é privado</h5>
+                    <p class="mt-1 text-sm text-gray-500">Siga esta pessoa para ver os eventos que ela vai.</p>
+                </div>`;
+        }
+
+        contentEl.innerHTML = `
+            <div class="flex flex-col items-center text-center">
+                <img src="${user.photoUrl || 'https://placehold.co/96x96/f472b6/ffffff?text='+initials(user.name)}" class="h-24 w-24 rounded-full object-cover bg-gray-200 ring-4 ring-white shadow-md">
+                <h4 class="mt-4 text-2xl font-bold">${user.name}</h4>
+                <p class="text-gray-500">@${user.username}</p>
+                <div class="mt-2 flex gap-4 text-sm">
+                    <button class="hover:underline ${!canViewDetails ? 'pointer-events-none text-gray-400' : ''}" data-action="view-follow-list" data-user-id="${userId}" data-list-type="followers">
+                        <strong>${user.followersCount || 0}</strong> seguidores
+                    </button>
+                    <button class="hover:underline ${!canViewDetails ? 'pointer-events-none text-gray-400' : ''}" data-action="view-follow-list" data-user-id="${userId}" data-list-type="following">
+                        <strong>${user.followingCount || 0}</strong> seguindo
+                    </button>
+                </div>
+                ${user.bio ? `<p class="mt-3 max-w-md text-gray-600">${user.bio}</p>` : ''}
+                <div id="profile-action-buttons" class="w-full">${actionButtonsHTML}</div>
+            </div>
+            ${detailsHTML}`;
+
+        // Re-anexar listeners
         if (!isOwnProfile) {
             const followBtn = $('#profile-follow-btn');
             if (followBtn) followBtn.addEventListener('click', () => toggleFollow(userId, followBtn));
@@ -2321,6 +2336,7 @@
         
         contentEl.querySelectorAll('[data-action="view-follow-list"]').forEach(btn => {
             btn.addEventListener('click', () => {
+                if (!canViewDetails) return; // Segurança extra
                 const targetUserId = btn.dataset.userId;
                 const listType = btn.dataset.listType;
                 openFollowListModal(targetUserId, listType);
