@@ -40,11 +40,12 @@
         position: relative;
         overflow: hidden;
         touch-action: pan-y; /* Permite rolagem vertical */
+        transition: opacity 0.3s ease-out, max-height 0.3s ease-out, margin 0.3s ease-out;
     }
     .notification-content {
         position: relative;
         z-index: 10;
-        background-color: white; /* ou a cor de fundo do seu card */
+        background-color: white;
         transition: transform 0.2s ease-out;
         will-change: transform;
     }
@@ -70,14 +71,13 @@
         opacity: 1;
     }
     .notification-item.deleting {
-        transition: opacity 0.3s ease-out, max-height 0.3s ease-out, margin 0.3s ease-out, padding 0.3s ease-out;
         opacity: 0;
-        max-height: 0;
+        max-height: 0 !important;
         margin-top: 0 !important;
         margin-bottom: 0 !important;
         padding-top: 0 !important;
         padding-bottom: 0 !important;
-        border: none !important;
+        border-width: 0 !important;
     }
 
     /* Estilos do Toast (Notificação) */
@@ -95,54 +95,66 @@
 
     /* Custom styles for mobile admin view */
     @media (max-width: 767px) {
-      .admin-table-container table {
-        display: block;
-      }
-      .admin-table-container thead {
-        display: none; /* Hide table header on mobile */
-      }
+      /* Remove a visualização de tabela tradicional */
+      .admin-table-container table,
+      .admin-table-container thead,
+      .admin-table-container tbody,
+      .admin-table-container th,
+      .admin-table-container td,
       .admin-table-container tr {
         display: block;
-        border-radius: 1.5rem; /* rounded-3xl */
-        background-color: white;
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        margin-bottom: 1rem;
-        border: 1px solid #e5e7eb; /* border-gray-200 */
-        padding: 1rem;
       }
+      
+      .admin-table-container thead {
+        display: none;
+      }
+
+      .admin-table-container tr {
+        background-color: white;
+        border-radius: 1rem; /* rounded-2xl */
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+        border: 1px solid #f3f4f6; /* border-gray-100 */
+      }
+
       .admin-table-container td {
+        border: none;
+        padding: 0.5rem 0;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-left: 0;
-        padding-right: 0;
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-        border: none;
+        gap: 0.5rem;
       }
+      
+      /* Adiciona um "label" antes de cada célula de dados */
       .admin-table-container td:before {
         content: attr(data-label);
-        font-weight: 600;
-        color: #4b5563; /* text-gray-600 */
-      }
-      .admin-table-container td.actions-cell {
-        justify-content: flex-end; /* Align buttons to the right */
-        padding-top: 1rem;
-      }
-       .admin-table-container td.actions-cell:before {
-        display: none; /* No label for actions */
-      }
-       .admin-table-container td.event-cell {
-         flex-direction: column;
-         align-items: flex-start;
-         gap: 0.5rem;
-         padding-bottom: 1rem;
-         border-bottom: 1px solid #f3f4f6;
-      }
-      .admin-table-container td.event-cell:before {
-         display: none;
+        font-weight: 500;
+        color: #6b7280; /* text-gray-500 */
+        font-size: 0.875rem;
       }
 
+      .admin-table-container .event-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-bottom: 0.75rem;
+        margin-bottom: 0.75rem;
+        border-bottom: 1px solid #f3f4f6;
+      }
+
+      .admin-table-container .event-cell:before {
+        display: none; /* O card do evento não precisa de label */
+      }
+      
+      .admin-table-container .actions-cell {
+        padding-top: 0.75rem;
+      }
+      .admin-table-container .actions-cell:before {
+        display: none; /* Célula de ações não precisa de label */
+      }
+      
       /* Carousel de fotos do evento na visualização mobile */
       #view-gallery {
         display: flex;
@@ -444,37 +456,29 @@
       <p class="text-sm text-gray-600 mb-3">Aguardando aprovação. Você pode editar antes de aprovar.</p>
       <div id="pending-events" class="grid gap-3"></div>
     </div>
+    
+    <!-- ÁREA DE GERENCIAMENTO DE EVENTOS UNIFICADA -->
     <div class="mt-6 rounded-3xl md:bg-white md:shadow-soft md:ring-subtle md:overflow-hidden">
-      <h3 class="text-lg font-semibold p-4">Eventos Ativos</h3>
-      <div class="admin-table-container max-h-[60vh] md:overflow-auto">
-        <table class="min-w-full md:divide-y md:divide-gray-200">
-          <thead class="bg-gray-50/60">
-            <tr class="text-left text-sm text-gray-600">
-              <th class="px-4 py-3 font-semibold">Evento</th>
-              <th class="px-4 py-3 font-semibold">Local</th>
-              <th class="px-4 py-3 font-semibold">Data</th>
-              <th class="px-4 py-3 font-semibold">Importância (0–10)</th>
-              <th class="px-4 py-3 font-semibold">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="admin-tbody" class="bg-transparent md:divide-y md:divide-gray-200 md:bg-white"></tbody>
-        </table>
+      <div class="p-4 flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-gray-100">
+        <h3 class="text-lg font-semibold">Gerenciar Eventos</h3>
+        <div class="flex-shrink-0 flex rounded-full bg-gray-100 p-1">
+          <button id="admin-tab-active" class="px-4 py-1.5 text-sm font-semibold rounded-full bg-white shadow">Ativos</button>
+          <button id="admin-tab-past" class="px-4 py-1.5 text-sm font-semibold rounded-full text-gray-600">Passados</button>
+        </div>
       </div>
-    </div>
-    <div class="mt-6 rounded-3xl md:bg-white md:shadow-soft md:ring-subtle md:overflow-hidden">
-      <h3 class="text-lg font-semibold p-4">Eventos Passados (últimos 7 dias)</h3>
-      <div class="admin-table-container max-h-[60vh] md:overflow-auto">
-        <table class="min-w-full md:divide-y md:divide-gray-200">
-          <thead class="bg-gray-50/60">
-            <tr class="text-left text-sm text-gray-600">
-              <th class="px-4 py-3 font-semibold">Evento</th>
-              <th class="px-4 py-3 font-semibold">Local</th>
-              <th class="px-4 py-3 font-semibold">Data</th>
-              <th class="px-4 py-3 font-semibold">Ações</th>
-            </tr>
+      <div id="past-events-search-container" class="px-4 pt-4 hidden">
+          <input id="past-events-search" class="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5" placeholder="Buscar eventos passados por nome...">
+      </div>
+      <div class="admin-table-container max-h-[60vh] md:overflow-auto p-4 md:p-0">
+        <table class="min-w-full">
+          <thead id="admin-events-thead" class="bg-gray-50/60">
+            <!-- Conteúdo do cabeçalho da tabela inserido via JS -->
           </thead>
-          <tbody id="admin-past-tbody" class="bg-transparent md:divide-y md:divide-gray-200 md:bg-white"></tbody>
+          <tbody id="admin-events-tbody" class="bg-transparent md:divide-y md:divide-gray-200 md:bg-white">
+            <!-- Conteúdo do corpo da tabela inserido via JS -->
+          </tbody>
         </table>
+        <p id="admin-events-placeholder" class="hidden text-center text-sm text-gray-500 p-6"></p>
       </div>
     </div>
   </section>
@@ -838,6 +842,19 @@
     </div>
   </div>
 
+  <!-- NOVO: Modal de Confirmação para Excluir Notificação -->
+  <div id="delete-notification-modal" class="fixed inset-0 z-[70] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="delete-notification"></div>
+    <div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
+      <h4 class="text-lg font-bold">Excluir Notificação</h4>
+      <p class="mt-2 text-sm text-gray-600">Você tem certeza que deseja excluir esta notificação? Esta ação não pode ser desfeita.</p>
+      <div class="mt-5 flex justify-end gap-2">
+        <button class="rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="delete-notification">Cancelar</button>
+        <button id="delete-notification-confirm-btn" class="rounded-full bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">Excluir</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Container -->
   <div id="toast-container" class="pointer-events-none fixed inset-x-0 bottom-5 z-[90] flex flex-col items-center gap-2"></div>
 
@@ -891,11 +908,12 @@
     const show = (el)=> el?.classList.remove('hidden');
     const hide = (el)=> el?.classList.add('hidden');
     
-    // NOVO Sistema de Toast
-    const toast = (message, type = 'success', duration = 4000) => {
+    // Sistema de Toast com Ação
+    const toast = (message, type = 'success', options = {}) => {
         const container = $('#toast-container');
         const toastId = 'toast-' + Date.now();
         const toastEl = document.createElement('div');
+        const { duration = 4000, actionText = null, onAction = null } = options;
         
         const icons = {
             success: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
@@ -910,11 +928,12 @@
         };
 
         toastEl.id = toastId;
-        toastEl.className = `pointer-events-auto flex items-start gap-3 w-[90%] max-w-sm rounded-2xl p-4 shadow-lg ring-1 toast-in ${colors[type] || colors.info}`;
+        toastEl.className = `pointer-events-auto flex items-center gap-3 w-[90%] max-w-sm rounded-2xl p-4 shadow-lg ring-1 toast-in ${colors[type] || colors.info}`;
         toastEl.innerHTML = `
             <div class="flex-shrink-0">${icons[type] || icons.info}</div>
             <div class="flex-1 text-sm font-medium">${message}</div>
-            <button data-close-toast="${toastId}" class="flex-shrink-0 opacity-70 hover:opacity-100">&times;</button>
+            ${actionText ? `<button data-toast-action class="flex-shrink-0 ml-2 px-3 py-1 rounded-full text-sm font-semibold bg-black/10 hover:bg-black/20 transition-colors">${actionText}</button>` : ''}
+            <button data-close-toast="${toastId}" class="flex-shrink-0 ml-2 opacity-70 hover:opacity-100">&times;</button>
         `;
         
         container.appendChild(toastEl);
@@ -931,6 +950,16 @@
             clearTimeout(timer);
             close();
         });
+
+        const actionBtn = toastEl.querySelector('[data-toast-action]');
+        if (actionBtn && onAction) {
+            actionBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                clearTimeout(timer);
+                onAction();
+                close();
+            });
+        }
     };
 
     const initials = (s='U') => (s.split(/[\s@._-]+/).filter(Boolean).slice(0,2).map(x=>x[0]?.toUpperCase()).join('')||'U');
@@ -944,7 +973,7 @@
     function next7End(){ const x=startOfToday(); x.setDate(x.getDate()+6); x.setHours(23,59,59,999); return x; }
 
     // ===== Sessão & roles =====
-    const state = { events:[], pending:[], users:{}, recurringEvents: [], settings: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, removeFollowerTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} } };
+    const state = { events:[], pending:[], users:{}, recurringEvents: [], settings: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, deleteNotificationTarget: null, removeFollowerTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} }, adminEventsView: 'active' };
     let _unsubRole = null, _unsubEvents=null, _unsubPending=null, _unsubGoingTo=null, _unsubFollowing=null, _unsubFollowers=null, _unsubOutgoingRequests=null, _unsubIncomingRequests=null, _unsubNotifications=null, _unsubRecurring=null, _unsubSettings=null;
 
     const renderHeader = ()=>{
@@ -1006,6 +1035,7 @@
       if(id==='view') { state.currentViewEvent = null; }
       if(id==='delete') { state.deleteTarget = null; }
       if(id==='remove-follower') { state.removeFollowerTarget = null; }
+      if(id==='delete-notification') { state.deleteNotificationTarget = null; }
     });
 
     // ===== Login =====
@@ -1214,7 +1244,9 @@
       if(_unsubEvents) _unsubEvents();
       _unsubEvents = onSnapshot(collection(db, EVENTS_PATH), (snap)=>{
         state.events = snap.docs.map(d=>({ _id: d.id, _ref: d.ref, _path: d.ref.path, ...d.data() }));
-        renderAllHome(); renderAdminTable(); renderSocialFeeds();
+        renderAllHome(); 
+        renderAdminEventsView(); 
+        renderSocialFeeds();
       }, (err)=>{ console.error(err); toast('Erro ao carregar eventos.', 'error'); });
     }
     subEvents();
@@ -1446,97 +1478,164 @@
     $('#search-input').addEventListener('input', renderFeed);
 
     function refreshAllAdminViews() {
-      renderAdminTable();
+      renderAdminEventsView();
       refreshAdminsList();
       renderOrgRequests();
       renderApprovedOrganizers();
       renderRecurringEventsAdmin();
     }
 
-    // Admin tabela + exclusão
-    function renderAdminTable(){
-      const tbody=$('#admin-tbody'); if(!tbody) return;
-      tbody.innerHTML='';
-      state.events.filter(isEventActive).forEach(ev=>{
-        const tr=document.createElement('tr');
-        tr.innerHTML=`
-          <td class="event-cell" data-label='Evento'>
-            <div class='flex items-center gap-3'>
-              <img src='${ev.imageUrls?.[0]||''}' onerror="this.src='https://placehold.co/64x48/f9a8d4/ffffff?text=RioFestas'" class='h-12 w-16 rounded-lg object-cover ring-subtle' />
-              <div>
-                <div class='font-medium'>${ev.name||''}</div>
-                <div class='text-xs text-gray-500'>${ev.style||''}</div>
-              </div>
-            </div>
-          </td>
-          <td data-label='Local' class='text-sm text-gray-700'>${ev.local||''}</td>
-          <td data-label='Data' class='text-sm text-gray-700'>${fmtDate(ev.date)}</td>
-          <td data-label='Importância' class='text-sm'>${Number(ev.importance||0)}</td>
-          <td class="actions-cell">
-            <div class='flex gap-2 justify-end'>
-              <button class='inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-gray-50' data-act='edit'>Editar</button>
-              <button class='inline-flex items-center rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100' data-act='del'>Excluir</button>
-            </div>
-          </td>`;
+    // ===== Admin: Gerenciamento de Eventos Unificado =====
+    const adminTabActive = $('#admin-tab-active');
+    const adminTabPast = $('#admin-tab-past');
+    const pastSearchContainer = $('#past-events-search-container');
+    const pastSearchInput = $('#past-events-search');
+    const adminThead = $('#admin-events-thead');
+    const adminTbody = $('#admin-events-tbody');
+    const adminPlaceholder = $('#admin-events-placeholder');
 
-        tr.querySelector('[data-act="edit"]').addEventListener('click',()=>{ if(!ensureAdmin()) return; openEventModal('edit', ev) });
-        tr.querySelector('[data-act="del"]').addEventListener('click',()=>{
-            if(!ensureAdmin()) return;
-            state.deleteTarget = { path: ev._path, name: ev.name };
-            $('#delete-event-name').textContent = ev.name || 'este evento';
-            show($('#delete-modal'));
-        });
-        tbody.appendChild(tr);
-      });
-      refreshAdminsList();
-      renderOrgRequests();
-      renderApprovedOrganizers();
-      renderPastEventsTable();
+    const activeTheadHTML = `
+        <tr class="text-left text-sm text-gray-600">
+            <th class="px-4 py-3 font-semibold">Evento</th>
+            <th class="px-4 py-3 font-semibold">Local</th>
+            <th class="px-4 py-3 font-semibold">Data</th>
+            <th class="px-4 py-3 font-semibold">Importância</th>
+            <th class="px-4 py-3 font-semibold">Ações</th>
+        </tr>`;
+
+    const pastTheadHTML = `
+        <tr class="text-left text-sm text-gray-600">
+            <th class="px-4 py-3 font-semibold">Evento</th>
+            <th class="px-4 py-3 font-semibold">Local</th>
+            <th class="px-4 py-3 font-semibold">Data</th>
+            <th class="px-4 py-3 font-semibold">Ações</th>
+        </tr>`;
+
+    adminTabActive.addEventListener('click', () => {
+        state.adminEventsView = 'active';
+        adminTabActive.classList.add('bg-white', 'shadow');
+        adminTabActive.classList.remove('text-gray-600');
+        adminTabPast.classList.remove('bg-white', 'shadow');
+        adminTabPast.classList.add('text-gray-600');
+        renderAdminEventsView();
+    });
+
+    adminTabPast.addEventListener('click', () => {
+        state.adminEventsView = 'past';
+        adminTabPast.classList.add('bg-white', 'shadow');
+        adminTabPast.classList.remove('text-gray-600');
+        adminTabActive.classList.remove('bg-white', 'shadow');
+        adminTabActive.classList.add('text-gray-600');
+        renderAdminEventsView();
+    });
+
+    pastSearchInput.addEventListener('input', (e) => {
+        renderAdminPastEventsResults(e.target.value);
+    });
+
+    function renderAdminEventsView() {
+        adminTbody.innerHTML = '';
+        hide(adminPlaceholder);
+
+        if (state.adminEventsView === 'active') {
+            hide(pastSearchContainer);
+            adminThead.innerHTML = activeTheadHTML;
+            
+            const activeEvents = state.events.filter(isEventActive);
+            if (activeEvents.length === 0) {
+                adminPlaceholder.textContent = 'Nenhum evento ativo no momento.';
+                show(adminPlaceholder);
+                return;
+            }
+
+            activeEvents.forEach(ev => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                  <td class="event-cell" data-label="Evento">
+                      <div class="flex items-center gap-3">
+                          <img src="${ev.imageUrls?.[0]||''}" onerror="this.src='https://placehold.co/64x48/f9a8d4/ffffff?text=RioFestas'" class="h-12 w-16 rounded-lg object-cover ring-subtle" />
+                          <div>
+                              <div class="font-medium">${ev.name||''}</div>
+                              <div class="text-xs text-gray-500">${ev.style||''}</div>
+                          </div>
+                      </div>
+                  </td>
+                  <td data-label="Local" class="text-sm text-gray-700">${ev.local||''}</td>
+                  <td data-label="Data" class="text-sm text-gray-700">${fmtDate(ev.date)}</td>
+                  <td data-label="Importância" class="text-sm">${Number(ev.importance||0)}</td>
+                  <td class="actions-cell">
+                      <div class="flex gap-2 justify-end">
+                          <button class="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-gray-50" data-act="edit">Editar</button>
+                          <button class="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100" data-act="del">Excluir</button>
+                      </div>
+                  </td>`;
+                tr.querySelector('[data-act="edit"]').addEventListener('click', () => { if (!ensureAdmin()) return; openEventModal('edit', ev) });
+                tr.querySelector('[data-act="del"]').addEventListener('click', () => {
+                    if (!ensureAdmin()) return;
+                    state.deleteTarget = { path: ev._path, name: ev.name };
+                    $('#delete-event-name').textContent = ev.name || 'este evento';
+                    show($('#delete-modal'));
+                });
+                adminTbody.appendChild(tr);
+            });
+        } else { // 'past' view
+            show(pastSearchContainer);
+            pastSearchInput.value = '';
+            adminThead.innerHTML = pastTheadHTML;
+            adminPlaceholder.textContent = 'Digite na busca para encontrar eventos passados (últimos 7 dias).';
+            show(adminPlaceholder);
+        }
     }
 
-    function renderPastEventsTable() {
-      const tbody=$('#admin-past-tbody'); if(!tbody) return;
-      tbody.innerHTML = '';
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      
-      const pastEvents = state.events
-        .filter(ev => !isEventActive(ev))
-        .filter(ev => {
-          const endDate = ev.endDate?.toDate() || ev.date?.toDate();
-          return endDate >= sevenDaysAgo;
-        });
+    function renderAdminPastEventsResults(searchTerm = '') {
+        adminTbody.innerHTML = '';
+        hide(adminPlaceholder);
 
-      if (pastEvents.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 py-4">Nenhum evento encerrado nos últimos 7 dias.</td></tr>';
-        return;
-      }
+        if (!searchTerm.trim()) {
+            adminPlaceholder.textContent = 'Digite na busca para encontrar eventos passados (últimos 7 dias).';
+            show(adminPlaceholder);
+            return;
+        }
 
-      pastEvents.forEach(ev => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="event-cell" data-label='Evento'>
-            <div class='flex items-center gap-3'>
-              <img src='${ev.imageUrls?.[0]||''}' onerror="this.src='https://placehold.co/64x48/f9a8d4/ffffff?text=RioFestas'" class='h-12 w-16 rounded-lg object-cover ring-subtle' />
-              <div>
-                <div class='font-medium'>${ev.name||''}</div>
-                <div class='text-xs text-gray-500'>${ev.style||''}</div>
-              </div>
-            </div>
-          </td>
-          <td data-label='Local' class='text-sm text-gray-700'>${ev.local||''}</td>
-          <td data-label='Data' class='text-sm text-gray-700'>${fmtDate(ev.date)}</td>
-          <td class="actions-cell">
-            <div class='flex gap-2 justify-end'>
-              <button class='inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-gray-50' data-act='edit'>Editar</button>
-            </div>
-          </td>`;
-        tr.querySelector('[data-act="edit"]').addEventListener('click', () => {
-          if (!ensureAdmin()) return;
-          openEventModal('edit', ev);
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        const pastEvents = state.events
+            .filter(ev => !isEventActive(ev))
+            .filter(ev => (ev.endDate?.toDate() || ev.date?.toDate()) >= sevenDaysAgo)
+            .filter(ev => ev.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        if (pastEvents.length === 0) {
+            adminPlaceholder.textContent = 'Nenhum evento passado encontrado com esse nome.';
+            show(adminPlaceholder);
+            return;
+        }
+
+        pastEvents.forEach(ev => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td class="event-cell" data-label="Evento">
+                  <div class="flex items-center gap-3">
+                      <img src="${ev.imageUrls?.[0]||''}" onerror="this.src='https://placehold.co/64x48/f9a8d4/ffffff?text=RioFestas'" class="h-12 w-16 rounded-lg object-cover ring-subtle" />
+                      <div>
+                          <div class="font-medium">${ev.name||''}</div>
+                          <div class="text-xs text-gray-500">${ev.style||''}</div>
+                      </div>
+                  </div>
+              </td>
+              <td data-label="Local" class="text-sm text-gray-700">${ev.local||''}</td>
+              <td data-label="Data" class="text-sm text-gray-700">${fmtDate(ev.date)}</td>
+              <td class="actions-cell">
+                  <div class="flex gap-2 justify-end">
+                      <button class="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-gray-50" data-act="edit">Editar</button>
+                  </div>
+              </td>`;
+            tr.querySelector('[data-act="edit"]').addEventListener('click', () => {
+              if (!ensureAdmin()) return;
+              openEventModal('edit', ev);
+            });
+            adminTbody.appendChild(tr);
         });
-        tbody.appendChild(tr);
-      });
     }
 
     $('#delete-confirm-btn').addEventListener('click', async (e)=>{
@@ -2365,7 +2464,7 @@
         }
     }
 
-    // ===== Sistema de Notificações =====
+    // ===== Sistema de Notificações (LÓGICA ATUALIZADA) =====
     $('#account-notify-check').addEventListener('change', async (e) => {
         const user = auth.currentUser;
         if (!user) return;
@@ -2486,7 +2585,6 @@
 
             const el = document.createElement('div');
             el.className = 'notification-item rounded-2xl bg-white hover:bg-gray-50/80';
-            el.dataset.notificationId = notif.id; // Add id for undo
             
             let contentHTML = '';
             const isFollowingBack = state.userFollowing.has(notif.fromUserId);
@@ -2562,51 +2660,61 @@
             listEl.appendChild(el);
         });
     }
+    
+    // NOVO: Função para confirmar a exclusão da notificação
+    async function confirmNotificationDeletion() {
+        if (!state.deleteNotificationTarget) return;
 
-    let undoTimeoutId = null;
-    function scheduleNotificationDeletion(element, notificationId) {
-        // Clear any previous undo timeout
-        if (undoTimeoutId) clearTimeout(undoTimeoutId);
-        
-        // Hide the element for deletion animation
-        element.classList.add('deleting');
-
+        const { id, element } = state.deleteNotificationTarget;
         const user = auth.currentUser;
         if (!user) return;
-        const notifRef = doc(db, `artifacts/${appId}/users/${user.uid}/notifications`, notificationId);
 
-        // Schedule the actual deletion
-        const timeoutId = setTimeout(() => {
-            deleteDoc(notifRef).catch(err => {
-                console.error("Error deleting notification:", err);
-                toast('Erro ao apagar notificação.', 'error');
-                // If deletion fails, bring the element back
-                element.classList.remove('deleting');
-            });
-        }, 5000); // 5 seconds to undo
+        // Animação de exclusão
+        element.classList.add('deleting');
+        
+        // Esconde o modal
+        hide($('#delete-notification-modal'));
 
-        // Show toast with Undo button
-        toast('Notificação apagada.', 'info', 5000);
-        // This is a simplified toast call, a real implementation would need a way to add an "Undo" button
+        try {
+            const notifRef = doc(db, `artifacts/${appId}/users/${user.uid}/notifications`, id);
+            await deleteDoc(notifRef);
+            toast('Notificação excluída.', 'success');
+        } catch (err) {
+            console.error("Erro ao apagar notificação:", err);
+            toast('Erro ao apagar notificação.', 'error');
+            // Se der erro, remove a classe para o item reaparecer
+            element.classList.remove('deleting');
+        } finally {
+            state.deleteNotificationTarget = null;
+        }
     }
+    $('#delete-notification-confirm-btn').addEventListener('click', confirmNotificationDeletion);
+
 
     function addSwipeToDelete(element, notificationId) {
         let startX = 0;
         let currentX = 0;
         let isDragging = false;
+        let hasMovedEnough = false; // Flag para diferenciar clique de arrasto
+        const clickThreshold = 5; // Mínimo de pixels para considerar um arrasto
         const deleteThreshold = -100; // Distância em pixels para acionar a exclusão
         const content = element.querySelector('.notification-content');
 
         const onDragStart = (clientX) => {
             isDragging = true;
+            hasMovedEnough = false;
             startX = clientX;
             element.classList.add('swiping');
-            document.body.style.cursor = 'grabbing';
         };
 
         const onDragMove = (clientX) => {
             if (!isDragging) return;
             currentX = clientX - startX;
+            
+            if (Math.abs(currentX) > clickThreshold) {
+                hasMovedEnough = true;
+            }
+
             if (currentX > 0) currentX = 0; // Não permite arrastar para a direita
             content.style.transform = `translateX(${currentX}px)`;
         };
@@ -2615,13 +2723,18 @@
             if (!isDragging) return;
             isDragging = false;
             element.classList.remove('swiping');
-            document.body.style.cursor = '';
 
-            if (currentX < deleteThreshold) {
-                // Schedule deletion instead of deleting immediately
-                scheduleNotificationDeletion(element, notificationId);
+            // Só processa a exclusão se o usuário realmente arrastou o dedo/mouse
+            if (hasMovedEnough) {
+                if (currentX < deleteThreshold) {
+                    state.deleteNotificationTarget = { id: notificationId, element: element };
+                    show($('#delete-notification-modal'));
+                    content.style.transform = 'translateX(0)';
+                } else {
+                    content.style.transform = 'translateX(0)';
+                }
             } else {
-                // Retorna à posição original
+                // Se não moveu o suficiente, foi um clique, então reseta a posição sem fazer nada.
                 content.style.transform = 'translateX(0)';
             }
         };
