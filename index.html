@@ -34,6 +34,53 @@
         background-color: #f472b6; /* pink-500 */
         transition: width 0.2s ease-out;
     }
+    
+    /* Swipe to delete styles */
+    .notification-item {
+        position: relative;
+        overflow: hidden;
+        touch-action: pan-y; /* Permite rolagem vertical */
+    }
+    .notification-content {
+        position: relative;
+        z-index: 10;
+        background-color: white; /* ou a cor de fundo do seu card */
+        transition: transform 0.2s ease-out;
+        will-change: transform;
+    }
+    .delete-background {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 100px;
+        background-color: #ef4444; /* red-500 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.2s ease-out;
+        z-index: 1;
+    }
+    .notification-item.swiping .notification-content {
+        transition: none;
+    }
+    .notification-item.swiping .delete-background {
+        opacity: 1;
+    }
+    .notification-item.deleting {
+        transition: opacity 0.3s ease-out, max-height 0.3s ease-out, margin 0.3s ease-out, padding 0.3s ease-out;
+        opacity: 0;
+        max-height: 0;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        border: none !important;
+    }
+
+
     /* Custom styles for mobile admin view */
     @media (max-width: 767px) {
       .admin-table-container table {
@@ -918,10 +965,16 @@
     $('#form-register').addEventListener('submit', async (e)=>{
       e.preventDefault();
       const name=$('#reg-name').value.trim();
-      let username=$('#reg-username').value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+      const usernameRaw = $('#reg-username').value.trim();
       const email=$('#reg-email').value.trim(); const pass=$('#reg-pass').value; const isOrg=$('#reg-organizer-check').checked;
       const btn=$('#submit-register'); const old=btn.textContent; btn.textContent='Registrando…'; btn.disabled=true;
       const errEl = $('#err-register'); hide(errEl);
+      
+      if (usernameRaw.includes(' ')) {
+        errEl.textContent = 'Nome de usuário não pode conter espaços.'; show(errEl);
+        btn.textContent=old; btn.disabled=false; return;
+      }
+      const username = usernameRaw.toLowerCase().replace(/[^a-z0-9_]/g, '');
 
       if (!username || !name || !email || pass.length < 6) {
         errEl.textContent = 'Preencha todos os campos corretamente.'; show(errEl);
@@ -2292,27 +2345,27 @@
             if (!fromUser) return;
 
             const el = document.createElement('div');
-            el.className = 'group flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50/80 relative';
+            el.className = 'notification-item rounded-2xl bg-white hover:bg-gray-50/80';
             
-            let content = '';
+            let contentHTML = '';
             const isFollowingBack = state.userFollowing.has(notif.fromUserId);
             const followButtonHTML = `<button class="rounded-full px-3 py-1.5 text-xs font-semibold ${isFollowingBack ? 'bg-gray-200 text-gray-800' : 'bg-pink-600 text-white'}" data-follow-id="${fromUser.id}">${isFollowingBack ? 'Seguindo' : 'Seguir de volta'}</button>`;
 
             if (notif.type === 'new_follower') {
-                content = `
+                contentHTML = `
                   <img src="${fromUser.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(fromUser.name)}`}" class="h-10 w-10 rounded-full object-cover cursor-pointer" data-profile-id="${fromUser.id}">
                   <div class="flex-1 text-sm cursor-pointer" data-profile-id="${fromUser.id}">
                     <span class="font-semibold">${fromUser.name}</span> começou a seguir você.
                   </div>
                   <div class="ml-auto flex-shrink-0">${followButtonHTML}</div>`;
             } else if (notif.type === 'event_going') {
-                content = `
+                contentHTML = `
                   <img src="${fromUser.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(fromUser.name)}`}" class="h-10 w-10 rounded-full object-cover cursor-pointer" data-profile-id="${fromUser.id}">
                   <div class="flex-1 text-sm">
                     <span class="font-semibold">${fromUser.name}</span> confirmou presença em <strong class="cursor-pointer hover:underline" data-event-id="${notif.eventId}">${notif.eventName || 'um evento'}</strong>.
                   </div>`;
             } else if (notif.type === 'follow_request') {
-                content = `
+                contentHTML = `
                   <img src="${fromUser.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(fromUser.name)}`}" class="h-10 w-10 rounded-full object-cover cursor-pointer" data-profile-id="${fromUser.id}">
                   <div class="flex-1 text-sm cursor-pointer" data-profile-id="${fromUser.id}">
                     <span class="font-semibold">${fromUser.name}</span> quer seguir você.
@@ -2322,13 +2375,13 @@
                     <button class="rounded-full bg-gray-200 text-gray-800 px-3 py-1.5 text-xs font-semibold" data-decline-request="${fromUser.id}">Recusar</button>
                   </div>`;
             } else if (notif.type === 'request_accepted') {
-                 content = `
+                 contentHTML = `
                   <img src="${fromUser.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(fromUser.name)}`}" class="h-10 w-10 rounded-full object-cover cursor-pointer" data-profile-id="${fromUser.id}">
                   <div class="flex-1 text-sm cursor-pointer" data-profile-id="${fromUser.id}">
                     <span class="font-semibold">${fromUser.name}</span> aceitou sua solicitação para seguir.
                   </div>`;
             } else if (notif.type === 'request_declined') {
-                 content = `
+                 contentHTML = `
                   <img src="${fromUser.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(fromUser.name)}`}" class="h-10 w-10 rounded-full object-cover cursor-pointer" data-profile-id="${fromUser.id}">
                   <div class="flex-1 text-sm cursor-pointer" data-profile-id="${fromUser.id}">
                     Você recusou a solicitação de <span class="font-semibold">${fromUser.name}</span>.
@@ -2336,7 +2389,14 @@
                   <div class="ml-auto flex-shrink-0">${followButtonHTML}</div>`;
             }
             
-            el.innerHTML = content + `<button data-delete-notif-id="${notif.id}" class="absolute top-1 right-1 h-6 w-6 rounded-full bg-gray-200 text-gray-600 hidden group-hover:flex items-center justify-center text-xs">✕</button>`;
+            el.innerHTML = `
+                <div class="delete-background">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </div>
+                <div class="notification-content flex items-center gap-3 p-3 rounded-2xl ring-1 ring-gray-100">
+                    ${contentHTML}
+                </div>
+            `;
             
             const followBtn = el.querySelector(`[data-follow-id]`);
             if(followBtn) followBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFollow(notif.fromUserId, followBtn); });
@@ -2356,18 +2416,69 @@
             const declineBtn = el.querySelector('[data-decline-request]');
             if (declineBtn) declineBtn.addEventListener('click', (e) => { e.stopPropagation(); handleFollowRequest(notif.fromUserId, false); });
 
-            const deleteBtn = el.querySelector(`[data-delete-notif-id]`);
-            if(deleteBtn) deleteBtn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const user = auth.currentUser;
-                if (!user) return;
-                try {
-                    await deleteDoc(doc(db, `artifacts/${appId}/users/${user.uid}/notifications`, notif.id));
-                } catch { toast('Erro ao apagar notificação.', false); }
-            });
+            addSwipeToDelete(el, notif.id);
 
             listEl.appendChild(el);
         });
+    }
+
+    function addSwipeToDelete(element, notificationId) {
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+        const deleteThreshold = -100; // Distância em pixels para acionar a exclusão
+        const content = element.querySelector('.notification-content');
+
+        const onDragStart = (clientX) => {
+            isDragging = true;
+            startX = clientX;
+            element.classList.add('swiping');
+            document.body.style.cursor = 'grabbing';
+        };
+
+        const onDragMove = (clientX) => {
+            if (!isDragging) return;
+            currentX = clientX - startX;
+            if (currentX > 0) currentX = 0; // Não permite arrastar para a direita
+            content.style.transform = `translateX(${currentX}px)`;
+        };
+
+        const onDragEnd = async () => {
+            if (!isDragging) return;
+            isDragging = false;
+            element.classList.remove('swiping');
+            document.body.style.cursor = '';
+
+            if (currentX < deleteThreshold) {
+                // Animação de exclusão
+                element.classList.add('deleting');
+                element.addEventListener('transitionend', async () => {
+                     try {
+                        const user = auth.currentUser;
+                        if (user) {
+                           await deleteDoc(doc(db, `artifacts/${appId}/users/${user.uid}/notifications`, notificationId));
+                        }
+                     } catch (err) {
+                        console.error("Erro ao apagar notificação:", err);
+                        toast('Erro ao apagar notificação.', false);
+                        element.classList.remove('deleting'); // Reverte se falhar
+                     }
+                }, { once: true });
+            } else {
+                // Retorna à posição original
+                content.style.transform = 'translateX(0)';
+            }
+        };
+
+        // Eventos de Mouse
+        content.addEventListener('mousedown', (e) => onDragStart(e.clientX));
+        document.addEventListener('mousemove', (e) => onDragMove(e.clientX));
+        document.addEventListener('mouseup', onDragEnd);
+
+        // Eventos de Toque
+        content.addEventListener('touchstart', (e) => onDragStart(e.touches[0].clientX), { passive: true });
+        content.addEventListener('touchmove', (e) => onDragMove(e.touches[0].clientX), { passive: true });
+        content.addEventListener('touchend', onDragEnd);
     }
     
     // ===== Meu Perfil: Abas Seguidores/Seguindo =====
