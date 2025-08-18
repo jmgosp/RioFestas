@@ -112,19 +112,19 @@
   <!-- HEADER -->
   <header class="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-gray-200">
     <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3">
         <a href="#/" id="logo-link" class="text-2xl font-extrabold tracking-tight">RioFestas</a>
-        <button id="btn-home-header" class="inline-flex items-center justify-center h-10 w-10 rounded-full border border-gray-200 bg-white text-gray-600 hover:bg-gray-50" title="Início">
+        <button id="btn-home-header" class="inline-flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-gray-200 bg-white text-gray-600 hover:bg-gray-50" title="Início">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         </button>
       </div>
-      <nav class="flex items-center gap-2">
-        <button id="btn-about-header" class="inline-flex items-center rounded-full bg-gray-100 border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200">Sobre</button>
-        <button id="btn-social-header" class="inline-flex items-center rounded-full bg-pink-600/5 border border-pink-600/20 px-4 py-2 text-sm font-semibold text-pink-700 hover:bg-pink-600/10">Rede</button>
+      <nav class="flex items-center gap-1 sm:gap-2">
+        <button id="btn-about-header" class="inline-flex items-center rounded-full bg-gray-100 border border-gray-200 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-200">Sobre</button>
+        <button id="btn-social-header" class="inline-flex items-center rounded-full bg-pink-600/5 border border-pink-600/20 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-pink-700 hover:bg-pink-600/10">Rede</button>
         
         <!-- Visitante -->
-        <div id="nav-auth" class="flex items-center gap-2">
-          <button id="btn-open-login" class="inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50">Entrar</button>
+        <div id="nav-auth" class="flex items-center gap-1 sm:gap-2">
+          <button id="btn-open-login" class="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold hover:bg-gray-50">Entrar</button>
           <button id="btn-open-register" class="hidden sm:inline-flex items-center rounded-full bg-pink-600 px-4 py-2 text-sm font-semibold text-white hover:opacity-90">Registrar-se</button>
         </div>
         <!-- Logado -->
@@ -829,8 +829,8 @@
     function next7End(){ const x=startOfToday(); x.setDate(x.getDate()+6); x.setHours(23,59,59,999); return x; }
 
     // ===== Sessão & roles =====
-    const state = { events:[], pending:[], users:{}, recurringEvents: [], settings: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, userGoingTo: new Set(), userFollowing: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} } };
-    let _unsubRole = null, _unsubEvents=null, _unsubPending=null, _unsubGoingTo=null, _unsubFollowing=null, _unsubNotifications=null, _unsubRecurring=null, _unsubSettings=null;
+    const state = { events:[], pending:[], users:{}, recurringEvents: [], settings: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userOutgoingRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} } };
+    let _unsubRole = null, _unsubEvents=null, _unsubPending=null, _unsubGoingTo=null, _unsubFollowing=null, _unsubOutgoingRequests=null, _unsubNotifications=null, _unsubRecurring=null, _unsubSettings=null;
 
     const renderHeader = ()=>{
       const goAdmin = $('#go-admin'), goOrg = $('#go-organizer'), goProfile = $('#go-profile');
@@ -942,7 +942,7 @@
         const userData = {
           admin: false, organizer: false, name, username, email,
           photoUrl: null, createdAt: serverTimestamp(), bio: '',
-          followersCount: 0, followingCount: 0,
+          followersCount: 0, followingCount: 0, isPrivate: false,
           settings: { notifyOnFriendGoing: true }
         };
         await setDoc(doc(db, USERS_PATH, cred.user.uid), userData);
@@ -969,12 +969,13 @@
         if(_unsubRole) _unsubRole();
         if(_unsubGoingTo) _unsubGoingTo();
         if(_unsubFollowing) _unsubFollowing();
+        if(_unsubOutgoingRequests) _unsubOutgoingRequests();
         if(_unsubNotifications) _unsubNotifications();
-        _unsubRole = _unsubGoingTo = _unsubFollowing = _unsubNotifications = null;
+        _unsubRole = _unsubGoingTo = _unsubFollowing = _unsubOutgoingRequests = _unsubNotifications = null;
       };
       unsubAll();
       
-      state.isAdmin=false; state.isOrganizer=false; state.currentUserData=null; state.userGoingTo.clear(); state.userFollowing.clear();
+      state.isAdmin=false; state.isOrganizer=false; state.currentUserData=null; state.userGoingTo.clear(); state.userFollowing.clear(); state.userOutgoingRequests.clear();
 
       if (user && !user.isAnonymous) {
         _unsubRole = onSnapshot(doc(db, USERS_PATH, user.uid), (d)=>{
@@ -1000,6 +1001,12 @@
             snap.forEach(doc => state.userFollowing.add(doc.id));
             renderSocialFeeds();
             updateFriendsGoingMap();
+        });
+        
+        const outgoingRequestsRef = collection(db, `artifacts/${appId}/users/${user.uid}/outgoingFollowRequests`);
+        _unsubOutgoingRequests = onSnapshot(outgoingRequestsRef, (snap) => {
+            state.userOutgoingRequests.clear();
+            snap.forEach(doc => state.userOutgoingRequests.add(doc.id));
         });
 
         const notificationsRef = query(collection(db, `artifacts/${appId}/users/${user.uid}/notifications`), orderBy('timestamp', 'desc'), limit(20));
@@ -1710,86 +1717,95 @@
       }
     });
 
-    // ===== Social: Sistema de Seguir =====
+    // ===== Social: Sistema de Seguir (com Perfil Privado) =====
     async function toggleFollow(targetUserId, buttonEl = null) {
         const currentUser = auth.currentUser;
         if (!currentUser || currentUser.isAnonymous) return openLogin();
         if (currentUser.uid === targetUserId) return;
 
-        const targetUserRef = doc(db, USERS_PATH, targetUserId);
-        try {
-            const targetUserDoc = await getDoc(targetUserRef);
-            if (!targetUserDoc.exists()) {
-                toast('Este utilizador já não existe.', false);
-                if ($('#user-search-input').value) {
-                    $('#user-search-input').dispatchEvent(new Event('input'));
-                }
-                return;
-            }
-        } catch (e) {
-            console.error("Error checking user existence:", e);
-            toast("Ocorreu um erro de verificação.", false);
+        const targetUser = state.users[targetUserId];
+        if (!targetUser) {
+            toast('Este usuário não existe.', false);
             return;
         }
 
         const isFollowing = state.userFollowing.has(targetUserId);
-        
-        if (buttonEl) {
-            buttonEl.disabled = true;
-            if (isFollowing) {
-                buttonEl.textContent = 'Seguir';
-                buttonEl.classList.remove('bg-gray-200', 'text-gray-800');
-                buttonEl.classList.add('bg-pink-600', 'text-white');
-            } else {
-                buttonEl.textContent = 'Seguindo';
-                buttonEl.classList.add('bg-gray-200', 'text-gray-800');
-                buttonEl.classList.remove('bg-pink-600', 'text-white');
-            }
-        }
-        
+        const hasRequested = state.userOutgoingRequests.has(targetUserId);
+
+        if (buttonEl) buttonEl.disabled = true;
+
         const batch = writeBatch(db);
         const currentUserRef = doc(db, USERS_PATH, currentUser.uid);
-        const followingRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/following`, targetUserId);
-        const followerRef = doc(db, `artifacts/${appId}/users/${targetUserId}/followers`, currentUser.uid);
-        const notificationRef = doc(db, `artifacts/${appId}/users/${targetUserId}/notifications`, `follow_${currentUser.uid}`);
+        const targetUserRef = doc(db, USERS_PATH, targetUserId);
 
+        // --- Lógica de Deixar de Seguir (Unfollow) ---
         if (isFollowing) {
+            const followingRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/following`, targetUserId);
+            const followerRef = doc(db, `artifacts/${appId}/users/${targetUserId}/followers`, currentUser.uid);
             batch.delete(followingRef);
             batch.delete(followerRef);
-            batch.delete(notificationRef);
             batch.update(currentUserRef, { followingCount: increment(-1) });
             batch.update(targetUserRef, { followersCount: increment(-1) });
-        } else {
-            batch.set(followingRef, { followedAt: serverTimestamp() });
-            batch.set(followerRef, { followerAt: serverTimestamp() });
-            batch.update(currentUserRef, { followingCount: increment(1) });
-            batch.update(targetUserRef, { followersCount: increment(1) });
-            batch.set(notificationRef, {
-                type: 'new_follower',
-                fromUserId: currentUser.uid,
-                timestamp: serverTimestamp(),
-                read: false
-            });
+        } 
+        // --- Lógica de Cancelar Solicitação ---
+        else if (hasRequested) {
+            const outgoingRequestRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/outgoingFollowRequests`, targetUserId);
+            const incomingRequestRef = doc(db, `artifacts/${appId}/users/${targetUserId}/followRequests`, currentUser.uid);
+            const notificationRef = doc(db, `artifacts/${appId}/users/${targetUserId}/notifications`, `follow_request_${currentUser.uid}`);
+            batch.delete(outgoingRequestRef);
+            batch.delete(incomingRequestRef);
+            batch.delete(notificationRef);
+        } 
+        // --- Lógica de Seguir (Follow) ---
+        else {
+            // Perfil Privado: Enviar solicitação
+            if (targetUser.isPrivate) {
+                const outgoingRequestRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/outgoingFollowRequests`, targetUserId);
+                const incomingRequestRef = doc(db, `artifacts/${appId}/users/${targetUserId}/followRequests`, currentUser.uid);
+                const notificationRef = doc(db, `artifacts/${appId}/users/${targetUserId}/notifications`, `follow_request_${currentUser.uid}`);
+                
+                batch.set(outgoingRequestRef, { requestedAt: serverTimestamp() });
+                batch.set(incomingRequestRef, { from: currentUser.uid, timestamp: serverTimestamp() });
+                batch.set(notificationRef, {
+                    type: 'follow_request',
+                    fromUserId: currentUser.uid,
+                    timestamp: serverTimestamp(),
+                    read: false
+                });
+            } 
+            // Perfil Público: Seguir diretamente
+            else {
+                const followingRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/following`, targetUserId);
+                const followerRef = doc(db, `artifacts/${appId}/users/${targetUserId}/followers`, currentUser.uid);
+                const notificationRef = doc(db, `artifacts/${appId}/users/${targetUserId}/notifications`, `new_follower_${currentUser.uid}`);
+                
+                batch.set(followingRef, { followedAt: serverTimestamp() });
+                batch.set(followerRef, { followerAt: serverTimestamp() });
+                batch.update(currentUserRef, { followingCount: increment(1) });
+                batch.update(targetUserRef, { followersCount: increment(1) });
+                batch.set(notificationRef, {
+                    type: 'new_follower',
+                    fromUserId: currentUser.uid,
+                    timestamp: serverTimestamp(),
+                    read: false
+                });
+            }
         }
 
         try {
             await batch.commit();
+            if (isFollowing) toast('Deixou de seguir.');
+            else if (hasRequested) toast('Solicitação cancelada.');
+            else if (targetUser.isPrivate) toast('Solicitação para seguir enviada.');
+            else toast('Agora você está seguindo!');
         } catch (err) {
-            console.error("Erro ao seguir/deixar de seguir:", err);
+            console.error("Erro na operação de seguir:", err);
             toast("Ocorreu um erro.", false);
-            if (buttonEl) { // Revert UI on error
-                if (isFollowing) {
-                    buttonEl.textContent = 'Seguindo';
-                    buttonEl.classList.add('bg-gray-200', 'text-gray-800');
-                    buttonEl.classList.remove('bg-pink-600', 'text-white');
-                } else {
-                    buttonEl.textContent = 'Seguir';
-                    buttonEl.classList.remove('bg-gray-200', 'text-gray-800');
-                    buttonEl.classList.add('bg-pink-600', 'text-white');
-                }
-            }
         } finally {
-            if (buttonEl) buttonEl.disabled = false;
+            if (buttonEl) {
+                buttonEl.disabled = false;
+                // A UI será atualizada automaticamente pelo onSnapshot
+            }
         }
     }
     
@@ -1899,15 +1915,29 @@
 
       results.forEach(user => {
         const isFollowing = state.userFollowing.has(user.id);
+        const hasRequested = state.userOutgoingRequests.has(user.id);
         const userCard = document.createElement('div');
         userCard.className = 'flex items-center gap-4 p-3 rounded-2xl hover:bg-gray-50';
+        
+        let btnClass, btnText;
+        if (isFollowing) {
+            btnClass = 'bg-gray-200 text-gray-800';
+            btnText = 'Seguindo';
+        } else if (hasRequested) {
+            btnClass = 'bg-gray-100 text-gray-600 border border-gray-300';
+            btnText = 'Solicitado';
+        } else {
+            btnClass = 'bg-pink-600 text-white';
+            btnText = 'Seguir';
+        }
+
         userCard.innerHTML = `
           <img src="${user.photoUrl || 'https://placehold.co/48x48/f472b6/ffffff?text='+initials(user.name)}" class="h-12 w-12 rounded-full object-cover bg-gray-200 cursor-pointer" data-profile-id="${user.id}">
           <div class="flex-1 cursor-pointer" data-profile-id="${user.id}">
             <div class="font-semibold">${user.name}</div>
             <div class="text-sm text-gray-500">@${user.username}</div>
           </div>
-          <button class="rounded-full px-4 py-2 text-sm font-semibold ${isFollowing ? 'bg-gray-200 text-gray-800' : 'bg-pink-600 text-white'}" data-follow-id="${user.id}">${isFollowing ? 'Seguindo' : 'Seguir'}</button>
+          <button class="rounded-full px-4 py-2 text-sm font-semibold ${btnClass}" data-follow-id="${user.id}">${btnText}</button>
         `;
         const followBtn = userCard.querySelector(`[data-follow-id]`);
         followBtn.addEventListener('click', () => toggleFollow(user.id, followBtn));
@@ -1939,8 +1969,25 @@
       }
       
       const isFollowing = state.userFollowing.has(userId);
+      const hasRequested = state.userOutgoingRequests.has(userId);
       const isOwnProfile = auth.currentUser?.uid === userId;
       
+      let followButtonHTML = '';
+      if (!isOwnProfile) {
+          let btnClass, btnText;
+          if (isFollowing) {
+              btnClass = 'bg-gray-200 text-gray-800';
+              btnText = 'Seguindo';
+          } else if (hasRequested) {
+              btnClass = 'bg-gray-100 text-gray-600 border border-gray-300';
+              btnText = 'Solicitado';
+          } else {
+              btnClass = 'bg-pink-600 text-white';
+              btnText = 'Seguir';
+          }
+          followButtonHTML = `<button id="profile-follow-btn" class="mt-4 rounded-full px-5 py-2.5 text-sm font-semibold ${btnClass}">${btnText}</button>`;
+      }
+
       contentEl.innerHTML = `
         <div class="flex flex-col items-center text-center">
           <img src="${user.photoUrl || 'https://placehold.co/96x96/f472b6/ffffff?text='+initials(user.name)}" class="h-24 w-24 rounded-full object-cover bg-gray-200 ring-4 ring-white shadow-md">
@@ -1955,7 +2002,7 @@
             </button>
           </div>
           ${user.bio ? `<p class="mt-3 max-w-md text-gray-600">${user.bio}</p>` : ''}
-          ${!isOwnProfile ? `<button id="profile-follow-btn" class="mt-4 rounded-full px-5 py-2.5 text-sm font-semibold ${isFollowing ? 'bg-gray-200 text-gray-800' : 'bg-pink-600 text-white'}">${isFollowing ? 'Seguindo' : 'Seguir'}</button>` : ''}
+          ${followButtonHTML}
         </div>
         <div class="mt-8">
           <h5 class="font-semibold">Próximos Eventos</h5>
@@ -2169,6 +2216,52 @@
             }
         }
     }
+    
+    async function handleFollowRequest(requesterId, accept) {
+        const currentUser = auth.currentUser;
+        if (!currentUser) return;
+
+        const batch = writeBatch(db);
+        
+        // Remover solicitações
+        const outgoingRequestRef = doc(db, `artifacts/${appId}/users/${requesterId}/outgoingFollowRequests`, currentUser.uid);
+        const incomingRequestRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/followRequests`, requesterId);
+        const notificationRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/notifications`, `follow_request_${requesterId}`);
+        batch.delete(outgoingRequestRef);
+        batch.delete(incomingRequestRef);
+        batch.delete(notificationRef);
+
+        if (accept) {
+            // Criar relação de seguidor
+            const followingRef = doc(db, `artifacts/${appId}/users/${requesterId}/following`, currentUser.uid);
+            const followerRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/followers`, requesterId);
+            batch.set(followingRef, { followedAt: serverTimestamp() });
+            batch.set(followerRef, { followerAt: serverTimestamp() });
+            
+            // Incrementar contagens
+            const requesterUserRef = doc(db, USERS_PATH, requesterId);
+            const currentUserRef = doc(db, USERS_PATH, currentUser.uid);
+            batch.update(requesterUserRef, { followingCount: increment(1) });
+            batch.update(currentUserRef, { followersCount: increment(1) });
+            
+            // (Opcional) Notificar que a solicitação foi aceita
+            const acceptedNotificationRef = doc(db, `artifacts/${appId}/users/${requesterId}/notifications`, `request_accepted_${currentUser.uid}`);
+            batch.set(acceptedNotificationRef, {
+                type: 'request_accepted',
+                fromUserId: currentUser.uid,
+                timestamp: serverTimestamp(),
+                read: false
+            });
+        }
+        
+        try {
+            await batch.commit();
+            toast(accept ? 'Solicitação aceita!' : 'Solicitação recusada.');
+        } catch (err) {
+            console.error("Erro ao processar solicitação:", err);
+            toast("Erro ao processar solicitação.", false);
+        }
+    }
 
     function renderNotifications(notifications) {
         const listEl = $('#notifications-list');
@@ -2196,13 +2289,33 @@
                   <div class="flex-1 text-sm cursor-pointer" data-profile-id="${fromUser.id}">
                     <span class="font-semibold">${fromUser.name}</span> começou a seguir você.
                   </div>
-                  <button class="rounded-full px-3 py-1.5 text-xs font-semibold ${isFollowingBack ? 'bg-gray-200 text-gray-800' : 'bg-pink-600 text-white'}" data-follow-id="${fromUser.id}">${isFollowingBack ? 'Seguindo' : 'Seguir de volta'}</button>
+                  <div class="ml-auto flex-shrink-0">
+                    <button class="rounded-full px-3 py-1.5 text-xs font-semibold ${isFollowingBack ? 'bg-gray-200 text-gray-800' : 'bg-pink-600 text-white'}" data-follow-id="${fromUser.id}">${isFollowingBack ? 'Seguindo' : 'Seguir de volta'}</button>
+                  </div>
                 `;
             } else if (notif.type === 'event_going') {
                 content = `
                   <img src="${fromUser.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(fromUser.name)}`}" class="h-10 w-10 rounded-full object-cover cursor-pointer" data-profile-id="${fromUser.id}">
                   <div class="flex-1 text-sm">
                     <span class="font-semibold">${fromUser.name}</span> confirmou presença em <strong class="cursor-pointer hover:underline" data-event-id="${notif.eventId}">${notif.eventName || 'um evento'}</strong>.
+                  </div>
+                `;
+            } else if (notif.type === 'follow_request') {
+                content = `
+                  <img src="${fromUser.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(fromUser.name)}`}" class="h-10 w-10 rounded-full object-cover cursor-pointer" data-profile-id="${fromUser.id}">
+                  <div class="flex-1 text-sm cursor-pointer" data-profile-id="${fromUser.id}">
+                    <span class="font-semibold">${fromUser.name}</span> quer seguir você.
+                  </div>
+                  <div class="ml-auto flex gap-2 flex-shrink-0">
+                    <button class="rounded-full bg-emerald-600 text-white px-3 py-1.5 text-xs font-semibold" data-accept-request="${fromUser.id}">Aceitar</button>
+                    <button class="rounded-full bg-gray-200 text-gray-800 px-3 py-1.5 text-xs font-semibold" data-decline-request="${fromUser.id}">Recusar</button>
+                  </div>
+                `;
+            } else if (notif.type === 'request_accepted') {
+                 content = `
+                  <img src="${fromUser.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(fromUser.name)}`}" class="h-10 w-10 rounded-full object-cover cursor-pointer" data-profile-id="${fromUser.id}">
+                  <div class="flex-1 text-sm cursor-pointer" data-profile-id="${fromUser.id}">
+                    <span class="font-semibold">${fromUser.name}</span> aceitou sua solicitação para seguir.
                   </div>
                 `;
             }
@@ -2221,6 +2334,12 @@
                 if (eventData) openViewModal(eventData);
             });
             
+            const acceptBtn = el.querySelector('[data-accept-request]');
+            if (acceptBtn) acceptBtn.addEventListener('click', (e) => { e.stopPropagation(); handleFollowRequest(notif.fromUserId, true); });
+
+            const declineBtn = el.querySelector('[data-decline-request]');
+            if (declineBtn) declineBtn.addEventListener('click', (e) => { e.stopPropagation(); handleFollowRequest(notif.fromUserId, false); });
+
             const deleteBtn = el.querySelector(`[data-delete-notif-id]`);
             if(deleteBtn) deleteBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
@@ -2368,7 +2487,20 @@
         let buttonHTML = '';
         if (!isCurrentUserInList && currentUserId) {
             const isFollowing = state.userFollowing.has(userData.id);
-            buttonHTML = `<button class="ml-auto rounded-full px-4 py-2 text-xs font-semibold ${isFollowing ? 'bg-gray-200 text-gray-800' : 'bg-pink-600 text-white'}" data-follow-id="${userData.id}">${isFollowing ? 'Seguindo' : 'Seguir'}</button>`;
+            const hasRequested = state.userOutgoingRequests.has(userData.id);
+            
+            let btnClass, btnText;
+            if (isFollowing) {
+                btnClass = 'bg-gray-200 text-gray-800';
+                btnText = 'Seguindo';
+            } else if (hasRequested) {
+                btnClass = 'bg-gray-100 text-gray-600 border border-gray-300';
+                btnText = 'Solicitado';
+            } else {
+                btnClass = 'bg-pink-600 text-white';
+                btnText = 'Seguir';
+            }
+            buttonHTML = `<button class="ml-auto rounded-full px-4 py-2 text-xs font-semibold ${btnClass}" data-follow-id="${userData.id}">${btnText}</button>`;
         }
 
         el.innerHTML = `
