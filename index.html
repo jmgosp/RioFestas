@@ -1731,8 +1731,28 @@
 
         const isFollowing = state.userFollowing.has(targetUserId);
         const hasRequested = state.userOutgoingRequests.has(targetUserId);
+        const originalState = { isFollowing, hasRequested };
 
         if (buttonEl) buttonEl.disabled = true;
+
+        // --- ATUALIZAÇÃO OTIMISTA DA UI ---
+        if (buttonEl) {
+            if (isFollowing) { // Ação: Unfollow
+                buttonEl.textContent = 'Seguir';
+                buttonEl.className = buttonEl.className.replace(/bg-gray-200\s+text-gray-800/, 'bg-pink-600 text-white');
+            } else if (hasRequested) { // Ação: Cancelar Pedido
+                buttonEl.textContent = 'Seguir';
+                buttonEl.className = buttonEl.className.replace(/bg-gray-100\s+text-gray-600\s+border\s+border-gray-300/, 'bg-pink-600 text-white');
+            } else { // Ação: Follow/Request
+                if (targetUser.isPrivate) {
+                    buttonEl.textContent = 'Solicitado';
+                    buttonEl.className = buttonEl.className.replace(/bg-pink-600\s+text-white/, 'bg-gray-100 text-gray-600 border border-gray-300');
+                } else {
+                    buttonEl.textContent = 'Seguindo';
+                    buttonEl.className = buttonEl.className.replace(/bg-pink-600\s+text-white/, 'bg-gray-200 text-gray-800');
+                }
+            }
+        }
 
         const batch = writeBatch(db);
         const currentUserRef = doc(db, USERS_PATH, currentUser.uid);
@@ -1758,7 +1778,6 @@
         } 
         // --- Lógica de Seguir (Follow) ---
         else {
-            // Perfil Privado: Enviar solicitação
             if (targetUser.isPrivate) {
                 const outgoingRequestRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/outgoingFollowRequests`, targetUserId);
                 const incomingRequestRef = doc(db, `artifacts/${appId}/users/${targetUserId}/followRequests`, currentUser.uid);
@@ -1766,14 +1785,8 @@
                 
                 batch.set(outgoingRequestRef, { requestedAt: serverTimestamp() });
                 batch.set(incomingRequestRef, { from: currentUser.uid, timestamp: serverTimestamp() });
-                batch.set(notificationRef, {
-                    type: 'follow_request',
-                    fromUserId: currentUser.uid,
-                    timestamp: serverTimestamp(),
-                    read: false
-                });
+                batch.set(notificationRef, { type: 'follow_request', fromUserId: currentUser.uid, timestamp: serverTimestamp(), read: false });
             } 
-            // Perfil Público: Seguir diretamente
             else {
                 const followingRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/following`, targetUserId);
                 const followerRef = doc(db, `artifacts/${appId}/users/${targetUserId}/followers`, currentUser.uid);
@@ -1783,28 +1796,32 @@
                 batch.set(followerRef, { followerAt: serverTimestamp() });
                 batch.update(currentUserRef, { followingCount: increment(1) });
                 batch.update(targetUserRef, { followersCount: increment(1) });
-                batch.set(notificationRef, {
-                    type: 'new_follower',
-                    fromUserId: currentUser.uid,
-                    timestamp: serverTimestamp(),
-                    read: false
-                });
+                batch.set(notificationRef, { type: 'new_follower', fromUserId: currentUser.uid, timestamp: serverTimestamp(), read: false });
             }
         }
 
         try {
             await batch.commit();
-            if (isFollowing) toast('Deixou de seguir.');
-            else if (hasRequested) toast('Solicitação cancelada.');
-            else if (targetUser.isPrivate) toast('Solicitação para seguir enviada.');
-            else toast('Agora você está seguindo!');
+            // A UI já foi atualizada otimisticamente
         } catch (err) {
             console.error("Erro na operação de seguir:", err);
             toast("Ocorreu um erro.", false);
+            // Reverter a UI em caso de erro
+            if (buttonEl) {
+                if (originalState.isFollowing) {
+                    buttonEl.textContent = 'Seguindo';
+                    buttonEl.className = buttonEl.className.replace(/bg-pink-600\s+text-white/, 'bg-gray-200 text-gray-800');
+                } else if (originalState.hasRequested) {
+                    buttonEl.textContent = 'Solicitado';
+                     buttonEl.className = buttonEl.className.replace(/bg-pink-600\s+text-white/, 'bg-gray-100 text-gray-600 border border-gray-300');
+                } else {
+                    buttonEl.textContent = 'Seguir';
+                    buttonEl.className = buttonEl.className.replace(/bg-gray-100\s+text-gray-600\s+border\s+border-gray-300|bg-gray-200\s+text-gray-800/, 'bg-pink-600 text-white');
+                }
+            }
         } finally {
             if (buttonEl) {
                 buttonEl.disabled = false;
-                // A UI será atualizada automaticamente pelo onSnapshot
             }
         }
     }
@@ -2223,40 +2240,36 @@
 
         const batch = writeBatch(db);
         
-        // Remover solicitações
         const outgoingRequestRef = doc(db, `artifacts/${appId}/users/${requesterId}/outgoingFollowRequests`, currentUser.uid);
         const incomingRequestRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/followRequests`, requesterId);
         const notificationRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/notifications`, `follow_request_${requesterId}`);
+        
         batch.delete(outgoingRequestRef);
         batch.delete(incomingRequestRef);
-        batch.delete(notificationRef);
 
         if (accept) {
-            // Criar relação de seguidor
+            batch.update(notificationRef, { type: 'new_follower' }); // Transforma em notificação de novo seguidor
+            
             const followingRef = doc(db, `artifacts/${appId}/users/${requesterId}/following`, currentUser.uid);
             const followerRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/followers`, requesterId);
             batch.set(followingRef, { followedAt: serverTimestamp() });
             batch.set(followerRef, { followerAt: serverTimestamp() });
             
-            // Incrementar contagens
             const requesterUserRef = doc(db, USERS_PATH, requesterId);
             const currentUserRef = doc(db, USERS_PATH, currentUser.uid);
             batch.update(requesterUserRef, { followingCount: increment(1) });
             batch.update(currentUserRef, { followersCount: increment(1) });
             
-            // (Opcional) Notificar que a solicitação foi aceita
             const acceptedNotificationRef = doc(db, `artifacts/${appId}/users/${requesterId}/notifications`, `request_accepted_${currentUser.uid}`);
-            batch.set(acceptedNotificationRef, {
-                type: 'request_accepted',
-                fromUserId: currentUser.uid,
-                timestamp: serverTimestamp(),
-                read: false
-            });
+            batch.set(acceptedNotificationRef, { type: 'request_accepted', fromUserId: currentUser.uid, timestamp: serverTimestamp(), read: false });
+        } else {
+            // Recusou: Apenas atualiza a notificação para não ter mais ações
+            batch.update(notificationRef, { type: 'request_declined' });
         }
         
         try {
             await batch.commit();
-            toast(accept ? 'Solicitação aceita!' : 'Solicitação recusada.');
+            // A UI será atualizada pelo onSnapshot
         } catch (err) {
             console.error("Erro ao processar solicitação:", err);
             toast("Erro ao processar solicitação.", false);
@@ -2282,24 +2295,22 @@
             el.className = 'group flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50/80 relative';
             
             let content = '';
+            const isFollowingBack = state.userFollowing.has(notif.fromUserId);
+            const followButtonHTML = `<button class="rounded-full px-3 py-1.5 text-xs font-semibold ${isFollowingBack ? 'bg-gray-200 text-gray-800' : 'bg-pink-600 text-white'}" data-follow-id="${fromUser.id}">${isFollowingBack ? 'Seguindo' : 'Seguir de volta'}</button>`;
+
             if (notif.type === 'new_follower') {
-                const isFollowingBack = state.userFollowing.has(notif.fromUserId);
                 content = `
                   <img src="${fromUser.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(fromUser.name)}`}" class="h-10 w-10 rounded-full object-cover cursor-pointer" data-profile-id="${fromUser.id}">
                   <div class="flex-1 text-sm cursor-pointer" data-profile-id="${fromUser.id}">
                     <span class="font-semibold">${fromUser.name}</span> começou a seguir você.
                   </div>
-                  <div class="ml-auto flex-shrink-0">
-                    <button class="rounded-full px-3 py-1.5 text-xs font-semibold ${isFollowingBack ? 'bg-gray-200 text-gray-800' : 'bg-pink-600 text-white'}" data-follow-id="${fromUser.id}">${isFollowingBack ? 'Seguindo' : 'Seguir de volta'}</button>
-                  </div>
-                `;
+                  <div class="ml-auto flex-shrink-0">${followButtonHTML}</div>`;
             } else if (notif.type === 'event_going') {
                 content = `
                   <img src="${fromUser.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(fromUser.name)}`}" class="h-10 w-10 rounded-full object-cover cursor-pointer" data-profile-id="${fromUser.id}">
                   <div class="flex-1 text-sm">
                     <span class="font-semibold">${fromUser.name}</span> confirmou presença em <strong class="cursor-pointer hover:underline" data-event-id="${notif.eventId}">${notif.eventName || 'um evento'}</strong>.
-                  </div>
-                `;
+                  </div>`;
             } else if (notif.type === 'follow_request') {
                 content = `
                   <img src="${fromUser.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(fromUser.name)}`}" class="h-10 w-10 rounded-full object-cover cursor-pointer" data-profile-id="${fromUser.id}">
@@ -2309,15 +2320,20 @@
                   <div class="ml-auto flex gap-2 flex-shrink-0">
                     <button class="rounded-full bg-emerald-600 text-white px-3 py-1.5 text-xs font-semibold" data-accept-request="${fromUser.id}">Aceitar</button>
                     <button class="rounded-full bg-gray-200 text-gray-800 px-3 py-1.5 text-xs font-semibold" data-decline-request="${fromUser.id}">Recusar</button>
-                  </div>
-                `;
+                  </div>`;
             } else if (notif.type === 'request_accepted') {
                  content = `
                   <img src="${fromUser.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(fromUser.name)}`}" class="h-10 w-10 rounded-full object-cover cursor-pointer" data-profile-id="${fromUser.id}">
                   <div class="flex-1 text-sm cursor-pointer" data-profile-id="${fromUser.id}">
                     <span class="font-semibold">${fromUser.name}</span> aceitou sua solicitação para seguir.
+                  </div>`;
+            } else if (notif.type === 'request_declined') {
+                 content = `
+                  <img src="${fromUser.photoUrl || `https://placehold.co/40x40/f472b6/ffffff?text=${initials(fromUser.name)}`}" class="h-10 w-10 rounded-full object-cover cursor-pointer" data-profile-id="${fromUser.id}">
+                  <div class="flex-1 text-sm cursor-pointer" data-profile-id="${fromUser.id}">
+                    Você recusou a solicitação de <span class="font-semibold">${fromUser.name}</span>.
                   </div>
-                `;
+                  <div class="ml-auto flex-shrink-0">${followButtonHTML}</div>`;
             }
             
             el.innerHTML = content + `<button data-delete-notif-id="${notif.id}" class="absolute top-1 right-1 h-6 w-6 rounded-full bg-gray-200 text-gray-600 hidden group-hover:flex items-center justify-center text-xs">✕</button>`;
