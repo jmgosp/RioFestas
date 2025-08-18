@@ -812,7 +812,7 @@
     </div>
   </div>
 
-  <!-- Modal de Confirmação para Excluir -->
+  <!-- Modal de Confirmação para Excluir Evento -->
   <div id="delete-modal" class="fixed inset-0 z-[70] hidden">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="delete"></div>
     <div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
@@ -821,6 +821,19 @@
       <div class="mt-5 flex justify-end gap-2">
         <button class="rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="delete">Cancelar</button>
         <button id="delete-confirm-btn" class="rounded-full bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOVO: Modal de Confirmação para Remover Seguidor -->
+  <div id="remove-follower-modal" class="fixed inset-0 z-[70] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="remove-follower"></div>
+    <div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
+      <h4 class="text-lg font-bold">Remover Seguidor</h4>
+      <p class="mt-2 text-sm text-gray-600">Você tem certeza que deseja remover <span id="remove-follower-name" class="font-semibold"></span> dos seus seguidores?</p>
+      <div class="mt-5 flex justify-end gap-2">
+        <button class="rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="remove-follower">Cancelar</button>
+        <button id="remove-follower-confirm-btn" class="rounded-full bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">Remover</button>
       </div>
     </div>
   </div>
@@ -931,7 +944,7 @@
     function next7End(){ const x=startOfToday(); x.setDate(x.getDate()+6); x.setHours(23,59,59,999); return x; }
 
     // ===== Sessão & roles =====
-    const state = { events:[], pending:[], users:{}, recurringEvents: [], settings: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} } };
+    const state = { events:[], pending:[], users:{}, recurringEvents: [], settings: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, removeFollowerTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} } };
     let _unsubRole = null, _unsubEvents=null, _unsubPending=null, _unsubGoingTo=null, _unsubFollowing=null, _unsubFollowers=null, _unsubOutgoingRequests=null, _unsubIncomingRequests=null, _unsubNotifications=null, _unsubRecurring=null, _unsubSettings=null;
 
     const renderHeader = ()=>{
@@ -992,6 +1005,7 @@
       }
       if(id==='view') { state.currentViewEvent = null; }
       if(id==='delete') { state.deleteTarget = null; }
+      if(id==='remove-follower') { state.removeFollowerTarget = null; }
     });
 
     // ===== Login =====
@@ -1948,37 +1962,49 @@
         }
     }
     
-    async function removeFollower(followerId, fromProfile = false) {
+    function promptRemoveFollower(followerId, fromProfile = false) {
+        const followerUser = state.users[followerId];
+        if (!followerUser) return toast('Usuário não encontrado.', 'error');
+        
+        state.removeFollowerTarget = { id: followerId, name: followerUser.name, fromProfile };
+        
+        $('#remove-follower-name').textContent = followerUser.name || 'este usuário';
+        show($('#remove-follower-modal'));
+    }
+
+    async function confirmRemoveFollower() {
+        if (!state.removeFollowerTarget) return;
+
+        const { id: followerId, fromProfile, name } = state.removeFollowerTarget;
         const currentUser = auth.currentUser;
         if (!currentUser || currentUser.isAnonymous) return;
 
+        const btn = $('#remove-follower-confirm-btn');
+        const oldText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Removendo...';
+
         const followerUserRef = doc(db, USERS_PATH, followerId);
-         try {
+        
+        try {
             const followerUserDoc = await getDoc(followerUserRef);
             if (!followerUserDoc.exists()) {
-                toast('Este seguidor já não existe.', 'error');
-                if (!fromProfile) loadFollowLists(); // Refresh list to remove them
-                return;
+                throw new Error('Este seguidor já não existe.');
             }
-        } catch (e) {
-            console.error("Error checking follower existence:", e);
-            toast("Ocorreu um erro de verificação.", 'error');
-            return;
-        }
 
-        const batch = writeBatch(db);
-        const currentUserRef = doc(db, USERS_PATH, currentUser.uid);
-        const myFollowerRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/followers`, followerId);
-        const theirFollowingRef = doc(db, `artifacts/${appId}/users/${followerId}/following`, currentUser.uid);
+            const batch = writeBatch(db);
+            const currentUserRef = doc(db, USERS_PATH, currentUser.uid);
+            const myFollowerRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/followers`, followerId);
+            const theirFollowingRef = doc(db, `artifacts/${appId}/users/${followerId}/following`, currentUser.uid);
 
-        batch.delete(myFollowerRef);
-        batch.delete(theirFollowingRef);
-        batch.update(currentUserRef, { followersCount: increment(-1) });
-        batch.update(followerUserRef, { followingCount: increment(-1) });
+            batch.delete(myFollowerRef);
+            batch.delete(theirFollowingRef);
+            batch.update(currentUserRef, { followersCount: increment(-1) });
+            batch.update(followerUserRef, { followingCount: increment(-1) });
 
-        try {
             await batch.commit();
-            toast('Seguidor removido.');
+            toast(`Você removeu ${name} dos seus seguidores.`);
+            
             if (fromProfile) {
                 // Re-render the profile modal to update its state
                 openUserProfileModal(followerId);
@@ -1987,9 +2013,15 @@
             }
         } catch (err) {
             console.error("Erro ao remover seguidor:", err);
-            toast("Ocorreu um erro ao remover seguidor.", 'error');
+            toast(err.message || "Ocorreu um erro ao remover seguidor.", 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = oldText;
+            hide($('#remove-follower-modal'));
+            state.removeFollowerTarget = null;
         }
     }
+    $('#remove-follower-confirm-btn').addEventListener('click', confirmRemoveFollower);
 
     // ===== Social: Feeds =====
     async function renderSocialFeeds() {
@@ -2185,7 +2217,7 @@
             if (declineBtn) declineBtn.addEventListener('click', () => handleFollowRequest(userId, false, '#profile-request-banner'));
 
             const removeFollowerBtn = $('#profile-remove-follower-btn');
-            if (removeFollowerBtn) removeFollowerBtn.addEventListener('click', () => removeFollower(userId, true));
+            if (removeFollowerBtn) removeFollowerBtn.addEventListener('click', () => promptRemoveFollower(userId, true));
         }
         
         contentEl.querySelectorAll('[data-action="view-follow-list"]').forEach(btn => {
@@ -2683,7 +2715,7 @@
 
         el.querySelector('[data-profile-id]').addEventListener('click', () => openUserProfileModal(userData.id));
         const removeBtn = el.querySelector('[data-remove-follower-id]');
-        if (removeBtn) removeBtn.addEventListener('click', () => removeFollower(userData.id));
+        if (removeBtn) removeBtn.addEventListener('click', () => promptRemoveFollower(userData.id));
         
         const unfollowBtn = el.querySelector('[data-unfollow-id]');
         if (unfollowBtn) unfollowBtn.addEventListener('click', () => {
