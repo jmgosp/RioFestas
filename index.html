@@ -432,6 +432,67 @@
 
 </style>
 
+
+<style>
+/* === Mobile refinements (keep original look) === */
+@media (max-width: 640px) {
+  /* keep original colors/styles; only touch spacing/sizing */
+  header .max-w-6xl { padding-left: 12px !important; padding-right: 12px !important; }
+  /* nav fits on screen; avoid clipping */
+  header nav { flex-wrap: nowrap !important; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 6px !important; }
+  /* same height for every chip */
+  #btn-home-header, #btn-about-header, #btn-social-header, #btn-open-login, #btn-open-register, #btn-theme, #btn-user {
+    height: 34px !important;
+    border-radius: 9999px !important;
+  }
+  /* text chips smaller to fit */
+  #btn-about-header, #btn-social-header, #btn-open-login, #btn-open-register {
+    padding: 0 10px !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+  }
+  /* icon-only chips: square 34x34 */
+  #btn-home-header, #btn-theme, #btn-user {
+    width: 34px !important;
+    min-width: 34px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  #btn-home-header svg, #btn-theme svg { width: 16px !important; height: 16px !important; }
+  /* avatar circle, elegant */
+  #user-avatar-img, #user-avatar-text {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 9999px !important;
+    object-fit: cover !important;
+  }
+  /* if there is a text label next to avatar, hide on mobile to avoid overflow */
+  #user-label { display: none !important; }
+
+  /* reduce left logo size slightly so everything fits without cutting */
+  #logo-link { font-size: 20px !important; }
+}
+
+/* Admin header text overflow fix (keeps original style) */
+@media (max-width: 640px) {
+  #view-admin .rounded-3xl > .flex.items-center.justify-between h3 {
+    font-size: 1rem !important;
+    line-height: 1.25rem !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  #toggle-taxonomy-panel {
+    white-space: nowrap !important;
+    font-size: .9rem !important;
+    padding: .5rem .9rem !important;
+  }
+}
+</style>
+
 </head>
 <body class="bg-gray-50 md:bg-white text-gray-900 selection:bg-pink-600/10">
 <!-- HEADER -->
