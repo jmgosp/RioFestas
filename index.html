@@ -594,6 +594,30 @@
               <option value="">Nenhum</option>
             </select>
           </div>
+          <!-- RECURRING EVENT OPTIONS -->
+          <div class="md:col-span-2 space-y-2 rounded-2xl bg-gray-50 p-3 ring-subtle">
+            <div class="flex items-center justify-between">
+                <label for="ev-repeats-weekly" class="text-[13px] font-medium text-gray-700 cursor-pointer select-none">Repetir semanalmente</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="ev-repeats-weekly" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600"></div>
+                </label>
+            </div>
+            <div id="ev-repeat-options" class="hidden pt-2">
+                <label class="text-[13px] font-medium text-gray-700">Semanas visíveis simultaneamente</label>
+                <select id="ev-display-count" class="mt-1 w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-600/35">
+                    <option value="2">2 semanas</option>
+                    <option value="3">3 semanas</option>
+                    <option value="4" selected>4 semanas (padrão)</option>
+                    <option value="5">5 semanas</option>
+                    <option value="6">6 semanas</option>
+                    <option value="7">7 semanas</option>
+                    <option value="8">8 semanas</option>
+                    <option value="9">9 semanas</option>
+                    <option value="10">10 semanas</option>
+                </select>
+            </div>
+          </div>
           <div class="md:col-span-2">
             <label class="text-[13px] font-medium text-gray-700">Descrição</label>
             <textarea id="ev-desc" class="mt-1 w-full min-h-[100px] rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" placeholder="Detalhes do evento..."></textarea>
@@ -677,6 +701,30 @@
             <select id="org-ev-recurring" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35">
               <option value="">Nenhum</option>
             </select>
+          </div>
+           <!-- RECURRING EVENT OPTIONS (ORGANIZER) -->
+          <div class="md:col-span-2 space-y-2 rounded-2xl bg-gray-50 p-3 ring-subtle">
+            <div class="flex items-center justify-between">
+                <label for="org-ev-repeats-weekly" class="text-[13px] font-medium text-gray-700 cursor-pointer select-none">Repetir semanalmente</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="org-ev-repeats-weekly" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600"></div>
+                </label>
+            </div>
+            <div id="org-ev-repeat-options" class="hidden pt-2">
+                <label class="text-[13px] font-medium text-gray-700">Semanas visíveis simultaneamente</label>
+                <select id="org-ev-display-count" class="mt-1 w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-600/35">
+                    <option value="2">2 semanas</option>
+                    <option value="3">3 semanas</option>
+                    <option value="4" selected>4 semanas (padrão)</option>
+                    <option value="5">5 semanas</option>
+                    <option value="6">6 semanas</option>
+                    <option value="7">7 semanas</option>
+                    <option value="8">8 semanas</option>
+                    <option value="9">9 semanas</option>
+                    <option value="10">10 semanas</option>
+                </select>
+            </div>
           </div>
           <div class="md:col-span-2">
             <label class="text-[13px] font-medium text-gray-700">Descrição</label>
@@ -923,6 +971,7 @@
     // Caminhos
     const appId = firebaseConfig.appId;
     const EVENTS_PATH   = `artifacts/${appId}/public/data/events`;
+    const EVENT_EXCEPTIONS_PATH = `artifacts/${appId}/public/data/eventExceptions`; // NOVO
     const PENDING_PATH  = `artifacts/${appId}/public/data/events_pending`;
     const USERS_PATH    = `artifacts/${appId}/public/data/users`;
     const USERNAMES_PATH = `artifacts/${appId}/public/data/usernames`;
@@ -1001,8 +1050,8 @@
     function next7End(){ const x=startOfToday(); x.setDate(x.getDate()+6); x.setHours(23,59,59,999); return x; }
 
     // ===== Sessão & roles =====
-    const state = { events:[], pending:[], users:{}, recurringEvents: [], settings: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, deleteNotificationTarget: null, removeFollowerTarget: null, resetRatingsTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} }, adminEventsView: 'active' };
-    let _unsubRole = null, _unsubEvents=null, _unsubPending=null, _unsubGoingTo=null, _unsubFollowing=null, _unsubFollowers=null, _unsubOutgoingRequests=null, _unsubIncomingRequests=null, _unsubNotifications=null, _unsubRecurring=null, _unsubSettings=null;
+    const state = { baseEvents: [], events:[], pending:[], users:{}, recurringEvents: [], settings: {}, eventExceptions: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, deleteNotificationTarget: null, removeFollowerTarget: null, resetRatingsTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} }, adminEventsView: 'active' };
+    let _unsubRole = null, _unsubEvents=null, _unsubPending=null, _unsubGoingTo=null, _unsubFollowing=null, _unsubFollowers=null, _unsubOutgoingRequests=null, _unsubIncomingRequests=null, _unsubNotifications=null, _unsubRecurring=null, _unsubSettings=null, _unsubExceptions=null;
 
     const renderHeader = ()=>{
       const goAdmin = $('#go-admin'), goOrg = $('#go-organizer'), goProfile = $('#go-profile');
@@ -1274,13 +1323,103 @@
     function subEvents(){
       if(_unsubEvents) _unsubEvents();
       _unsubEvents = onSnapshot(collection(db, EVENTS_PATH), (snap)=>{
-        state.events = snap.docs.map(d=>({ _id: d.id, _ref: d.ref, _path: d.ref.path, ...d.data() }));
-        renderAllHome(); 
-        renderAdminEventsView(); 
-        renderSocialFeeds();
+        state.baseEvents = snap.docs.map(d=>({ _id: d.id, _ref: d.ref, _path: d.ref.path, ...d.data() }));
+        processAndRenderAllViews();
       }, (err)=>{ console.error(err); toast('Erro ao carregar eventos.', 'error'); });
     }
     subEvents();
+    
+    // NOVO: Listener para exceções de eventos recorrentes
+    function subEventExceptions() {
+        if (_unsubExceptions) _unsubExceptions();
+        _unsubExceptions = onSnapshot(collection(db, EVENT_EXCEPTIONS_PATH), (snap) => {
+            const exceptions = {};
+            snap.forEach(doc => {
+                const data = doc.data();
+                if (!exceptions[data.eventId]) {
+                    exceptions[data.eventId] = [];
+                }
+                // Armazena o início do dia em milissegundos para comparação de data, ignorando a hora
+                const d = data.deletedDate.toDate();
+                d.setHours(0,0,0,0);
+                exceptions[data.eventId].push(d.getTime());
+            });
+            state.eventExceptions = exceptions;
+            processAndRenderAllViews(); // Re-renderiza tudo quando uma exceção muda
+        });
+    }
+    subEventExceptions();
+
+    // LÓGICA ATUALIZADA: Geração dinâmica de eventos recorrentes
+    function getFirstUpcomingDate(startDate) {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0); 
+        const eventDate = startDate.toDate();
+        eventDate.setHours(0, 0, 0, 0);
+
+        if (eventDate >= now) {
+            return eventDate;
+        }
+
+        const eventDayOfWeek = eventDate.getDay();
+        const todayDayOfWeek = now.getDay();
+        
+        let daysToAdd = eventDayOfWeek - todayDayOfWeek;
+        if (daysToAdd < 0) {
+            daysToAdd += 7; 
+        }
+
+        const nextOccurrence = new Date(now);
+        nextOccurrence.setDate(now.getDate() + daysToAdd);
+        return nextOccurrence;
+    }
+
+    function processAndRenderAllViews() {
+        const expandedEvents = [];
+        
+        (state.baseEvents || []).forEach(event => {
+            if (event.repeatsWeekly) {
+                const displayCount = event.displayCount || 4;
+                const baseStartDate = event.date;
+                if (!baseStartDate) return;
+
+                const firstUpcoming = getFirstUpcomingDate(baseStartDate);
+                const exceptions = state.eventExceptions[event._id] || [];
+                
+                let generatedCount = 0;
+                let weekOffset = 0;
+                while (generatedCount < displayCount) {
+                    const currentDate = new Date(firstUpcoming);
+                    currentDate.setDate(firstUpcoming.getDate() + (weekOffset * 7));
+                    
+                    const currentDateStart = new Date(currentDate);
+                    currentDateStart.setHours(0,0,0,0);
+
+                    if (!exceptions.includes(currentDateStart.getTime())) {
+                        const clone = { ...event };
+                        clone.date = Timestamp.fromDate(currentDate);
+                        clone._original_id = event._id;
+                        clone._path = event._path;
+                        clone._id = `${event._id}_${currentDate.getTime()}`; // ID único para a DOM
+                        clone.isGenerated = true;
+                        
+                        expandedEvents.push(clone);
+                        generatedCount++;
+                    }
+                    weekOffset++;
+                }
+            } else {
+                expandedEvents.push(event);
+            }
+        });
+
+        state.events = expandedEvents;
+
+        renderAllHome();
+        renderAdminEventsView();
+        renderSocialFeeds();
+    }
+
 
     function subPending(){
       if(_unsubPending) _unsubPending();
@@ -1342,7 +1481,23 @@
       if(formState.imageUrls.length===0) return showOrgEventError('Adicione pelo menos uma foto.');
       
       try{
-        const when=parseDateInput(dateS); const payload={ name, local, description:$('#org-ev-desc').value.trim(), style:$('#org-ev-style').value.trim(), buyLink:$('#org-ev-buy').value.trim(), coupon:$('#org-ev-coupon').value.trim(), imageUrls: formState.imageUrls, date: Timestamp.fromDate(when), timeStart: $('#org-ev-time-start').value||null, timeEnd: $('#org-ev-time-end').value||null, createdBy: auth.currentUser.uid, createdAt: serverTimestamp(), status:'pending', recurringEventId: $('#org-ev-recurring').value || null };
+        const when=parseDateInput(dateS); 
+        const payload={ 
+            name, local, description:$('#org-ev-desc').value.trim(), 
+            style:$('#org-ev-style').value.trim(), 
+            buyLink:$('#org-ev-buy').value.trim(), 
+            coupon:$('#org-ev-coupon').value.trim(), 
+            imageUrls: formState.imageUrls, 
+            date: Timestamp.fromDate(when), 
+            timeStart: $('#org-ev-time-start').value||null, 
+            timeEnd: $('#org-ev-time-end').value||null, 
+            createdBy: auth.currentUser.uid, 
+            createdAt: serverTimestamp(), 
+            status:'pending', 
+            recurringEventId: $('#org-ev-recurring').value || null,
+            repeatsWeekly: $('#org-ev-repeats-weekly').checked,
+            displayCount: parseInt($('#org-ev-display-count').value, 10) || 4
+        };
         await addDoc(collection(db, PENDING_PATH), payload); hide($('#org-event-modal')); toast('Evento enviado para aprovação!', 'info');
       }catch(err){ console.error(err); showOrgEventError('Falha ao enviar evento.'); }
     });
@@ -1462,7 +1617,7 @@
         const el=document.createElement('article');
         el.className='group w-[180px] md:w-[280px] shrink-0 snap-start rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer';
         
-        const friendsGoingCount = state.friendsGoingMap.get(ev._id)?.size || 0;
+        const friendsGoingCount = state.friendsGoingMap.get(ev._original_id || ev._id)?.size || 0;
         const friendsGoingHTML = friendsGoingCount > 0 
             ? `<div class="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-black/50 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -1610,6 +1765,28 @@
     pastSearchInput.addEventListener('input', (e) => {
         renderAdminPastEventsResults(e.target.value);
     });
+    
+    // NOVO: Função para deletar uma instância de evento recorrente
+    async function deleteRecurringInstance(eventInstance) {
+        if (!ensureAdmin()) return;
+        const { _original_id, date, name } = eventInstance;
+        if (!_original_id || !date) {
+            toast('Erro: Informações do evento recorrente inválidas.', 'error');
+            return;
+        }
+        
+        try {
+            await addDoc(collection(db, EVENT_EXCEPTIONS_PATH), {
+                eventId: _original_id,
+                deletedDate: date // Salva o timestamp da data a ser pulada
+            });
+            toast(`Ocorrência de "${name}" para ${fmtDate(date)} foi removida.`);
+        } catch (err) {
+            console.error('Falha ao remover ocorrência:', err);
+            toast('Erro ao remover ocorrência.', 'error');
+        }
+    }
+
 
     function renderAdminEventsView() {
         adminTbody.innerHTML = '';
@@ -1647,12 +1824,27 @@
                           <button class="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100" data-act="del">Excluir</button>
                       </div>
                   </td>`;
-                tr.querySelector('[data-act="edit"]').addEventListener('click', () => { if (!ensureAdmin()) return; openEventModal('edit', ev) });
+                tr.querySelector('[data-act="edit"]').addEventListener('click', () => {
+                    if (!ensureAdmin()) return;
+                    // Ao editar, sempre edita o evento "molde" original.
+                    const baseEvent = state.baseEvents.find(base => base._id === (ev._original_id || ev._id));
+                    if (baseEvent) {
+                        openEventModal('edit', baseEvent);
+                    } else {
+                        toast('Evento original não encontrado para edição.', 'error');
+                    }
+                });
                 tr.querySelector('[data-act="del"]').addEventListener('click', () => {
                     if (!ensureAdmin()) return;
-                    state.deleteTarget = { path: ev._path, name: ev.name };
-                    $('#delete-event-name').textContent = ev.name || 'este evento';
-                    show($('#delete-modal'));
+                    if (ev.isGenerated) {
+                        // Se for uma instância gerada, usa a nova lógica de exclusão
+                        deleteRecurringInstance(ev);
+                    } else {
+                        // Se for um evento normal, usa a lógica antiga
+                        state.deleteTarget = { path: ev._path, name: ev.name };
+                        $('#delete-event-name').textContent = ev.name || 'este evento';
+                        show($('#delete-modal'));
+                    }
                 });
                 adminTbody.appendChild(tr);
             });
@@ -1710,7 +1902,12 @@
               </td>`;
             tr.querySelector('[data-act="edit"]').addEventListener('click', () => {
               if (!ensureAdmin()) return;
-              openEventModal('edit', ev);
+              const baseEvent = state.baseEvents.find(base => base._id === (ev._original_id || ev._id));
+                if (baseEvent) {
+                    openEventModal('edit', baseEvent);
+                } else {
+                    toast('Evento original não encontrado para edição.', 'error');
+                }
             });
             adminTbody.appendChild(tr);
         });
@@ -1869,6 +2066,9 @@
         if (context === 'admin') {
             $('#ev-importance').value=5; 
             $('#ev-importance-value').textContent='5';
+            $('#ev-repeat-options').style.display = 'none';
+        } else {
+            $('#org-ev-repeat-options').style.display = 'none';
         }
         previewEl.innerHTML='';
         hide(errorEl);
@@ -1900,10 +2100,10 @@
         const isEdit = (mode==='edit'&&ev) || (mode==='edit-pending'&&ev) || (mode==='org-edit'&&ev);
         
         titleEl.textContent = isEdit ? 'Editar Evento' : (context === 'admin' ? 'Novo Evento' : 'Criar Evento');
+        const prefix = context === 'admin' ? 'ev' : 'org-ev';
 
         if(isEdit){
             state.editingId = ev._id || ev.id;
-            const prefix = context === 'admin' ? 'ev' : 'org-ev';
             $(`#${prefix}-name`).value=ev.name||'';
             if(ev.date){ const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); $(`#${prefix}-date`).valueAsDate=d }
             if(ev.endDate){ const d=ev.endDate?.toDate?ev.endDate.toDate():new Date(ev.endDate); $(`#${prefix}-date-end`).valueAsDate=d }
@@ -1921,7 +2121,20 @@
             $(`#${prefix}-recurring`).value = ev.recurringEventId || '';
             formState.imageUrls = [...(ev.imageUrls||[])];
             state._editPending = (mode==='edit-pending');
+
+            // Recurring fields
+            $(`#${prefix}-repeats-weekly`).checked = ev.repeatsWeekly || false;
+            $(`#${prefix}-display-count`).value = ev.displayCount || 4;
         }
+        
+        // Setup recurring fields visibility toggle
+        const repeatsCheckbox = $(`#${prefix}-repeats-weekly`);
+        const repeatOptions = $(`#${prefix}-repeat-options`);
+        repeatOptions.style.display = repeatsCheckbox.checked ? 'block' : 'none';
+        repeatsCheckbox.onchange = () => {
+            repeatOptions.style.display = repeatsCheckbox.checked ? 'block' : 'none';
+        };
+
         renderPhotoPreview(context);
         checkAllUploadsDone(context);
         show(modal);
@@ -1953,7 +2166,10 @@
           buyLink:$('#ev-buy').value.trim(), coupon:$('#ev-coupon').value.trim(), 
           timeStart:$('#ev-time-start').value||null, timeEnd:$('#ev-time-end').value||null, 
           importance:Number($('#ev-importance').value), imageUrls: formState.imageUrls, 
-          recurringEventId: $('#ev-recurring').value || null, updatedAt: serverTimestamp() 
+          recurringEventId: $('#ev-recurring').value || null, 
+          updatedAt: serverTimestamp(),
+          repeatsWeekly: $('#ev-repeats-weekly').checked,
+          displayCount: parseInt($('#ev-display-count').value, 10) || 4
         };
         
         if(state._editPending){ await updateDoc(doc(db, PENDING_PATH, state.editingId), payload); toast('Rascunho pendente atualizado!'); } 
@@ -1969,7 +2185,7 @@
       state.currentViewEvent = ev;
       $('#view-title').textContent=ev.name||'Evento'; const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); const dateStr = `${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})} (${weekdayLabels[d.getDay()]})`; $('#view-date').textContent = dateStr + (ev.timeStart?` • ${ev.timeStart}${ev.timeEnd?`–${ev.timeEnd}`:''}`:''); $('#view-local').textContent=ev.local||'—'; $('#view-style').textContent=ev.style||'—'; $('#view-desc').textContent=ev.description||'—'; const buy=$('#view-buy'); if(ev.buyLink){ buy.href=ev.buyLink; buy.classList.remove('pointer-events-none','opacity-50'); } else { buy.href='#'; buy.classList.add('pointer-events-none','opacity-50'); } $('#view-coupon').textContent=ev.coupon||'—'; const g=$('#view-gallery'); g.innerHTML=''; (ev.imageUrls||[]).forEach((u,i)=> g.insertAdjacentHTML('beforeend', `<img src="${u}" alt="${ev.name||''} - foto ${i+1}" class="w-full aspect-[16/10] object-cover rounded-2xl ring-subtle"/>`) );
       updateGoingButtonUI();
-      await renderFriendsGoing(ev._id);
+      await renderFriendsGoing(ev._original_id || ev._id);
       await renderRatingSection(ev.recurringEventId);
       show($('#event-view'));
     }
@@ -1977,7 +2193,7 @@
     // ===== Social: "Vou nesse" =====
     function updateGoingButtonUI() {
       if (!state.currentViewEvent) return;
-      const evId = state.currentViewEvent._id;
+      const evId = state.currentViewEvent._original_id || state.currentViewEvent._id;
       const isGoing = state.userGoingTo.has(evId);
       const btn = $('#btn-going');
       const btnText = $('#btn-going-text');
@@ -1999,14 +2215,15 @@
       if (!auth.currentUser || auth.currentUser.isAnonymous) return openLogin();
       if (!state.currentViewEvent) return;
 
-      const evId = state.currentViewEvent._id;
+      const evId = state.currentViewEvent._original_id || state.currentViewEvent._id;
+      const eventPath = state.currentViewEvent._path;
       const userId = auth.currentUser.uid;
       const isCurrentlyGoing = state.userGoingTo.has(evId);
       const batch = writeBatch(db);
 
-      const eventRef = doc(db, EVENTS_PATH, evId);
+      const eventRef = doc(db, eventPath);
       const goingToRef = doc(db, `artifacts/${appId}/users/${userId}/goingTo`, evId);
-      const attendeeRef = doc(db, `artifacts/${appId}/public/data/events/${evId}/attendees`, userId);
+      const attendeeRef = doc(db, `${eventPath}/attendees`, userId);
 
       if (isCurrentlyGoing) {
         batch.delete(goingToRef);
@@ -2247,7 +2464,7 @@
             });
         }
         const sortedEventIds = Object.keys(eventCounts).sort((a, b) => eventCounts[b] - eventCounts[a]);
-        return sortedEventIds.map(id => state.events.find(ev => ev._id === id)).filter(Boolean).filter(isEventActive);
+        return sortedEventIds.map(id => state.events.find(ev => (ev._original_id || ev._id) === id)).filter(Boolean).filter(isEventActive);
     }
 
     // ===== Social: Busca e Perfil =====
@@ -2353,12 +2570,15 @@
             const goingToSnap = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/goingTo`));
             const eventIds = goingToSnap.docs.map(d => d.id);
             const upcomingEvents = [], pastEvents = [];
-            const now = startOfToday();
+            
             for (const eventId of eventIds) {
-                const eventData = state.events.find(e => e._id === eventId);
+                const eventData = state.baseEvents.find(e => e._id === eventId);
                 if (eventData) {
-                    const eventDate = eventData.date?.toDate ? eventData.date.toDate() : new Date();
-                    (eventDate >= now ? upcomingEvents : pastEvents).push(eventData);
+                    if (isEventActive(eventData)) {
+                        upcomingEvents.push(eventData);
+                    } else {
+                        pastEvents.push(eventData);
+                    }
                 }
             }
             detailsHTML = `
@@ -2439,7 +2659,7 @@
         const card = e.target.closest('[data-event-id]');
         if (card) {
             const eventId = card.dataset.eventId;
-            const eventData = state.events.find(ev => ev._id === eventId);
+            const eventData = state.events.find(ev => (ev._original_id || ev._id) === eventId);
             if (eventData) {
                 hide($('#user-profile-modal'));
                 openViewModal(eventData);
@@ -2520,7 +2740,7 @@
 
         if (state.userFollowing.size === 0) return;
 
-        const attendeesSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/events/${eventId}/attendees`));
+        const attendeesSnap = await getDocs(collection(db, `${EVENTS_PATH}/${eventId}/attendees`));
         const attendeeIds = new Set(attendeesSnap.docs.map(d => d.id));
         
         const friendsGoing = Array.from(state.userFollowing).filter(friendId => attendeeIds.has(friendId));
