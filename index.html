@@ -10,6 +10,16 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com"></script>
+<script>
+(function(){
+  try{
+    var ls = localStorage.getItem('rf_theme');
+    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var initTheme = ls || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', initTheme);
+  } catch(e){}
+})();
+</script>
 <style>
     body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
     .shadow-soft{box-shadow:0 12px 26px rgba(17,17,18,.08)}
@@ -213,7 +223,215 @@
 #bairro-list li button, #genero-list li button { color: #ef4444; font-weight: 600; }
 #ev-genero, #org-ev-genero { min-height: 160px; }
 
+
+/* === FINAL dark fixes: gradients, admin wrapper, selects === */
+/* Gradients that use Tailwind CSS variables */
+[data-theme="dark"] [class*="from-white"] {
+  --tw-gradient-from: rgb(15 18 24 / 1) !important;
+  --tw-gradient-to: rgb(15 18 24 / 0) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+[data-theme="dark"] [class*="via-white"] {
+  --tw-gradient-stops: var(--tw-gradient-from), rgb(15 18 24 / 1), var(--tw-gradient-to) !important;
+}
+[data-theme="dark"] [class*="to-white"] {
+  --tw-gradient-to: rgb(15 18 24 / 1) !important;
+}
+/* Gray variants that sometimes appear in gradients */
+[data-theme="dark"] [class*="from-gray-50"] {
+  --tw-gradient-from: rgb(20 25 36 / 1) !important;
+  --tw-gradient-to: rgb(20 25 36 / 0) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+[data-theme="dark"] [class*="via-gray-50"] {
+  --tw-gradient-stops: var(--tw-gradient-from), rgb(20 25 36 / 1), var(--tw-gradient-to) !important;
+}
+[data-theme="dark"] [class*="to-gray-50"] {
+  --tw-gradient-to: rgb(20 25 36 / 1) !important;
+}
+
+/* Fallback for explicit gradient utilities */
+[data-theme="dark"] .bg-gradient-to-t[class*="from-white"] { background-image: linear-gradient(to top, rgba(15,18,24,1), rgba(15,18,24,0)) !important; }
+[data-theme="dark"] .bg-gradient-to-b[class*="from-white"] { background-image: linear-gradient(to bottom, rgba(15,18,24,1), rgba(15,18,24,0)) !important; }
+[data-theme="dark"] .bg-gradient-to-r[class*="from-white"] { background-image: linear-gradient(to right, rgba(15,18,24,1), rgba(15,18,24,0)) !important; }
+[data-theme="dark"] .bg-gradient-to-l[class*="from-white"] { background-image: linear-gradient(to left, rgba(15,18,24,1), rgba(15,18,24,0)) !important; }
+
+/* Admin cards wrapper: ensure top header area isn't white */
+[data-theme="dark"] #view-admin .rounded-3xl { background-color: var(--rf-elev) !important; }
+
+/* Notifications: ensure containers are dark even without ring classes */
+[data-theme="dark"] #view-social .rounded-2xl { background-color: #0f1218 !important; border-color: var(--rf-border) !important; }
+
+/* Form selects (multiple) – default highlight is too clara in dark */
+[data-theme="dark"] select[multiple] option { background-color: #0f1218 !important; color: var(--rf-text) !important; }
+[data-theme="dark"] select[multiple] option:checked { background-color: #1b2230 !important; color: var(--rf-text) !important; }
+
+
+/* === Additional fixes: table row whites & modal footer clip === */
+
+/* Force table parts transparent so row utilities can't show white */
+[data-theme="dark"] table,
+[data-theme="dark"] thead,
+[data-theme="dark"] tbody,
+[data-theme="dark"] tr { background-color: transparent !important; }
+
+/* Rows using Tailwind odd:/even: background utilities */
+[data-theme="dark"] .odd\:bg-white:nth-child(odd),
+[data-theme="dark"] .even\:bg-white:nth-child(even),
+[data-theme="dark"] .odd\:bg-gray-50:nth-child(odd),
+[data-theme="dark"] .even\:bg-gray-50:nth-child(even) { background-color: var(--rf-surface) !important; }
+
+/* Hover variants on rows */
+[data-theme="dark"] .hover\:bg-white:hover,
+[data-theme="dark"] .hover\:bg-gray-50:hover { background-color: #131722 !important; }
+
+/* Arbitrary small opacities that might still appear */
+[data-theme="dark"] .bg-white\/5 { background-color: rgba(15,18,24,.95) !important; }
+[data-theme="dark"] .bg-white\/0 { background-color: rgba(15,18,24,0) !important; }
+
+/* Divider lines */
+[data-theme="dark"] .divide-y > :not([hidden]) ~ :not([hidden]) { border-color: var(--rf-border) !important; }
+
+/* Modal/card rounded containers: clip internal gradients so no white bars escape */
+.fixed.inset-0 .rounded-2xl,
+.fixed.inset-0 .rounded-3xl { overflow: hidden !important; }
+
+/* Footer fade bars inside modals should match surface on dark */
+[data-theme="dark"] .bg-gradient-to-t.from-white { 
+  background-image: linear-gradient(to top, rgba(15,18,24,1), rgba(15,18,24,0)) !important;
+}
+
 </style>
+<style>
+
+/* === Dark mode main palette & admin collapsibles === */
+:root {
+  --rf-bg: #0b0d12;
+  --rf-surface: #0f1218;
+  --rf-elev: #141924;
+  --rf-text: #e5e7eb;
+  --rf-muted: #a3a3a3;
+  --rf-border: #283140;
+  --rf-ring: rgba(148,163,184,.25);
+}
+[data-theme="dark"] body { background: var(--rf-bg) !important; color: var(--rf-text) !important; }
+[data-theme="dark"] header { background: rgba(15,18,24,.8) !important; border-color: var(--rf-border) !important; }
+[data-theme="dark"] .bg-white { background-color: var(--rf-surface) !important; }
+[data-theme="dark"] .bg-gray-50 { background-color: var(--rf-surface) !important; }
+[data-theme="dark"] .text-gray-900 { color: var(--rf-text) !important; }
+[data-theme="dark"] .text-gray-800 { color: var(--rf-text) !important; }
+[data-theme="dark"] .text-gray-700 { color: #d1d5db !important; }
+[data-theme="dark"] .text-gray-600 { color: #cbd5e1 !important; }
+[data-theme="dark"] .text-gray-500 { color: var(--rf-muted) !important; }
+[data-theme="dark"] .border-gray-100,
+[data-theme="dark"] .border-gray-200,
+[data-theme="dark"] .border-gray-300 { border-color: var(--rf-border) !important; }
+[data-theme="dark"] .ring-subtle { box-shadow: inset 0 0 0 1px var(--rf-ring) !important; }
+[data-theme="dark"] .shadow-soft { box-shadow: 0 16px 32px rgba(0,0,0,.45) !important; }
+[data-theme="dark"] .hover\:bg-gray-50:hover { background-color: #131722 !important; }
+[data-theme="dark"] .hover\:bg-gray-50\/70:hover { background-color: #131722 !important; }
+[data-theme="dark"] input, [data-theme="dark"] textarea, [data-theme="dark"] select {
+  background-color: #0f1218 !important;
+  border-color: var(--rf-border) !important;
+  color: var(--rf-text) !important;
+}
+[data-theme="dark"] .prose :where(p, li, h1, h2, h3, h4, h5, h6) { color: var(--rf-text) !important; }
+[data-theme="dark"] .prose a { color: #f472b6 !important; }
+[data-theme="dark"] .bg-gray-100 { background-color: #141924 !important; }
+[data-theme="dark"] .bg-gray-200 { background-color: #1b2230 !important; }
+[data-theme="dark"] input:focus { box-shadow: 0 0 0 3px rgba(244,114,182,.25) !important; }
+[data-theme="dark"] .bg-black\/40 { background-color: rgba(0,0,0,.6) !important; }
+
+.collapsible { border-radius: 1rem; overflow: hidden; }
+.collapsible-toggle {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  padding: .75rem 1rem; font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
+}
+[data-theme="dark"] .collapsible-toggle { border-color: var(--rf-border); }
+.collapsible-body { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .25s ease; }
+.collapsible.collapsed .collapsible-body { grid-template-rows: 0fr; }
+.collapsible-body > .collapsible-inner { overflow: hidden; }
+
+@media (max-width: 767px) {
+  header .rounded-full { border-radius: 9999px; }
+  #view-admin .rounded-3xl.bg-white { padding: 0 !important; }
+  #view-admin .collapsible-inner { padding: 1rem; }
+  #view-admin .collapsible-toggle { position: sticky; top: 0; background: inherit; }
+  #home-view .grid, #view-social .grid { gap: .75rem !important; }
+}
+@media (min-width: 1024px) {
+  #view-admin .rounded-3xl.bg-white { border: 1px solid rgba(148,163,184,.15); }
+  [data-theme="dark"] #view-admin .rounded-3xl.bg-white { border-color: var(--rf-border); }
+}
+
+
+/* === Extra dark fixes for semi-transparent whites & tables === */
+[data-theme="dark"] .bg-white\/95 { background-color: rgba(15,18,24,.95) !important; }
+[data-theme="dark"] .bg-white\/90 { background-color: rgba(15,18,24,.90) !important; }
+[data-theme="dark"] .bg-white\/80 { background-color: rgba(15,18,24,.80) !important; }
+[data-theme="dark"] .bg-white\/70 { background-color: rgba(15,18,24,.70) !important; }
+[data-theme="dark"] .bg-white\/60 { background-color: rgba(15,18,24,.60) !important; }
+[data-theme="dark"] .bg-white\/50 { background-color: rgba(15,18,24,.50) !important; }
+[data-theme="dark"] .bg-white\/40 { background-color: rgba(15,18,24,.40) !important; }
+[data-theme="dark"] .bg-white\/30 { background-color: rgba(15,18,24,.30) !important; }
+[data-theme="dark"] .bg-white\/20 { background-color: rgba(15,18,24,.20) !important; }
+[data-theme="dark"] .bg-white\/10 { background-color: rgba(15,18,24,.10) !important; }
+[data-theme="dark"] .bg-gray-50\/90 { background-color: rgba(20,25,36,.90) !important; }
+[data-theme="dark"] .bg-gray-50\/80 { background-color: rgba(20,25,36,.80) !important; }
+[data-theme="dark"] .bg-gray-50\/70 { background-color: rgba(20,25,36,.70) !important; }
+[data-theme="dark"] .bg-gray-100\/80 { background-color: rgba(27,34,48,.80) !important; }
+[data-theme="dark"] .bg-gray-100\/70 { background-color: rgba(27,34,48,.70) !important; }
+[data-theme="dark"] .bg-slate-50, 
+[data-theme="dark"] .bg-gray-50 { background-color: var(--rf-surface) !important; }
+[data-theme="dark"] .bg-slate-100, 
+[data-theme="dark"] .bg-gray-100 { background-color: #141924 !important; }
+[data-theme="dark"] thead tr { background-color: #141924 !important; }
+[data-theme="dark"] tr:nth-child(even).bg-white, 
+[data-theme="dark"] tr:nth-child(even).bg-gray-50 { background-color: #0f1218 !important; }
+[data-theme="dark"] .backdrop-blur, 
+[data-theme="dark"] .backdrop-blur-sm, 
+[data-theme="dark"] .backdrop-blur-md { background-color: rgba(15,18,24,.85) !important; }
+[data-theme="dark"] .ring-1.bg-white,
+[data-theme="dark"] .ring-1.bg-gray-50,
+[data-theme="dark"] .ring-1.bg-gray-100 {
+  background-color: #0f1218 !important;
+  border-color: var(--rf-border) !important;
+}
+
+
+/* === Broad catch-alls and rounded containers === */
+[data-theme="dark"] [class*="bg-white/"] { background-color: rgba(15,18,24,.88) !important; }
+[data-theme="dark"] [class*="bg-gray-50/"] { background-color: rgba(20,25,36,.88) !important; }
+[data-theme="dark"] [class*="bg-gray-100/"] { background-color: rgba(27,34,48,.88) !important; }
+[data-theme="dark"] [class*="bg-slate-50/"] { background-color: rgba(20,25,36,.88) !important; }
+[data-theme="dark"] [class*="bg-neutral-50/"], 
+[data-theme="dark"] [class*="bg-zinc-50/"] { background-color: rgba(20,25,36,.88) !important; }
+[data-theme="dark"] .bg-neutral-50, 
+[data-theme="dark"] .bg-neutral-100,
+[data-theme="dark"] .bg-zinc-50,
+[data-theme="dark"] .bg-zinc-100,
+[data-theme="dark"] .bg-slate-50, 
+[data-theme="dark"] .bg-slate-100,
+[data-theme="dark"] .bg-gray-50, 
+[data-theme="dark"] .bg-gray-100,
+[data-theme="dark"] .bg-white { background-color: var(--rf-surface) !important; }
+[data-theme="dark"] .table-header, 
+[data-theme="dark"] thead, 
+[data-theme="dark"] thead tr, 
+[data-theme="dark"] thead th { background-color: #141924 !important; color: var(--rf-text) !important; }
+[data-theme="dark"] .notification-item,
+[data-theme="dark"] .notif-item,
+[data-theme="dark"] .bg-white.notification,
+[data-theme="dark"] .bg-white.rounded-2xl { 
+  background-color: #0f1218 !important; 
+  border-color: var(--rf-border) !important;
+}
+[data-theme="dark"] .rounded-2xl.bg-white, 
+[data-theme="dark"] .rounded-3xl.bg-white { background-color: var(--rf-elev) !important; }
+
+</style>
+
 </head>
 <body class="bg-gray-50 md:bg-white text-gray-900 selection:bg-pink-600/10">
 <!-- HEADER -->
@@ -228,6 +446,16 @@
 <nav class="flex items-center gap-1 sm:gap-2">
 <button class="inline-flex items-center rounded-full bg-gray-100 border border-gray-200 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-200" id="btn-about-header">Sobre</button>
 <button class="inline-flex items-center rounded-full bg-pink-600/5 border border-pink-600/20 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-pink-700 hover:bg-pink-600/10" id="btn-social-header">Rede</button>
+<button class="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-50"
+        id="btn-theme" title="Alternar tema">
+  <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg id="icon-moon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"></path>
+  </svg>
+</button>
 <!-- Visitante -->
 <div class="flex items-center gap-1 sm:gap-2" id="nav-auth">
 <button class="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold hover:bg-gray-50" id="btn-open-login">Entrar</button>
@@ -259,7 +487,9 @@
 <p class="mt-5 text-base text-gray-600 max-w-xl mx-auto md:mx-0">Sua curadoria definitiva para os eventos mais exclusivos e vibrantes da cidade.</p>
 <div class="mt-6 relative">
 <input class="w-full rounded-full border border-gray-200 bg-white px-5 py-3.5 pr-12 text-base outline-none focus:ring-2 focus:ring-pink-600/40 shadow-soft" id="search-input" placeholder="Pesquise por festas, DJs..."/>
+<button id="search-btn" type="button" class="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#131722] focus:outline-none">
 <svg class="absolute right-4 top-1/2 -translate-y-1/2" fill="none" height="20" viewbox="0 0 24 24" width="20"><path d="M15.5 15.5L20 20" stroke="#888" stroke-linecap="round" stroke-width="2"></path><circle cx="10.5" cy="10.5" r="6.5" stroke="#888" stroke-width="2"></circle></svg>
+</button>
 </div>
 <!-- Botão para a página de locais -->
 <div class="mt-4 flex justify-center md:justify-start items-center gap-2">
@@ -1767,7 +1997,39 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     function buildNext7Menu(){ const menu=$('#weekday-menu'); menu.innerHTML=''; const today=startOfToday(); const labels=[]; for(let i=0;i<7;i++){ const d=new Date(today); d.setDate(today.getDate()+i); labels.push({date:d,label:weekdayLong[d.getDay()]}); } labels.forEach((it,idx)=>{ const b=document.createElement('button'); b.className='flex-shrink-0 rounded-full border px-4 py-2 text-sm '+(idx===state.byDayOffset? 'bg-pink-600 text-white border-pink-600':'bg-white border-gray-200 hover:bg-gray-50'); b.textContent=it.label; b.addEventListener('click', ()=>{ state.byDayOffset=idx; applyFiltersAndRender(); }); menu.appendChild(b); }); }
 
     function renderAllHome(filteredEvents){
-      const activeEvents = filteredEvents.filter(isEventActive);
+      
+      // Query-aware: hide hero sections when searching
+      try {
+        const qEl = document.getElementById('search-input');
+        const q = (qEl && qEl.value ? qEl.value : '').trim();
+        const secIds = ['carousel-week-top','carousel-popular','carousel-byday','carousel-others'];
+        const secs = secIds.map(id => document.getElementById(id)?.closest('section')).filter(Boolean);
+        const resultsSection = document.getElementById('search-results-section');
+        if (q) {
+          secs.forEach(sec => sec && sec.classList.add('hidden'));
+          resultsSection && resultsSection.classList.remove('hidden');
+        } else {
+          secs.forEach(sec => sec && sec.classList.remove('hidden'));
+        }
+      } catch(e) {}
+
+      // Ensure results render & skip carousels when searching
+      try {
+        const qEl = document.getElementById('search-input');
+        const q = (qEl && qEl.value ? qEl.value : '').trim();
+        const secIds = ['carousel-week-top','carousel-popular','carousel-byday','carousel-others'];
+        const secs = secIds.map(id => document.getElementById(id)?.closest('section')).filter(Boolean);
+        const resultsSection = document.getElementById('search-results-section');
+        if (q) {
+          secs.forEach(sec => sec && sec.classList.add('hidden'));
+          resultsSection && resultsSection.classList.remove('hidden');
+          renderFeed(filteredEvents);
+          return;
+        } else {
+          secs.forEach(sec => sec && sec.classList.remove('hidden'));
+        }
+      } catch(e) {}
+const activeEvents = filteredEvents.filter(isEventActive);
       const evs=[...activeEvents].sort((a,b)=>(b.importance||0)-(a.importance||0));
       const start=startOfToday(); const end=next7End();
       const inNext7 = evs.filter(ev=>{ const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); return d>=start && d<=end; });
@@ -1810,6 +2072,10 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     // CORREÇÃO: Função central para aplicar filtros e re-renderizar
     function applyFiltersAndRender() {
         let filtered = [...state.events];
+
+        const qEl = document.getElementById('search-input');
+        const q = (qEl && qEl.value ? qEl.value : '').trim().toLowerCase();
+
         const hasB = state.selectedBairros.size > 0;
         const hasG = state.selectedGeneros.size > 0;
 
@@ -1821,6 +2087,18 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             });
         }
         
+
+        // Apply query on top of Bairros/Gêneros
+        if (q) {
+            filtered = filtered.filter(ev => {
+                const inName = (ev.name || '').toLowerCase().includes(q);
+                const inLocal = (ev.local || '').toLowerCase().includes(q);
+                const stylesArr = Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : []);
+                const inStyle = stylesArr.some(s => (s || '').toLowerCase().includes(q));
+                return inName || inLocal || inStyle;
+            });
+        }
+
         renderAllHome(filtered);
         renderAdminEventsView(); // Re-renderiza a view do admin também se estiver aberta
         renderSocialFeeds(); // Re-renderiza feeds sociais
@@ -3722,7 +4000,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
           btn.textContent = b.name||'—';
           btn.onclick = ()=>{ 
             if (state.selectedBairros.has(b.id)) state.selectedBairros.delete(b.id); else state.selectedBairros.add(b.id);
-            renderFeed();
+            applyFiltersAndRender();
             updateTaxonomyUIs();
           };
           chipWrapB.appendChild(btn);
@@ -3736,7 +4014,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
           btn.textContent = g.name||'—';
           btn.onclick = ()=>{ 
             if (state.selectedGeneros.has(g.id)) state.selectedGeneros.delete(g.id); else state.selectedGeneros.add(g.id);
-            renderFeed();
+            applyFiltersAndRender();
             updateTaxonomyUIs();
           };
           chipWrapG.appendChild(btn);
@@ -3758,28 +4036,26 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     // Botão limpar filtros
     const btnClearFilters = document.getElementById('btn-clear-filters');
     if (btnClearFilters){
-      btnClearFilters.onclick = ()=>{ state.selectedBairros.clear(); state.selectedGeneros.clear(); renderFeed(); updateTaxonomyUIs(); };
+      btnClearFilters.onclick = ()=>{ state.selectedBairros.clear(); state.selectedGeneros.clear(); applyFiltersAndRender(); updateTaxonomyUIs(); };
     }
 
-    // Patch renderFeed para aplicar filtros
+    // Patch renderFeed: encaminha com fallback seguro
+try {
+  if (typeof renderFeed === 'function') {
+    // Patch renderFeed: encaminha com fallback seguro
+try {
+  if (typeof renderFeed === 'function') {
     const _renderFeedOriginal = renderFeed;
-    renderFeed = function(){
-      const original = state.events;
-      try {
-        const hasB = state.selectedBairros.size>0;
-        const hasG = state.selectedGeneros.size>0;
-        if (hasB || hasG) {
-          state.events = original.filter(ev=>{
-            const matchB = !hasB || (ev.bairroId && state.selectedBairros.has(ev.bairroId));
-            const matchG = !hasG || ( (ev.generoId && state.selectedGeneros.has(ev.generoId)) || (Array.isArray(ev.generoIds) && ev.generoIds.some(id=> state.selectedGeneros.has(id))) );
-            return matchB && matchG;
-          });
-        }
-        _renderFeedOriginal();
-      } finally {
-        state.events = original;
-      }
+    renderFeed = function (filteredEvents) {
+      const base = Array.isArray(filteredEvents) ? filteredEvents : ((window.state && Array.isArray(window.state.events)) ? window.state.events : []);
+      _renderFeedOriginal(base);
     };
+  }
+} catch (e) { console.error('Falha ao ajustar renderFeed', e); }
+
+  }
+} catch (e) { console.error('Falha ao ajustar renderFeed', e); }
+
 
     // Painel Admin (toggle)
     const taxToggle = document.getElementById('toggle-taxonomy-panel');
@@ -3916,7 +4192,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
               applyFiltersAndRender();
             } else {
               // fallback (não deve acontecer, mas garante feed filtrado)
-              if (typeof renderFeed === 'function') renderFeed();
+              if (typeof renderFeed === 'function') applyFiltersAndRender();
             }
           }, 0);
         });
@@ -3967,6 +4243,114 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
   }, 400);
 })();
 // === FIM DO PATCH ===
+
+
+// === Theme toggle & persistence ===
+const THEME_KEY = 'rf_theme';
+function applyTheme(theme){
+  const t = (theme === 'dark') ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', t);
+  const sun = document.getElementById('icon-sun');
+  const moon = document.getElementById('icon-moon');
+  if (sun && moon) {
+    if (t === 'dark') { sun.classList.add('hidden'); moon.classList.remove('hidden'); }
+    else { sun.classList.remove('hidden'); moon.classList.add('hidden'); }
+  }
+}
+function getStoredTheme(){ try { return localStorage.getItem(THEME_KEY); } catch(e){ return null; } }
+async function persistTheme(theme){
+  try {
+    const u = auth.currentUser;
+    if (u && !u.isAnonymous) {
+      await setDoc(doc(db, USERS_PATH, u.uid), { 
+        settings: { ...(state.currentUserData?.settings || {}), theme } 
+      }, { merge: true });
+      state.currentUserData = { ...(state.currentUserData || {}), settings: { ...(state.currentUserData?.settings || {}), theme } };
+    } else {
+      localStorage.setItem(THEME_KEY, theme);
+    }
+  } catch(e){ console.warn('persistTheme failed', e); }
+}
+document.getElementById('btn-theme')?.addEventListener('click', async () => {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = (current === 'dark') ? 'light' : 'dark';
+  applyTheme(next);
+  await persistTheme(next);
+});
+onAuthStateChanged(auth, async (user) => {
+  try {
+    if (user && !user.isAnonymous) {
+      const ref = doc(db, USERS_PATH, user.uid);
+      try {
+        const snap = await getDoc(ref);
+        const t = snap?.data()?.settings?.theme || getStoredTheme();
+        if (t) applyTheme(t);
+      } catch(e) {
+        const t = getStoredTheme();
+        if (t) applyTheme(t);
+      }
+    } else {
+      const t = getStoredTheme();
+      if (t) applyTheme(t);
+    }
+  } catch(e){}
+});
+
+// === Collapsibles for Admin (mobile) ===
+function enhanceAdminMobileCollapsibles(){
+  const admin = document.getElementById('view-admin');
+  if(!admin) return;
+  const isMobile = window.matchMedia('(max-width: 767px)').matches;
+  if(!isMobile) return;
+  const cards = Array.from(admin.querySelectorAll('.rounded-3xl.bg-white.shadow-soft.ring-subtle'))
+    .filter(el => !el.querySelector('#taxonomy-panel'));
+  cards.forEach(card => {
+    if (card.dataset.collapsibleWired === '1') return;
+    card.dataset.collapsibleWired = '1';
+    const heading = card.querySelector('h3, h4');
+    const title = heading ? (heading.textContent || 'Seção') : 'Seção';
+    const toggle = document.createElement('button');
+    toggle.className = 'collapsible-toggle px-4 py-3 text-left';
+    toggle.innerHTML = `<span>${title}</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+    const body = document.createElement('div');
+    body.className = 'collapsible-body';
+    const inner = document.createElement('div');
+    inner.className = 'collapsible-inner';
+    const children = Array.from(card.children);
+    if (children.length > 1) {
+      for (let i = 1; i < children.length; i++) inner.appendChild(children[i]);
+    } else {
+      children.forEach(ch => inner.appendChild(ch));
+    }
+    body.appendChild(inner);
+    card.classList.add('collapsible','collapsed');
+    card.innerHTML = '';
+    card.appendChild(toggle);
+    card.appendChild(body);
+    toggle.addEventListener('click', () => { card.classList.toggle('collapsed'); });
+  });
+}
+window.addEventListener('load', enhanceAdminMobileCollapsibles);
+window.addEventListener('resize', enhanceAdminMobileCollapsibles);
+
+
+
+// --- Search events across name, local and styles; respects current filters ---
+(function(){
+  const input = document.getElementById('search-input');
+  const btn = document.getElementById('search-btn');
+  const run = () => applyFiltersAndRender();
+  let t;
+  if (input){
+    input.addEventListener('input', () => { clearTimeout(t); t = setTimeout(run, 120); });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); run(); }
+      if (e.key === 'Escape') { input.value = ''; run(); }
+    });
+  }
+  btn?.addEventListener('click', run);
+})();
+
 </script>
 </body>
 </html>
