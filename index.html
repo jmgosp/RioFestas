@@ -1272,12 +1272,36 @@
 
     // ===== Navegação =====
     const allViews = ['#home-view', '#view-admin', '#view-social', '#hero-section', '#view-profile', '#view-about', '#view-locations'];
+    
+    // NOVO: Função para indicar a página ativa no header
+    function updateHeaderStyles(activeViewId) {
+        const buttons = {
+            home: { el: $('#btn-home-header'), view: '#home-view', default: 'bg-white', active: 'bg-gray-100' },
+            about: { el: $('#btn-about-header'), view: '#view-about', default: 'bg-gray-100', active: 'bg-gray-200' },
+            social: { el: $('#btn-social-header'), view: '#view-social', default: 'bg-pink-600/5', active: 'bg-pink-600/10' }
+        };
+
+        const currentView = (activeViewId === '#hero-section') ? '#home-view' : activeViewId;
+
+        Object.values(buttons).forEach(btn => {
+            btn.el.classList.remove(btn.active);
+            btn.el.classList.add(btn.default);
+        });
+
+        const activeButton = Object.values(buttons).find(btn => btn.view === currentView);
+        if (activeButton) {
+            activeButton.el.classList.remove(activeButton.default);
+            activeButton.el.classList.add(activeButton.active);
+        }
+    }
+
     function showView(viewId) {
       allViews.forEach(v => hide($(v)));
       show($(viewId));
       if (viewId === '#home-view') show($('#hero-section'));
       if (viewId === '#view-locations') renderLocationsPage();
       window.scrollTo(0, 0);
+      updateHeaderStyles(viewId); // ATUALIZAÇÃO: Chama a função de estilo
     }
     $('#logo-link').addEventListener('click', () => showView('#home-view'));
     $('#btn-home-header').addEventListener('click', () => showView('#home-view'));
@@ -1297,7 +1321,12 @@
             openLogin();
         }
     });
-    $('#go-admin').addEventListener('click', ()=>{ if(!ensureAdmin()) return; showView('#view-admin'); });
+    // ATUALIZAÇÃO: Carrega os dados do admin ao abrir a página
+    $('#go-admin').addEventListener('click', ()=>{ 
+        if(!ensureAdmin()) return; 
+        showView('#view-admin'); 
+        refreshAllAdminViews(); 
+    });
     
     function openSocialView() {
         if (!state.currentUserData) return;
@@ -3241,7 +3270,7 @@
     }
     
     // ===== Admin: Eventos Recorrentes =====
-    $('#recurring-event-form').addEventListener('submit', async (e) => {
+   $('#recurring-event-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!ensureAdmin()) return;
         const nameInput = $('#recurring-event-name');
