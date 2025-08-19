@@ -1,16 +1,16 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RioFestas • Guia de Festas do Rio</title>
-
-  <!-- Tailwind + Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>RioFestas • Guia de Festas do Rio</title>
+<!-- Tailwind + Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
     body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
     .shadow-soft{box-shadow:0 12px 26px rgba(17,17,18,.08)}
     .ring-subtle{box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
@@ -177,843 +177,844 @@
         scroll-snap-align: center; /* Centraliza a imagem ao parar de rolar */
       }
     }
+    
+    /* NOVOS ESTILOS PARA FILTROS */
+    #filters-bar.filters-open #filters-chevron {
+        transform: rotate(180deg);
+    }
+    #filters-content {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.3s ease-out;
+    }
+    #filters-bar.filters-open #filters-content {
+        grid-template-rows: 1fr;
+    }
+    #filters-content > .inner-filter-content {
+        overflow: hidden;
+    }
   </style>
 </head>
 <body class="bg-gray-50 md:bg-white text-gray-900 selection:bg-pink-600/10">
-  <!-- HEADER -->
-  <header class="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-gray-200">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-2 sm:gap-3">
-        <a href="#/" id="logo-link" class="text-2xl font-extrabold tracking-tight">RioFestas</a>
-        <button id="btn-home-header" class="inline-flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-gray-200 bg-white text-gray-600 hover:bg-gray-50" title="Início">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        </button>
-      </div>
-      <nav class="flex items-center gap-1 sm:gap-2">
-        <button id="btn-about-header" class="inline-flex items-center rounded-full bg-gray-100 border border-gray-200 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-200">Sobre</button>
-        <button id="btn-social-header" class="inline-flex items-center rounded-full bg-pink-600/5 border border-pink-600/20 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-pink-700 hover:bg-pink-600/10">Rede</button>
-        
-        <!-- Visitante -->
-        <div id="nav-auth" class="flex items-center gap-1 sm:gap-2">
-          <button id="btn-open-login" class="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold hover:bg-gray-50">Entrar</button>
-          <button id="btn-open-register" class="hidden sm:inline-flex items-center rounded-full bg-pink-600 px-4 py-2 text-sm font-semibold text-white hover:opacity-90">Registrar-se</button>
-        </div>
-        <!-- Logado -->
-        <div id="nav-user" class="hidden relative">
-          <button id="btn-user" class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white pl-1.5 pr-3 py-1.5 text-sm font-semibold hover:bg-gray-50">
-            <img id="user-avatar-img" class="h-8 w-8 rounded-full object-cover bg-gray-200" src="https://placehold.co/32x32/f472b6/ffffff?text=U" alt="Avatar">
-            <span id="user-avatar-text" class="grid h-8 w-8 place-items-center rounded-full bg-pink-600 text-white font-bold hidden">U</span>
-            <span id="user-label" class="hidden md:inline">Usuário</span>
-            <svg class="hidden md:block" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          </button>
-          <div id="user-menu" class="absolute right-0 mt-2 hidden w-56 rounded-2xl bg-white p-2 shadow-xl ring-1 ring-gray-200">
-            <a id="go-profile" class="block rounded-xl px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer">Meu Perfil</a>
-            <a id="go-organizer" class="block rounded-xl px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer hidden">Organizador</a>
-            <a id="go-admin" class="block rounded-xl px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer hidden">Área Admin</a>
-            <button id="btn-logout" class="mt-1 block w-full rounded-xl px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50">Sair</button>
-          </div>
-        </div>
-      </nav>
-    </div>
-  </header>
-
-  <!-- HERO -->
-  <section id="hero-section" class="relative bg-white">
-    <div class="max-w-6xl mx-auto px-4 py-8 md:py-14 grid items-center gap-8 md:grid-cols-[1.2fr_.8fr]">
-      <div class="text-center md:text-left">
-        <h1 class="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight">Descubra e<br/>reserve as<br/>melhores festas do<br/>Rio.</h1>
-        <p class="mt-5 text-base text-gray-600 max-w-xl mx-auto md:mx-0">Sua curadoria definitiva para os eventos mais exclusivos e vibrantes da cidade.</p>
-        <div class="mt-6 relative">
-          <input id="search-input" class="w-full rounded-full border border-gray-200 bg-white px-5 py-3.5 pr-12 text-base outline-none focus:ring-2 focus:ring-pink-600/40 shadow-soft" placeholder="Pesquise por festas, DJs..." />
-          <svg class="absolute right-4 top-1/2 -translate-y-1/2" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15.5 15.5L20 20" stroke="#888" stroke-width="2" stroke-linecap="round"/><circle cx="10.5" cy="10.5" r="6.5" stroke="#888" stroke-width="2"/></svg>
-        </div>
-        <!-- NOVO: Botão para a página de locais -->
-        <div class="mt-4 flex justify-center md:justify-start items-center gap-2">
-            <button id="btn-locations-view" class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+<!-- HEADER -->
+<header class="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-gray-200">
+<div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+<div class="flex items-center gap-2 sm:gap-3">
+<a class="text-2xl font-extrabold tracking-tight" href="#/" id="logo-link">RioFestas</a>
+<button class="inline-flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-gray-200 bg-white text-gray-600 hover:bg-gray-50" id="btn-home-header" title="Início">
+<svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="20"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+</button>
+</div>
+<nav class="flex items-center gap-1 sm:gap-2">
+<button class="inline-flex items-center rounded-full bg-gray-100 border border-gray-200 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-200" id="btn-about-header">Sobre</button>
+<button class="inline-flex items-center rounded-full bg-pink-600/5 border border-pink-600/20 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-pink-700 hover:bg-pink-600/10" id="btn-social-header">Rede</button>
+<!-- Visitante -->
+<div class="flex items-center gap-1 sm:gap-2" id="nav-auth">
+<button class="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold hover:bg-gray-50" id="btn-open-login">Entrar</button>
+<button class="hidden sm:inline-flex items-center rounded-full bg-pink-600 px-4 py-2 text-sm font-semibold text-white hover:opacity-90" id="btn-open-register">Registrar-se</button>
+</div>
+<!-- Logado -->
+<div class="hidden relative" id="nav-user">
+<button class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white pl-1.5 pr-3 py-1.5 text-sm font-semibold hover:bg-gray-50" id="btn-user">
+<img alt="Avatar" class="h-8 w-8 rounded-full object-cover bg-gray-200" id="user-avatar-img" src="https://placehold.co/32x32/f472b6/ffffff?text=U"/>
+<span class="grid h-8 w-8 place-items-center rounded-full bg-pink-600 text-white font-bold hidden" id="user-avatar-text">U</span>
+<span class="hidden md:inline" id="user-label">Usuário</span>
+<svg class="hidden md:block" fill="none" height="16" viewbox="0 0 24 24" width="16"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path></svg>
+</button>
+<div class="absolute right-0 mt-2 hidden w-56 rounded-2xl bg-white p-2 shadow-xl ring-1 ring-gray-200" id="user-menu">
+<a class="block rounded-xl px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer" id="go-profile">Meu Perfil</a>
+<a class="block rounded-xl px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer hidden" id="go-organizer">Organizador</a>
+<a class="block rounded-xl px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer hidden" id="go-admin">Área Admin</a>
+<button class="mt-1 block w-full rounded-xl px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50" id="btn-logout">Sair</button>
+</div>
+</div>
+</nav>
+</div>
+</header>
+<!-- HERO -->
+<section class="relative bg-white" id="hero-section">
+<div class="max-w-6xl mx-auto px-4 py-8 md:py-14 grid items-center gap-8 md:grid-cols-[1.2fr_.8fr]">
+<div class="text-center md:text-left">
+<h1 class="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight">Descubra e<br/>reserve as<br/>melhores festas do<br/>Rio.</h1>
+<p class="mt-5 text-base text-gray-600 max-w-xl mx-auto md:mx-0">Sua curadoria definitiva para os eventos mais exclusivos e vibrantes da cidade.</p>
+<div class="mt-6 relative">
+<input class="w-full rounded-full border border-gray-200 bg-white px-5 py-3.5 pr-12 text-base outline-none focus:ring-2 focus:ring-pink-600/40 shadow-soft" id="search-input" placeholder="Pesquise por festas, DJs..."/>
+<svg class="absolute right-4 top-1/2 -translate-y-1/2" fill="none" height="20" viewbox="0 0 24 24" width="20"><path d="M15.5 15.5L20 20" stroke="#888" stroke-linecap="round" stroke-width="2"></path><circle cx="10.5" cy="10.5" r="6.5" stroke="#888" stroke-width="2"></circle></svg>
+</div>
+<!-- Botão para a página de locais -->
+<div class="mt-4 flex justify-center md:justify-start items-center gap-2">
+<button class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50 shadow-sm" id="btn-locations-view">
+<svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                 Ver por Local
             </button>
-        </div>
-      </div>
-      <div class="rounded-3xl overflow-hidden shadow-soft ring-subtle">
-        <img class="w-full h-[280px] md:h-[420px] object-cover" src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=1600&auto=format&fit=crop" alt="Brinde em festa no Rio"/>
-      </div>
-    </div>
-  </section>
-
-  <!-- HOME SECTIONS -->
-  <main id="home-view" class="max-w-6xl mx-auto px-4 pb-24 space-y-12">
-    <!-- BARRA DE FILTROS (Bairros & Gêneros) -->
-    <section id="filters-bar" class="mt-2 mb-6">
-      <div class="rounded-3xl bg-white p-3 shadow-soft ring-subtle">
-        <div class="flex items-center justify-between gap-2">
-          <div class="flex items-center gap-2">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#d1d5db" stroke-width="2"/><path d="M4 8h16M8 12h8M10 16h4" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/></svg>
-            <span class="text-sm font-semibold text-gray-700">Filtros</span>
-          </div>
-          <button id="btn-clear-filters" class="text-xs font-semibold text-pink-600 hover:underline">Limpar</button>
-        </div>
-        <div class="mt-3 space-y-2">
-          <div>
-            <div class="text-xs font-medium text-gray-500 mb-1">Bairros</div>
-            <div id="chips-bairros" class="flex flex-wrap gap-2"></div>
-          </div>
-          <div>
-            <div class="text-xs font-medium text-gray-500 mb-1">Gêneros musicais</div>
-            <div id="chips-generos" class="flex flex-wrap gap-2"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="flex items-center justify-between">
-        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Destaques da Semana</h2>
-      </div>
-      <div id="carousel-week-top" class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"></div>
-      <div id="empty-week-top" class="hidden mt-6 text-center text-gray-500">Nenhum evento nos próximos 7 dias.</div>
-    </section>
-    
-    <section>
-      <div class="flex items-center justify-between">
-        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos Populares</h2>
-      </div>
-      <div id="carousel-popular" class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"></div>
-      <div id="empty-popular" class="hidden mt-6 text-center text-gray-500">Nenhum evento com confirmações ainda.</div>
-    </section>
-
-    <section>
-      <div class="flex items-center justify-between">
-        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos por Dia</h2>
-      </div>
-      <div id="weekday-menu" class="mt-3 flex gap-2 overflow-x-auto pb-2 -mx-4 px-4"></div>
-      <div id="carousel-byday" class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"></div>
-      <div id="empty-byday" class="hidden mt-6 text-center text-gray-500">Sem eventos nesse dia.</div>
-    </section>
-
-    <section>
-      <div class="flex items-center justify-between">
-        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Outros Eventos</h2>
-      </div>
-      <div id="carousel-others" class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"></div>
-      <div id="empty-others" class="hidden mt-6 text-center text-gray-500">Nenhum outro evento encontrado.</div>
-    </section>
-
-    <section>
-      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Resultados da Busca</h2>
-      <div class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="grid-events"></div>
-      <div id="empty-feed" class="hidden mt-10 text-center text-gray-500">Nenhum evento encontrado.</div>
-    </section>
-  </main>
-
-  <!-- PÁGINA SOBRE -->
-  <section id="view-about" class="hidden max-w-3xl mx-auto px-4 pb-28">
-    <div class="bg-white rounded-3xl p-6 md:p-10 shadow-soft ring-subtle">
-      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-center">Sobre o RioFestas</h2>
-      <div class="mt-6 prose prose-lg max-w-none text-gray-700">
-        <p>O Rio Festas é um aplicativo criado para conectar pessoas e experiências na noite carioca. Nosso propósito é simples: aproximar você das festas mais comentadas do Rio de Janeiro e mostrar em quais eventos seus amigos e conhecidos estarão presentes. Acreditamos que sair de casa fica muito mais divertido quando você sabe onde sua galera vai estar.</p>
-        
-        <h3>Nosso Objetivo</h3>
-        <p>O app nasceu para facilitar a vida de quem ama curtir festas, música e encontros sociais. Com o Rio Festas, você pode:</p>
-        <ul>
-          <li>Descobrir em quais eventos seus amigos, amigos de amigos e pessoas que você segue vão marcar presença.</li>
-          <li>Confirmar sua ida a festas, permitindo que seus seguidores acompanhem sua agenda de rolês.</li>
-          <li>Ser redirecionado para sites de venda de ingressos, garantindo sua entrada nos melhores eventos.</li>
-          <li>Explorar a aba principal com as festas mais em alta e os eventos da semana, sempre atualizados.</li>
-        </ul>
-        <p>Além disso, o Rio Festas tem um sistema de seguidores, permitindo interação com amigos e troca de experiências sobre festas passadas e futuras.</p>
-        <p>Nosso compromisso é tornar a sua busca por diversão mais prática e social, transformando cada noite no Rio em uma oportunidade de viver momentos inesquecíveis com as pessoas certas.</p>
-      </div>
-
-      <div class="mt-8 text-center">
-        <a id="whatsapp-support-link" href="https://wa.me/5521000000000" target="_blank" class="inline-flex items-center gap-3 rounded-full bg-emerald-500 px-6 py-3 text-lg font-semibold text-white shadow-lg hover:bg-emerald-600 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+</div>
+</div>
+<div class="rounded-3xl overflow-hidden shadow-soft ring-subtle">
+<img alt="Brinde em festa no Rio" class="w-full h-[280px] md:h-[420px] object-cover" src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&amp;w=1600&amp;auto=format&amp;fit=crop">
+</img></div>
+</div>
+</section>
+<!-- HOME SECTIONS -->
+<main class="max-w-6xl mx-auto px-4 pb-24 space-y-12" id="home-view">
+<!-- BARRA DE FILTROS (Bairros & Gêneros) -->
+<section class="mt-2 mb-6" id="filters-bar">
+<div class="rounded-3xl bg-white shadow-soft ring-subtle">
+<!-- Botão de Toggle -->
+<button class="w-full flex items-center justify-between p-3 text-left hover:bg-gray-50/70 rounded-3xl transition-colors" id="btn-toggle-filters">
+<div class="flex items-center gap-2">
+<svg class="text-gray-400" fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path></svg>
+<span class="text-sm font-semibold text-gray-700">Filtros</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="hidden text-xs font-bold bg-pink-600 text-white rounded-full h-5 w-5 flex items-center justify-center" id="active-filters-count">0</span>
+<svg class="w-5 h-5 text-gray-500 transition-transform" fill="currentColor" id="filters-chevron" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" fill-rule="evenodd"></path>
+</svg>
+</div>
+</button>
+<!-- Conteúdo dos Filtros -->
+<div id="filters-content">
+<div class="inner-filter-content">
+<div class="px-3 pt-1 pb-3 border-t border-gray-100">
+<div class="mt-3 space-y-3">
+<div>
+<div class="text-xs font-medium text-gray-500 mb-1.5">Bairros</div>
+<div class="flex flex-wrap gap-2" id="chips-bairros"></div>
+</div>
+<div>
+<div class="text-xs font-medium text-gray-500 mb-1.5">Gêneros musicais</div>
+<div class="flex flex-wrap gap-2" id="chips-generos"></div>
+</div>
+</div>
+<div class="mt-4 text-right">
+<button class="text-xs font-semibold text-pink-600 hover:underline disabled:text-gray-400 disabled:no-underline" disabled="" id="btn-clear-filters">Limpar Filtros</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section>
+<div class="flex items-center justify-between">
+<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Destaques da Semana</h2>
+</div>
+<div class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-week-top"></div>
+<div class="hidden mt-6 text-center text-gray-500" id="empty-week-top">Nenhum evento nos próximos 7 dias.</div>
+</section>
+<section>
+<div class="flex items-center justify-between">
+<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos Populares</h2>
+</div>
+<div class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-popular"></div>
+<div class="hidden mt-6 text-center text-gray-500" id="empty-popular">Nenhum evento com confirmações ainda.</div>
+</section>
+<section>
+<div class="flex items-center justify-between">
+<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos por Dia</h2>
+</div>
+<div class="mt-3 flex gap-2 overflow-x-auto pb-2 -mx-4 px-4" id="weekday-menu"></div>
+<div class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-byday"></div>
+<div class="hidden mt-6 text-center text-gray-500" id="empty-byday">Sem eventos nesse dia.</div>
+</section>
+<section>
+<div class="flex items-center justify-between">
+<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Outros Eventos</h2>
+</div>
+<div class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-others"></div>
+<div class="hidden mt-6 text-center text-gray-500" id="empty-others">Nenhum outro evento encontrado.</div>
+</section>
+<section class="hidden" id="search-results-section">
+<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Resultados da Busca</h2>
+<div class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="grid-events"></div>
+<div class="hidden mt-10 text-center text-gray-500" id="empty-feed">Nenhum evento encontrado.</div>
+</section>
+</main>
+<!-- PÁGINA SOBRE -->
+<section class="hidden max-w-3xl mx-auto px-4 pb-28" id="view-about">
+<div class="bg-white rounded-3xl p-6 md:p-10 shadow-soft ring-subtle">
+<h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-center">Sobre o RioFestas</h2>
+<div class="mt-6 prose prose-lg max-w-none text-gray-700">
+<p>O Rio Festas é um aplicativo criado para conectar pessoas e experiências na noite carioca. Nosso propósito é simples: aproximar você das festas mais comentadas do Rio de Janeiro e mostrar em quais eventos seus amigos e conhecidos estarão presentes. Acreditamos que sair de casa fica muito mais divertido quando você sabe onde sua galera vai estar.</p>
+<h3>Nosso Objetivo</h3>
+<p>O app nasceu para facilitar a vida de quem ama curtir festas, música e encontros sociais. Com o Rio Festas, você pode:</p>
+<ul>
+<li>Descobrir em quais eventos seus amigos, amigos de amigos e pessoas que você segue vão marcar presença.</li>
+<li>Confirmar sua ida a festas, permitindo que seus seguidores acompanhem sua agenda de rolês.</li>
+<li>Ser redirecionado para sites de venda de ingressos, garantindo sua entrada nos melhores eventos.</li>
+<li>Explorar a aba principal com as festas mais em alta e os eventos da semana, sempre atualizados.</li>
+</ul>
+<p>Além disso, o Rio Festas tem um sistema de seguidores, permitindo interação com amigos e troca de experiências sobre festas passadas e futuras.</p>
+<p>Nosso compromisso é tornar a sua busca por diversão mais prática e social, transformando cada noite no Rio em uma oportunidade de viver momentos inesquecíveis com as pessoas certas.</p>
+</div>
+<div class="mt-8 text-center">
+<a class="inline-flex items-center gap-3 rounded-full bg-emerald-500 px-6 py-3 text-lg font-semibold text-white shadow-lg hover:bg-emerald-600 transition-colors" href="https://wa.me/5521000000000" id="whatsapp-support-link" target="_blank">
+<svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
           Suporte via WhatsApp
         </a>
-      </div>
-
-      <div class="mt-10 text-center text-sm text-gray-500">
-        <p>Veja nossa <a href="https://firebasestorage.googleapis.com/v0/b/riofestas2.firebasestorage.app/o/termos%20de%20uso.html?alt=media&token=f7f7a4f3-b414-4bb8-b631-e2704652eb83" target="_blank" class="font-semibold text-pink-600 hover:underline">Política de Privacidade e Termos de Uso</a>.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- NOVO: PÁGINA DE LOCAIS -->
-  <section id="view-locations" class="hidden max-w-6xl mx-auto px-4 pb-28">
-      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Eventos por Local</h2>
-      <div id="locations-container" class="mt-8 space-y-12">
-          <!-- Carrosséis de locais serão injetados aqui pelo JavaScript -->
-      </div>
-  </section>
-
-  <!-- PÁGINA SOCIAL -->
-  <section id="view-social" class="hidden max-w-6xl mx-auto px-4 pb-28">
-      <main class="space-y-12">
-        <section>
-          <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-            <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Notificações</h2>
-            <div class="flex items-center gap-4 w-full md:w-auto">
-                <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer flex-1"><input id="account-notify-check" type="checkbox" class="h-4 w-4 cursor-pointer"> Notificar quando meus amigos confirmarem em eventos</label>
-                <button id="clear-all-notifs-btn" class="text-sm font-semibold text-red-600 hover:text-red-800 flex-shrink-0">Limpar Tudo</button>
-            </div>
-          </div>
-          <div id="notifications-list" class="mt-4 space-y-3"></div>
-          <div id="empty-notifications" class="hidden mt-6 text-center text-gray-500">Nenhuma notificação nova.</div>
-        </section>
-
-        <section>
-          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Encontre Pessoas</h2>
-          <div class="mt-4">
-            <input id="user-search-input" class="w-full rounded-full border border-gray-200 bg-white px-5 py-3 text-base outline-none focus:ring-2 focus:ring-pink-600/40 shadow-soft" placeholder="Buscar por nome de usuário..." />
-          </div>
-          <div id="user-search-results" class="mt-6 grid gap-4"></div>
-        </section>
-        
-        <section>
-          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos que seus amigos vão</h2>
-          <div id="carousel-friends-popular" class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"></div>
-          <div id="empty-friends-popular" class="hidden mt-6 text-center text-gray-500">Ninguém que você segue confirmou presença ainda.</div>
-        </section>
-
-        <section>
-          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos mais populares da rede</h2>
-          <div id="carousel-social-popular" class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"></div>
-          <div id="empty-social-popular" class="hidden mt-6 text-center text-gray-500">Nenhum evento com confirmações ainda.</div>
-        </section>
-      </main>
-  </section>
-
-  <!-- PÁGINA DE PERFIL -->
-  <section id="view-profile" class="hidden max-w-xl mx-auto px-4 pb-28">
-    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Meu Perfil</h2>
-    <form id="account-form" class="mt-4 space-y-4 rounded-3xl bg-white p-6 shadow-soft ring-subtle">
-      <div>
-        <label class="text-sm font-medium text-gray-700">Nome de Exibição</label>
-        <input id="account-name" type="text" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" required />
-      </div>
-      <div>
-        <label class="text-sm font-medium text-gray-700">Nome de Usuário (@...)</label>
-        <input id="account-username" type="text" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" required readonly />
-        <p class="text-xs text-gray-500 mt-1">O nome de usuário não pode ser alterado.</p>
-      </div>
-      <div>
-        <label class="text-sm font-medium text-gray-700">Foto de Perfil</label>
-        <div class="mt-1 flex items-center gap-4">
-            <img id="account-photo-preview" src="https://placehold.co/64x64/f472b6/ffffff?text=U" class="h-16 w-16 rounded-full object-cover bg-gray-200 ring-4 ring-white shadow-sm">
-            <label for="account-photo-upload" class="cursor-pointer rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50">
-                Trocar Foto
-            </label>
-            <input id="account-photo-upload" type="file" class="hidden" accept="image/jpeg,image/png,image/webp">
-        </div>
-      </div>
-      <div>
-        <label class="text-sm font-medium text-gray-700">Sua Bio</label>
-        <textarea id="account-bio" class="mt-1 w-full min-h-[80px] rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" placeholder="Fale um pouco sobre você..."></textarea>
-      </div>
-       <div class="flex items-center justify-between rounded-2xl bg-gray-50 p-3 ring-subtle">
-          <label for="account-private" class="text-sm font-medium text-gray-700">Tornar perfil privado</label>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" id="account-private" class="sr-only peer">
-            <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600"></div>
-          </label>
-        </div>
-      <div id="account-error" class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
-      <div class="flex justify-end">
-        <button type="submit" class="inline-flex items-center rounded-full bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90">Salvar Perfil</button>
-      </div>
-    </form>
-    <div class="mt-6 rounded-3xl bg-white p-6 shadow-soft ring-subtle">
-        <div class="flex border-b border-gray-200">
-            <button data-tab="followers" class="tab-btn flex-1 pb-3 font-semibold border-b-2 border-pink-600 text-pink-600">Seguidores</button>
-            <button data-tab="following" class="tab-btn flex-1 pb-3 font-semibold border-b-2 border-transparent text-gray-500">Seguindo</button>
-        </div>
-        <div id="followers-list" class="mt-4 space-y-3"></div>
-        <div id="following-list" class="mt-4 space-y-3 hidden"></div>
-    </div>
-  </section>
-
-  <!-- ADMIN -->
-  <section id="view-admin" class="hidden max-w-6xl mx-auto px-4 pb-28">
-    <div class="flex items-center justify-between">
-      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Painel Admin</h2>
-      <div class="flex items-center gap-2">
-        <button id="btn-new-event" class="inline-flex items-center rounded-full bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90">Novo Evento</button>
-      </div>
-    </div>
-    <div class="mt-6 grid gap-4 md:grid-cols-3">
-      <div class="rounded-3xl bg-white p-4 shadow-soft ring-subtle md:col-span-2">
-        <h3 class="text-lg font-semibold">Gerenciar administradores</h3>
-        <p class="text-sm text-gray-600 mb-3">Conceda ou remova acesso de administrador por e-mail.</p>
-        <div class="flex flex-col gap-2 sm:flex-row">
-          <input id="role-email" type="email" placeholder="email@exemplo.com" class="flex-1 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35"/>
-          <button id="btn-grant-admin" class="rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90">Tornar Admin</button>
-          <button id="btn-revoke-admin" class="rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90">Remover Admin</button>
-        </div>
-        <div id="role-error" class="hidden mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
-      </div>
-      <div class="rounded-3xl bg-white p-4 shadow-soft ring-subtle">
-        <h3 class="text-lg font-semibold mb-2">Admins atuais</h3>
-        <ul id="admins-list" class="space-y-2 text-sm text-gray-700"></ul>
-      </div>
-    </div>
-    <div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
-        <h3 class="text-lg font-semibold">Configurações Gerais</h3>
-        <p class="text-sm text-gray-600 mb-3">Gerencie links e outras configurações globais.</p>
-        <form id="general-settings-form" class="space-y-3">
-            <div>
-                <label for="whatsapp-link-input" class="text-sm font-medium">Link do WhatsApp para Suporte</label>
-                <input id="whatsapp-link-input" type="url" placeholder="https://wa.me/55..." class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35"/>
-            </div>
-            <div class="flex justify-end">
-                <button type="submit" class="rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90">Salvar Configurações</button>
-            </div>
-        </form>
-    </div>
-    <div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
-      <h3 class="text-lg font-semibold">Gerenciar Locais/Eventos Recorrentes</h3>
-      <p class="text-sm text-gray-600 mb-3">Adicione locais que recebem eventos com frequência para agrupar avaliações.</p>
-      <form id="recurring-event-form" class="flex gap-2">
-        <input id="recurring-event-name" type="text" placeholder="Nome do Local/Evento Recorrente" class="flex-1 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" required />
-        <button type="submit" class="rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90">Salvar</button>
-      </form>
-      <div id="recurring-event-error" class="hidden mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
-      <div id="recurring-events-list" class="mt-4 divide-y divide-gray-100"></div>
-    </div>
-    <div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
-      <h3 class="text-lg font-semibold">Solicitações de Organizadores</h3>
-      <p class="text-sm text-gray-600 mb-3">Aprovar ou recusar cadastro de empresas.</p>
-      <div id="org-requests" class="divide-y divide-gray-100"></div>
-    </div>
-    <div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
-      <h3 class="text-lg font-semibold">Gerenciar Organizadores</h3>
-      <p class="text-sm text-gray-600 mb-3">Remover acesso de organizadores aprovados.</p>
-      <div id="approved-organizers-list" class="divide-y divide-gray-100"></div>
-    </div>
-    <div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
-      <h3 class="text-lg font-semibold">Eventos pendentes</h3>
-      <p class="text-sm text-gray-600 mb-3">Aguardando aprovação. Você pode editar antes de aprovar.</p>
-      <div id="pending-events" class="grid gap-3"></div>
-    </div>
-    
-    <!-- ÁREA DE GERENCIAMENTO DE EVENTOS UNIFICADA -->
-    <div class="mt-6 rounded-3xl md:bg-white md:shadow-soft md:ring-subtle md:overflow-hidden">
-      <div class="p-4 flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-gray-100">
-        <h3 class="text-lg font-semibold">Gerenciar Eventos</h3>
-        <div class="flex-shrink-0 flex rounded-full bg-gray-100 p-1">
-          <button id="admin-tab-active" class="px-4 py-1.5 text-sm font-semibold rounded-full bg-white shadow">Ativos</button>
-          <button id="admin-tab-past" class="px-4 py-1.5 text-sm font-semibold rounded-full text-gray-600">Passados</button>
-        </div>
-      </div>
-      <div id="past-events-search-container" class="px-4 pt-4 hidden">
-          <input id="past-events-search" class="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5" placeholder="Buscar eventos passados por nome...">
-      </div>
-      <div class="admin-table-container max-h-[60vh] md:overflow-auto p-4 md:p-0">
-        <table class="min-w-full">
-          <thead id="admin-events-thead" class="bg-gray-50/60">
-            <!-- Conteúdo do cabeçalho da tabela inserido via JS -->
-          </thead>
-          <tbody id="admin-events-tbody" class="bg-transparent md:divide-y md:divide-gray-200 md:bg-white">
-            <!-- Conteúdo do corpo da tabela inserido via JS -->
-          </tbody>
-        </table>
-        <p id="admin-events-placeholder" class="hidden text-center text-sm text-gray-500 p-6"></p>
-      </div>
-    </div>
-  
-    <div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
-      <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold">Bairros & Gêneros (Configurações)</h3>
-        <button id="toggle-taxonomy-panel" class="rounded-full border border-gray-200 px-3 py-1.5 text-sm hover:bg-gray-50">Mostrar/Ocultar</button>
-      </div>
-      <div id="taxonomy-panel" class="mt-4 hidden">
-        <div class="grid gap-4 md:grid-cols-2">
-          <div class="rounded-2xl ring-subtle p-4">
-            <h4 class="font-semibold">Bairros</h4>
-            <form id="bairro-form" class="mt-2 flex gap-2">
-              <input id="bairro-name-input" type="text" placeholder="Ex: Copacabana" class="flex-1 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" />
-              <button type="submit" class="rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90">Adicionar</button>
-            </form>
-            <div id="bairro-error" class="hidden mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
-            <ul id="bairro-list" class="mt-3 space-y-2 text-sm"></ul>
-          </div>
-          <div class="rounded-2xl ring-subtle p-4">
-            <h4 class="font-semibold">Gêneros Musicais</h4>
-            <form id="genero-form" class="mt-2 flex gap-2">
-              <input id="genero-name-input" type="text" placeholder="Ex: Funk" class="flex-1 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" />
-              <button type="submit" class="rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90">Adicionar</button>
-            </form>
-            <div id="genero-error" class="hidden mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
-            <ul id="genero-list" class="mt-3 space-y-2 text-sm"></ul>
-          </div>
-        </div>
-      </div>
-    </div>
+</div>
+<div class="mt-10 text-center text-sm text-gray-500">
+<p>Veja nossa <a class="font-semibold text-pink-600 hover:underline" href="https://firebasestorage.googleapis.com/v0/b/riofestas2.firebasestorage.app/o/termos%20de%20uso.html?alt=media&amp;token=f7f7a4f3-b414-4bb8-b631-e2704652eb83" target="_blank">Política de Privacidade e Termos de Uso</a>.</p>
+</div>
+</div>
 </section>
-
-  <!-- MODAL: LOGIN -->
-  <div id="auth-login" class="fixed inset-0 z-[80] hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="auth-login"></div>
-    <div class="relative z-[81] mx-auto mt-20 w-[92%] max-w-md rounded-3xl bg-white p-8 shadow-soft ring-subtle pop">
-      <button class="absolute right-3 top-3 rounded-full p-2 hover:bg-gray-100" data-close="auth-login" aria-label="Fechar">✕</button>
-      <div class="text-center mb-6">
-        <h3 class="text-2xl font-extrabold">Bem-vindo!</h3>
-        <p class="text-sm text-gray-500">Acesse sua conta para continuar.</p>
-      </div>
-      <form id="form-login" class="space-y-4">
-        <input id="login-email" type="email" class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" placeholder="E-mail" required />
-        <input id="login-pass" type="password" class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" placeholder="Senha" required />
-        <div class="flex items-center justify-between text-sm">
-          <button type="button" id="btn-forgot" class="text-pink-600 font-semibold">Esqueceu a senha?</button>
-          <button type="button" id="switch-register" class="text-pink-600 font-semibold" onclick="document.getElementById('auth-login').classList.add('hidden');document.getElementById('auth-register').classList.remove('hidden')">Registrar-se</button>
-        </div>
-        <div id="err-login" class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
-        <button id="submit-login" class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90">Entrar</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL: REGISTER (com opção de organizador) -->
-  <div id="auth-register" class="fixed inset-0 z-[80] hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="auth-register"></div>
-    <div class="relative z-[81] mx-auto mt-20 w-[92%] max-w-xl rounded-3xl bg-white p-8 shadow-soft ring-subtle pop">
-      <button class="absolute right-3 top-3 rounded-full p-2 hover:bg-gray-100" data-close="auth-register" aria-label="Fechar">✕</button>
-      <div class="text-center mb-6">
-        <h3 class="text-2xl font-extrabold">Crie sua Conta</h3>
-        <p class="text-sm text-gray-500">Leva menos de um minuto.</p>
-      </div>
-      <form id="form-register" class="space-y-4">
-        <div class="grid gap-3 md:grid-cols-2">
-          <input id="reg-name"  type="text"     class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" placeholder="Nome completo" required />
-          <input id="reg-username" type="text"  class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" placeholder="Nome de usuário (@exemplo)" required />
-          <input id="reg-email" type="email"    class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" placeholder="E-mail" required />
-          <input id="reg-pass"  type="password" class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" placeholder="Senha (mín. 6)" required />
-        </div>
-        <label class="flex items-center gap-2 select-none text-sm"><input id="reg-organizer-check" type="checkbox" class="h-4 w-4"> Sou organizador de eventos</label>
-        <div id="reg-organizer-form" class="hidden grid gap-3 md:grid-cols-2">
-          <input id="org-company"  class="rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" placeholder="Nome da empresa"/>
-          <input id="org-cnpj"     class="rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" placeholder="CNPJ (opcional)"/>
-          <input id="org-phone"    class="rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" placeholder="Telefone"/>
-          <input id="org-website"  class="rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" placeholder="Site ou Instagram"/>
-          <textarea id="org-about" class="md:col-span-2 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" placeholder="Sobre a empresa"></textarea>
-        </div>
-        <div class="flex items-start gap-2 text-sm">
-          <input type="checkbox" id="reg-terms" class="mt-0.5" required>
-          <label for="reg-terms" class="text-gray-600">Eu li e aceito os <a href="https://firebasestorage.googleapis.com/v0/b/riofestas2.firebasestorage.app/o/termos%20de%20uso.html?alt=media&token=f7f7a4f3-b414-4bb8-b631-e2704652eb83" target="_blank" class="text-pink-600 hover:underline">Termos de Uso e a Política de Privacidade</a>.</label>
-        </div>
-        <div id="err-register" class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
-        <button id="submit-register" class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90">Registrar</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL: NEW / EDIT EVENT (ADMIN) -->
-  <div id="event-modal" class="fixed inset-0 z-[60] hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="event"></div>
-    <div class="relative z-[61] mx-auto mt-8 w-[94%] max-w-2xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[88vh] flex flex-col">
-      <div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
-        <h3 id="event-modal-title" class="text-xl font-semibold">Novo Evento</h3>
-        <button class="rounded-full p-2 hover:bg-gray-100" data-close="event" aria-label="Fechar">✕</button>
-      </div>
-      <form id="event-form" class="px-6 pb-3 overflow-y-auto">
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div class="md:col-span-2">
-            <label class="text-[13px] font-medium text-gray-700">Nome do Evento</label>
-            <input id="ev-name" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="text" required />
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Data de Início</label>
-            <input id="ev-date" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="date" required />
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Horário (início)</label>
-            <input id="ev-time-start" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="time" />
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Data de Fim (opcional)</label>
-            <input id="ev-date-end" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="date" />
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Horário (fim)</label>
-            <input id="ev-time-end" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="time" />
-          </div>
-          <div class="md:col-span-2">
-            <label class="text-[13px] font-medium text-gray-700">Endereço</label>
-            <input id="ev-local" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="text" required />
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Bairro</label>
-            <select id="ev-bairro" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35">
-              <option value="">Selecione...</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Gênero Musical</label>
-            <select id="ev-genero" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35">
-              <option value="">Selecione...</option>
-            </select>
-          </div>
-
-          <div class="md:col-span-2">
-            <label class="text-[13px] font-medium text-gray-700">Local/Evento Recorrente (Opcional)</label>
-            <select id="ev-recurring" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35">
-              <option value="">Nenhum</option>
-            </select>
-          </div>
-          <!-- RECURRING EVENT OPTIONS -->
-          <div class="md:col-span-2 space-y-2 rounded-2xl bg-gray-50 p-3 ring-subtle">
-            <div class="flex items-center justify-between">
-                <label for="ev-repeats-weekly" class="text-[13px] font-medium text-gray-700 cursor-pointer select-none">Repetir semanalmente</label>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="ev-repeats-weekly" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600"></div>
+<!-- PÁGINA DE LOCAIS -->
+<section class="hidden max-w-6xl mx-auto px-4 pb-28" id="view-locations">
+<h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Eventos por Local</h2>
+<div class="mt-8 space-y-12" id="locations-container">
+<!-- Carrosséis de locais serão injetados aqui pelo JavaScript -->
+</div>
+</section>
+<!-- PÁGINA SOCIAL -->
+<section class="hidden max-w-6xl mx-auto px-4 pb-28" id="view-social">
+<main class="space-y-12">
+<section>
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Notificações</h2>
+<div class="flex items-center gap-4 w-full md:w-auto">
+<label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer flex-1"><input class="h-4 w-4 cursor-pointer" id="account-notify-check" type="checkbox"/> Notificar quando meus amigos confirmarem em eventos</label>
+<button class="text-sm font-semibold text-red-600 hover:text-red-800 flex-shrink-0" id="clear-all-notifs-btn">Limpar Tudo</button>
+</div>
+</div>
+<div class="mt-4 space-y-3" id="notifications-list"></div>
+<div class="hidden mt-6 text-center text-gray-500" id="empty-notifications">Nenhuma notificação nova.</div>
+</section>
+<section>
+<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Encontre Pessoas</h2>
+<div class="mt-4">
+<input class="w-full rounded-full border border-gray-200 bg-white px-5 py-3 text-base outline-none focus:ring-2 focus:ring-pink-600/40 shadow-soft" id="user-search-input" placeholder="Buscar por nome de usuário...">
+</input></div>
+<div class="mt-6 grid gap-4" id="user-search-results"></div>
+</section>
+<section>
+<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos que seus amigos vão</h2>
+<div class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-friends-popular"></div>
+<div class="hidden mt-6 text-center text-gray-500" id="empty-friends-popular">Ninguém que você segue confirmou presença ainda.</div>
+</section>
+<section>
+<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos mais populares da rede</h2>
+<div class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-social-popular"></div>
+<div class="hidden mt-6 text-center text-gray-500" id="empty-social-popular">Nenhum evento com confirmações ainda.</div>
+</section>
+</main>
+</section>
+<!-- PÁGINA DE PERFIL -->
+<section class="hidden max-w-xl mx-auto px-4 pb-28" id="view-profile">
+<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Meu Perfil</h2>
+<form class="mt-4 space-y-4 rounded-3xl bg-white p-6 shadow-soft ring-subtle" id="account-form">
+<div>
+<label class="text-sm font-medium text-gray-700">Nome de Exibição</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="account-name" required="" type="text"/>
+</div>
+<div>
+<label class="text-sm font-medium text-gray-700">Nome de Usuário (@...)</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="account-username" readonly="" required="" type="text"/>
+<p class="text-xs text-gray-500 mt-1">O nome de usuário não pode ser alterado.</p>
+</div>
+<div>
+<label class="text-sm font-medium text-gray-700">Foto de Perfil</label>
+<div class="mt-1 flex items-center gap-4">
+<img class="h-16 w-16 rounded-full object-cover bg-gray-200 ring-4 ring-white shadow-sm" id="account-photo-preview" src="https://placehold.co/64x64/f472b6/ffffff?text=U"/>
+<div class="flex flex-col gap-2">
+<label class="cursor-pointer rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50" for="account-photo-upload">
+                    Trocar Foto
                 </label>
-            </div>
-            <div id="ev-repeat-options" class="hidden pt-2">
-                <label class="text-[13px] font-medium text-gray-700">Semanas visíveis simultaneamente</label>
-                <select id="ev-display-count" class="mt-1 w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-600/35">
-                    <option value="2">2 semanas</option>
-                    <option value="3">3 semanas</option>
-                    <option value="4" selected>4 semanas (padrão)</option>
-                    <option value="5">5 semanas</option>
-                    <option value="6">6 semanas</option>
-                    <option value="7">7 semanas</option>
-                    <option value="8">8 semanas</option>
-                    <option value="9">9 semanas</option>
-                    <option value="10">10 semanas</option>
-                </select>
-            </div>
-          </div>
-          <div class="md:col-span-2">
-            <label class="text-[13px] font-medium text-gray-700">Descrição</label>
-            <textarea id="ev-desc" class="mt-1 w-full min-h-[100px] rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" placeholder="Detalhes do evento..."></textarea>
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Estilo Musical</label>
-            <input id="ev-style" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="text" placeholder="Funk / Eletrônica / Samba" />
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Link de Compra</label>
-            <input id="ev-buy" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="url" placeholder="https://..." />
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Cupom de Desconto</label>
-            <input id="ev-coupon" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="text" placeholder="RIO10" />
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Importância (0–10)</label>
-            <div class="mt-1 flex items-center gap-3">
-              <input id="ev-importance" class="w-full" type="range" min="0" max="10" value="5" step="1" />
-              <span id="ev-importance-value" class="w-10 text-right font-semibold">5</span>
-            </div>
-          </div>
-          <div class="md:col-span-2">
-            <label class="text-[13px] font-medium text-gray-700">Fotos do Evento</label>
-            <div class="mt-1">
-                <label for="ev-photo-upload" class="w-full inline-block text-center rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white cursor-pointer hover:opacity-90">
-                    Selecionar Fotos
-                </label>
-                <input id="ev-photo-upload" type="file" class="hidden" multiple accept="image/jpeg,image/png,image/webp">
-            </div>
-            <p class="mt-1 text-xs text-gray-500">Selecione uma ou mais imagens (JPG, PNG, WEBP). Você pode remover imagens abaixo.</p>
-            <div id="preview-photos" class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4"></div>
-          </div>
-          <div id="event-error" class="md:col-span-2 hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
-        </div>
-        <div class="sticky bottom-0 z-10 -mx-6 mt-4 bg-gradient-to-t from-white via-white/95 to-white/0 px-6 pt-3 pb-4 border-t border-gray-100 flex items-center justify-end gap-2">
-          <button type="button" class="inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="event">Cancelar</button>
-          <button id="btn-save-event" type="submit" class="inline-flex items-center rounded-full bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90">Salvar Evento</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL: EVENTO (ORGANIZADOR) sem prioridade -->
-  <div id="org-event-modal" class="fixed inset-0 z-[60] hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="org-event"></div>
-    <div class="relative z-[61] mx-auto mt-8 w-[94%] max-w-2xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[88vh] flex flex-col">
-      <div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
-        <h3 class="text-xl font-semibold">Criar evento (Organizador)</h3>
-        <button class="rounded-full p-2 hover:bg-gray-100" data-close="org-event" aria-label="Fechar">✕</button>
-      </div>
-      <form id="org-event-form" class="px-6 pb-3 overflow-y-auto">
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div class="md:col-span-2">
-            <label class="text-[13px] font-medium text-gray-700">Nome do Evento</label>
-            <input id="org-ev-name" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="text" required />
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Data de Início</label>
-            <input id="org-ev-date" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="date" required />
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Horário (início)</label>
-            <input id="org-ev-time-start" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="time" />
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Data de Fim (opcional)</label>
-            <input id="org-ev-date-end" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="date" />
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Horário (fim)</label>
-            <input id="org-ev-time-end" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="time" />
-          </div>
-          <div class="md:col-span-2">
-            <label class="text-[13px] font-medium text-gray-700">Endereço</label>
-            <input id="org-ev-local" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="text" required />
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Bairro</label>
-            <select id="org-ev-bairro" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35">
-              <option value="">Selecione...</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Gênero Musical</label>
-            <select id="org-ev-genero" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35">
-              <option value="">Selecione...</option>
-            </select>
-          </div>
-
-          <div class="md:col-span-2">
-            <label class="text-[13px] font-medium text-gray-700">Local/Evento Recorrente (Opcional)</label>
-            <select id="org-ev-recurring" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35">
-              <option value="">Nenhum</option>
-            </select>
-          </div>
-           <!-- RECURRING EVENT OPTIONS (ORGANIZER) -->
-          <div class="md:col-span-2 space-y-2 rounded-2xl bg-gray-50 p-3 ring-subtle">
-            <div class="flex items-center justify-between">
-                <label for="org-ev-repeats-weekly" class="text-[13px] font-medium text-gray-700 cursor-pointer select-none">Repetir semanalmente</label>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="org-ev-repeats-weekly" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600"></div>
-                </label>
-            </div>
-            <div id="org-ev-repeat-options" class="hidden pt-2">
-                <label class="text-[13px] font-medium text-gray-700">Semanas visíveis simultaneamente</label>
-                <select id="org-ev-display-count" class="mt-1 w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-600/35">
-                    <option value="2">2 semanas</option>
-                    <option value="3">3 semanas</option>
-                    <option value="4" selected>4 semanas (padrão)</option>
-                    <option value="5">5 semanas</option>
-                    <option value="6">6 semanas</option>
-                    <option value="7">7 semanas</option>
-                    <option value="8">8 semanas</option>
-                    <option value="9">9 semanas</option>
-                    <option value="10">10 semanas</option>
-                </select>
-            </div>
-          </div>
-          <div class="md:col-span-2">
-            <label class="text-[13px] font-medium text-gray-700">Descrição</label>
-            <textarea id="org-ev-desc" class="mt-1 w-full min-h-[100px] rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" placeholder="Detalhes do evento..."></textarea>
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Estilo Musical</label>
-            <input id="org-ev-style" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="text" />
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Link de Compra</label>
-            <input id="org-ev-buy" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="url" />
-          </div>
-          <div>
-            <label class="text-[13px] font-medium text-gray-700">Cupom de Desconto</label>
-            <input id="org-ev-coupon" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="text" />
-          </div>
-          <div class="md:col-span-2">
-            <label class="text-[13px] font-medium text-gray-700">Fotos</label>
-            <div class="mt-1">
-                <label for="org-ev-photo-upload" class="w-full inline-block text-center rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white cursor-pointer hover:opacity-90">
-                    Selecionar Fotos
-                </label>
-                <input id="org-ev-photo-upload" type="file" class="hidden" multiple accept="image/jpeg,image/png,image/webp">
-            </div>
-            <p class="mt-1 text-xs text-gray-500">Selecione uma ou mais imagens (JPG, PNG, WEBP). Você pode remover imagens abaixo.</p>
-            <div id="org-preview-photos" class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4"></div>
-          </div>
-          <div id="org-event-error" class="md:col-span-2 hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
-        </div>
-        <div class="sticky bottom-0 z-10 -mx-6 mt-4 bg-gradient-to-t from-white via-white/95 to-white/0 px-6 pt-3 pb-4 border-t border-gray-100 flex items-center justify-end gap-2">
-          <button type="button" class="inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="org-event">Cancelar</button>
-          <button id="org-btn-save" type="submit" class="inline-flex items-center rounded-full bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white">Enviar para aprovação</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL: VISUALIZAÇÃO DO EVENTO -->
-  <div id="event-view" class="fixed inset-0 z-[60] hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="view"></div>
-    <div class="relative z-[61] mx-auto mt-8 w-[96%] max-w-4xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[92vh] overflow-hidden flex flex-col">
-      <div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
-        <h3 id="view-title" class="text-xl font-semibold">Evento</h3>
-        <button class="rounded-full p-2 hover:bg-gray-100" data-close="view" aria-label="Fechar">✕</button>
-      </div>
-      <div class="grid md:grid-cols-[1.2fr_.8fr] gap-6 p-6 overflow-y-auto">
-        <div>
-          <div id="view-gallery" class="grid grid-cols-1 md:gap-3"></div>
-        </div>
-        <aside class="space-y-4">
-          <div class="rounded-3xl ring-subtle p-4">
-            <div class="text-sm text-gray-500">Data</div>
-            <div id="view-date" class="text-lg font-semibold">—</div>
-            <div class="mt-3 text-sm text-gray-500">Local</div>
-            <div id="view-local" class="text-lg font-semibold">—</div>
-            <div class="mt-3 text-sm text-gray-500">Estilo</div>
-            <div id="view-style" class="text-lg font-semibold">—</div>
-          </div>
-          <div id="view-rating-display-container" class="hidden rounded-3xl ring-subtle p-4"></div>
-          <div class="rounded-3xl ring-subtle p-4">
-            <div class="text-sm text-gray-500">Descrição</div>
-            <p id="view-desc" class="mt-1 text-[15px] leading-relaxed text-gray-700">—</p>
-          </div>
-          <div class="rounded-3xl ring-subtle p-4 space-y-2">
-            <a id="view-buy" target="_blank" class="block w-full text-center rounded-full bg-pink-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">Comprar Ingresso</a>
-            <div class="text-center text-sm text-gray-600">Cupom: <span id="view-coupon" class="font-semibold">—</span></div>
-          </div>
-          <div class="rounded-3xl ring-subtle p-4">
-            <button id="btn-going" class="w-full inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span id="btn-going-text">Confirmar Presença</span>
-            </button>
-            <div id="going-count" class="mt-2 text-center text-xs text-gray-500"></div>
-            <!-- Amigos que vão -->
-            <div id="friends-going-container" class="mt-2 text-center hidden">
-                <button id="friends-going-button" class="inline-flex items-center gap-2 rounded-full bg-pink-50 px-3 py-1.5 text-sm font-semibold text-pink-700 hover:bg-pink-100">
-                    <!-- Text set by JS -->
+<button class="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100" id="btn-remove-photo" type="button">
+                    Remover Foto
                 </button>
-            </div>
-          </div>
-          <div id="view-rating-input-container" class="hidden rounded-3xl ring-subtle p-4"></div>
-        </aside>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL DE PERFIL DE USUÁRIO -->
-  <div id="user-profile-modal" class="fixed inset-0 z-[70] hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="user-profile"></div>
-    <div class="relative z-[71] mx-auto mt-8 w-[96%] max-w-2xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[92vh] overflow-hidden flex flex-col">
-      <div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
-        <h3 id="profile-title" class="text-xl font-semibold">Perfil de Usuário</h3>
-        <button class="rounded-full p-2 hover:bg-gray-100" data-close="user-profile" aria-label="Fechar">✕</button>
-      </div>
-      <div id="profile-content" class="p-6 overflow-y-auto"></div>
-    </div>
-  </div>
-  
-  <!-- MODAL: LISTA DE AMIGOS -->
-  <div id="friends-list-modal" class="fixed inset-0 z-[70] hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="friends-list"></div>
-    <div class="relative z-[71] mx-auto mt-20 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
-      <div class="flex items-center justify-between">
-        <h3 class="text-xl font-semibold">Amigos que vão</h3>
-        <button class="rounded-full p-2 hover:bg-gray-100" data-close="friends-list" aria-label="Fechar">✕</button>
-      </div>
-      <div id="friends-list-content" class="mt-4 max-h-[60vh] overflow-y-auto space-y-3">
-          <!-- Friends list will be populated by JS -->
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: LISTA DE SEGUIDORES/SEGUINDO -->
-  <div id="follow-list-modal" class="fixed inset-0 z-[75] hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="follow-list"></div>
-    <div class="relative z-[76] mx-auto mt-20 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
-      <div class="flex items-center justify-between">
-        <h3 id="follow-list-title" class="text-xl font-semibold">Lista</h3>
-        <button class="rounded-full p-2 hover:bg-gray-100" data-close="follow-list" aria-label="Fechar">✕</button>
-      </div>
-      <div id="follow-list-content" class="mt-4 max-h-[60vh] overflow-y-auto space-y-2">
-          <!-- User list will be populated by JS -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Aprovar pendente -->
-  <div id="approve-modal" class="fixed inset-0 z-[70] hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="approve"></div>
-    <div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-sm rounded-2xl bg-white p-5 shadow-soft ring-subtle">
-      <h4 class="text-lg font-semibold">Definir importância (0–10)</h4>
-      <div class="mt-3 flex items-center gap-3">
-        <input id="approve-importance" type="range" min="0" max="10" value="5" class="w-full"/>
-        <span id="approve-importance-value" class="w-8 text-right font-semibold">5</span>
-      </div>
-      <div class="mt-4 flex justify-end gap-2">
-        <button class="rounded-full border border-gray-200 px-4 py-2.5 text-sm" data-close="approve">Cancelar</button>
-        <button id="approve-confirm" class="rounded-full bg-pink-600 px-4 py-2.5 text-sm font-semibold text-white">Aprovar</button>
-      </div>
-    </div>
-  </div>
-  
-  <div id="organizer-details-modal" class="fixed inset-0 z-[70] hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="organizer-details"></div>
-    <div class="relative z-[71] mx-auto mt-20 w-[92%] max-w-lg rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
-      <div class="flex items-center justify-between">
-        <h3 class="text-xl font-semibold">Detalhes do Organizador</h3>
-        <button class="rounded-full p-2 hover:bg-gray-100" data-close="organizer-details" aria-label="Fechar">✕</button>
-      </div>
-      <div id="organizer-details-content" class="mt-4 space-y-3 text-sm"></div>
-    </div>
-  </div>
-
-  <!-- Modal de Confirmação para Excluir Evento -->
-  <div id="delete-modal" class="fixed inset-0 z-[70] hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="delete"></div>
-    <div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
-      <h4 class="text-lg font-bold">Confirmar Exclusão</h4>
-      <p class="mt-2 text-sm text-gray-600">Você tem certeza que deseja excluir o evento "<span id="delete-event-name" class="font-semibold"></span>"? Esta ação não pode ser desfeita.</p>
-      <div class="mt-5 flex justify-end gap-2">
-        <button class="rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="delete">Cancelar</button>
-        <button id="delete-confirm-btn" class="rounded-full bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">Excluir</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- NOVO: Modal de Confirmação para Remover Seguidor -->
-  <div id="remove-follower-modal" class="fixed inset-0 z-[70] hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="remove-follower"></div>
-    <div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
-      <h4 class="text-lg font-bold">Remover Seguidor</h4>
-      <p class="mt-2 text-sm text-gray-600">Você tem certeza que deseja remover <span id="remove-follower-name" class="font-semibold"></span> dos seus seguidores?</p>
-      <div class="mt-5 flex justify-end gap-2">
-        <button class="rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="remove-follower">Cancelar</button>
-        <button id="remove-follower-confirm-btn" class="rounded-full bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">Remover</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- NOVO: Modal de Confirmação para Excluir Notificação -->
-  <div id="delete-notification-modal" class="fixed inset-0 z-[70] hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="delete-notification"></div>
-    <div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
-      <h4 class="text-lg font-bold">Excluir Notificação</h4>
-      <p class="mt-2 text-sm text-gray-600">Você tem certeza que deseja excluir esta notificação? Esta ação não pode ser desfeita.</p>
-      <div class="mt-5 flex justify-end gap-2">
-        <button class="rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="delete-notification">Cancelar</button>
-        <button id="delete-notification-confirm-btn" class="rounded-full bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">Excluir</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- NOVO: Modal de Confirmação para Zerar Avaliações -->
-  <div id="reset-ratings-modal" class="fixed inset-0 z-[70] hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="reset-ratings"></div>
-    <div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
-      <h4 class="text-lg font-bold">Zerar Avaliações</h4>
-      <p class="mt-2 text-sm text-gray-600">Você tem certeza que deseja apagar todas as avaliações para "<span id="reset-ratings-name" class="font-semibold"></span>"? Esta ação não pode ser desfeita.</p>
-      <div class="mt-5 flex justify-end gap-2">
-        <button class="rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="reset-ratings">Cancelar</button>
-        <button id="reset-ratings-confirm-btn" class="rounded-full bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">Zerar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast Container -->
-  <div id="toast-container" class="pointer-events-none fixed inset-x-0 bottom-5 z-[90] flex flex-col items-center gap-2"></div>
-
-  <!-- Firebase (ESM) -->
-  <script type="module">
+</div>
+<input accept="image/jpeg,image/png,image/webp" class="hidden" id="account-photo-upload" type="file"/>
+</div>
+</div>
+<div>
+<label class="text-sm font-medium text-gray-700">Sua Bio</label>
+<textarea class="mt-1 w-full min-h-[80px] rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="account-bio" placeholder="Fale um pouco sobre você..."></textarea>
+</div>
+<div class="flex items-center justify-between rounded-2xl bg-gray-50 p-3 ring-subtle">
+<label class="text-sm font-medium text-gray-700" for="account-private">Tornar perfil privado</label>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" id="account-private" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600"></div>
+</label>
+</div>
+<div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="account-error"></div>
+<div class="flex justify-end">
+<button class="inline-flex items-center rounded-full bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90" type="submit">Salvar Perfil</button>
+</div>
+</form>
+<div class="mt-6 rounded-3xl bg-white p-6 shadow-soft ring-subtle">
+<div class="flex border-b border-gray-200">
+<button class="tab-btn flex-1 pb-3 font-semibold border-b-2 border-pink-600 text-pink-600" data-tab="followers">Seguidores</button>
+<button class="tab-btn flex-1 pb-3 font-semibold border-b-2 border-transparent text-gray-500" data-tab="following">Seguindo</button>
+</div>
+<div class="mt-4 space-y-3" id="followers-list"></div>
+<div class="mt-4 space-y-3 hidden" id="following-list"></div>
+</div>
+</section>
+<!-- ADMIN -->
+<section class="hidden max-w-6xl mx-auto px-4 pb-28" id="view-admin">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Painel Admin</h2>
+<div class="flex items-center gap-2">
+<button class="inline-flex items-center rounded-full bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90" id="btn-new-event">Novo Evento</button>
+</div>
+</div>
+<!-- CORREÇÃO: Painel de Bairros/Gêneros movido para o topo -->
+<div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-semibold">Bairros &amp; Gêneros (Configurações)</h3>
+<button class="rounded-full border border-gray-200 px-3 py-1.5 text-sm hover:bg-gray-50" id="toggle-taxonomy-panel">Mostrar/Ocultar</button>
+</div>
+<div class="mt-4 hidden" id="taxonomy-panel">
+<div class="grid gap-4 md:grid-cols-2">
+<div class="rounded-2xl ring-subtle p-4">
+<h4 class="font-semibold">Bairros</h4>
+<form class="mt-2 flex gap-2" id="bairro-form">
+<input class="flex-1 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="bairro-name-input" placeholder="Ex: Copacabana" type="text">
+<button class="rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90" type="submit">Adicionar</button>
+</input></form>
+<div class="hidden mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="bairro-error"></div>
+<ul class="mt-3 space-y-2 text-sm" id="bairro-list"></ul>
+</div>
+<div class="rounded-2xl ring-subtle p-4">
+<h4 class="font-semibold">Gêneros Musicais</h4>
+<form class="mt-2 flex gap-2" id="genero-form">
+<input class="flex-1 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="genero-name-input" placeholder="Ex: Funk" type="text">
+<button class="rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90" type="submit">Adicionar</button>
+</input></form>
+<div class="hidden mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="genero-error"></div>
+<ul class="mt-3 space-y-2 text-sm" id="genero-list"></ul>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 grid gap-4 md:grid-cols-3">
+<div class="rounded-3xl bg-white p-4 shadow-soft ring-subtle md:col-span-2">
+<h3 class="text-lg font-semibold">Gerenciar administradores</h3>
+<p class="text-sm text-gray-600 mb-3">Conceda ou remova acesso de administrador por e-mail.</p>
+<div class="flex flex-col gap-2 sm:flex-row">
+<input class="flex-1 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="role-email" placeholder="email@exemplo.com" type="email"/>
+<button class="rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90" id="btn-grant-admin">Tornar Admin</button>
+<button class="rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90" id="btn-revoke-admin">Remover Admin</button>
+</div>
+<div class="hidden mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="role-error"></div>
+</div>
+<div class="rounded-3xl bg-white p-4 shadow-soft ring-subtle">
+<h3 class="text-lg font-semibold mb-2">Admins atuais</h3>
+<ul class="space-y-2 text-sm text-gray-700" id="admins-list"></ul>
+</div>
+</div>
+<div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
+<h3 class="text-lg font-semibold">Configurações Gerais</h3>
+<p class="text-sm text-gray-600 mb-3">Gerencie links e outras configurações globais.</p>
+<form class="space-y-3" id="general-settings-form">
+<div>
+<label class="text-sm font-medium" for="whatsapp-link-input">Link do WhatsApp para Suporte</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="whatsapp-link-input" placeholder="https://wa.me/55..." type="url"/>
+</div>
+<div class="flex justify-end">
+<button class="rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90" type="submit">Salvar Configurações</button>
+</div>
+</form>
+</div>
+<div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
+<h3 class="text-lg font-semibold">Gerenciar Locais/Eventos Recorrentes</h3>
+<p class="text-sm text-gray-600 mb-3">Adicione locais que recebem eventos com frequência para agrupar avaliações.</p>
+<form class="flex gap-2" id="recurring-event-form">
+<input class="flex-1 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="recurring-event-name" placeholder="Nome do Local/Evento Recorrente" required="" type="text"/>
+<button class="rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90" type="submit">Salvar</button>
+</form>
+<div class="hidden mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="recurring-event-error"></div>
+<div class="mt-4 divide-y divide-gray-100" id="recurring-events-list"></div>
+</div>
+<div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
+<h3 class="text-lg font-semibold">Solicitações de Organizadores</h3>
+<p class="text-sm text-gray-600 mb-3">Aprovar ou recusar cadastro de empresas.</p>
+<div class="divide-y divide-gray-100" id="org-requests"></div>
+</div>
+<div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
+<h3 class="text-lg font-semibold">Gerenciar Organizadores</h3>
+<p class="text-sm text-gray-600 mb-3">Remover acesso de organizadores aprovados.</p>
+<div class="divide-y divide-gray-100" id="approved-organizers-list"></div>
+</div>
+<div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
+<h3 class="text-lg font-semibold">Eventos pendentes</h3>
+<p class="text-sm text-gray-600 mb-3">Aguardando aprovação. Você pode editar antes de aprovar.</p>
+<div class="grid gap-3" id="pending-events"></div>
+</div>
+<!-- ÁREA DE GERENCIAMENTO DE EVENTOS UNIFICADA -->
+<div class="mt-6 rounded-3xl md:bg-white md:shadow-soft md:ring-subtle md:overflow-hidden">
+<div class="p-4 flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-gray-100">
+<h3 class="text-lg font-semibold">Gerenciar Eventos</h3>
+<div class="flex-shrink-0 flex rounded-full bg-gray-100 p-1">
+<button class="px-4 py-1.5 text-sm font-semibold rounded-full bg-white shadow" id="admin-tab-active">Ativos</button>
+<button class="px-4 py-1.5 text-sm font-semibold rounded-full text-gray-600" id="admin-tab-past">Passados</button>
+</div>
+</div>
+<div class="px-4 pt-4 hidden" id="past-events-search-container">
+<input class="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5" id="past-events-search" placeholder="Buscar eventos passados por nome..."/>
+</div>
+<div class="admin-table-container max-h-[60vh] md:overflow-auto p-4 md:p-0">
+<table class="min-w-full">
+<thead class="bg-gray-50/60" id="admin-events-thead">
+<!-- Conteúdo do cabeçalho da tabela inserido via JS -->
+</thead>
+<tbody class="bg-transparent md:divide-y md:divide-gray-200 md:bg-white" id="admin-events-tbody">
+<!-- Conteúdo do corpo da tabela inserido via JS -->
+</tbody>
+</table>
+<p class="hidden text-center text-sm text-gray-500 p-6" id="admin-events-placeholder"></p>
+</div>
+</div>
+</section>
+<!-- MODAL: LOGIN -->
+<div class="fixed inset-0 z-[80] hidden" id="auth-login">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="auth-login"></div>
+<div class="relative z-[81] mx-auto mt-20 w-[92%] max-w-md rounded-3xl bg-white p-8 shadow-soft ring-subtle pop">
+<button aria-label="Fechar" class="absolute right-3 top-3 rounded-full p-2 hover:bg-gray-100" data-close="auth-login">✕</button>
+<div class="text-center mb-6">
+<h3 class="text-2xl font-extrabold">Bem-vindo!</h3>
+<p class="text-sm text-gray-500">Acesse sua conta para continuar.</p>
+</div>
+<form class="space-y-4" id="form-login">
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="login-email" placeholder="E-mail" required="" type="email">
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="login-pass" placeholder="Senha" required="" type="password"/>
+<div class="flex items-center justify-between text-sm">
+<button class="text-pink-600 font-semibold" id="btn-forgot" type="button">Esqueceu a senha?</button>
+<button class="text-pink-600 font-semibold" id="switch-register" onclick="document.getElementById('auth-login').classList.add('hidden');document.getElementById('auth-register').classList.remove('hidden')" type="button">Registrar-se</button>
+</div>
+<div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="err-login"></div>
+<button class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90" id="submit-login">Entrar</button>
+</input></form>
+</div>
+</div>
+<!-- MODAL: REGISTER (com opção de organizador) -->
+<div class="fixed inset-0 z-[80] hidden" id="auth-register">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="auth-register"></div>
+<div class="relative z-[81] mx-auto mt-20 w-[92%] max-w-xl rounded-3xl bg-white p-8 shadow-soft ring-subtle pop">
+<button aria-label="Fechar" class="absolute right-3 top-3 rounded-full p-2 hover:bg-gray-100" data-close="auth-register">✕</button>
+<div class="text-center mb-6">
+<h3 class="text-2xl font-extrabold">Crie sua Conta</h3>
+<p class="text-sm text-gray-500">Leva menos de um minuto.</p>
+</div>
+<form class="space-y-4" id="form-register">
+<div class="grid gap-3 md:grid-cols-2">
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-name" placeholder="Nome completo" required="" type="text"/>
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-username" placeholder="Nome de usuário (@exemplo)" required="" type="text"/>
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-email" placeholder="E-mail" required="" type="email"/>
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-pass" placeholder="Senha (mín. 6)" required="" type="password"/>
+</div>
+<label class="flex items-center gap-2 select-none text-sm"><input class="h-4 w-4" id="reg-organizer-check" type="checkbox"/> Sou organizador de eventos</label>
+<div class="hidden grid gap-3 md:grid-cols-2" id="reg-organizer-form">
+<input class="rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-company" placeholder="Nome da empresa">
+<input class="rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-cnpj" placeholder="CNPJ (opcional)"/>
+<input class="rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-phone" placeholder="Telefone"/>
+<input class="rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-website" placeholder="Site ou Instagram"/>
+<textarea class="md:col-span-2 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-about" placeholder="Sobre a empresa"></textarea>
+</input></div>
+<div class="flex items-start gap-2 text-sm">
+<input class="mt-0.5" id="reg-terms" required="" type="checkbox"/>
+<label class="text-gray-600" for="reg-terms">Eu li e aceito os <a class="text-pink-600 hover:underline" href="https://firebasestorage.googleapis.com/v0/b/riofestas2.firebasestorage.app/o/termos%20de%20uso.html?alt=media&amp;token=f7f7a4f3-b414-4bb8-b631-e2704652eb83" target="_blank">Termos de Uso e a Política de Privacidade</a>.</label>
+</div>
+<div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="err-register"></div>
+<button class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90" id="submit-register">Registrar</button>
+</form>
+</div>
+</div>
+<!-- MODAL: NEW / EDIT EVENT (ADMIN) -->
+<div class="fixed inset-0 z-[60] hidden" id="event-modal">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="event"></div>
+<div class="relative z-[61] mx-auto mt-8 w-[94%] max-w-2xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[88vh] flex flex-col">
+<div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
+<h3 class="text-xl font-semibold" id="event-modal-title">Novo Evento</h3>
+<button aria-label="Fechar" class="rounded-full p-2 hover:bg-gray-100" data-close="event">✕</button>
+</div>
+<form class="px-6 pb-3 overflow-y-auto" id="event-form">
+<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+<div class="md:col-span-2">
+<label class="text-[13px] font-medium text-gray-700">Nome do Evento</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-name" required="" type="text">
+</input></div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Data de Início</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-date" required="" type="date"/>
+</div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Horário (início)</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-time-start" type="time"/>
+</div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Data de Fim (opcional)</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-date-end" type="date"/>
+</div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Horário (fim)</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-time-end" type="time"/>
+</div>
+<div class="md:col-span-2">
+<label class="text-[13px] font-medium text-gray-700">Endereço</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-local" required="" type="text"/>
+</div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Bairro</label>
+<select class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-bairro">
+<option value="">Selecione...</option>
+</select>
+</div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Gênero Musical</label>
+<select class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-genero">
+<option value="">Selecione...</option>
+</select>
+</div>
+<div class="md:col-span-2">
+<label class="text-[13px] font-medium text-gray-700">Local/Evento Recorrente (Opcional)</label>
+<select class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-recurring">
+<option value="">Nenhum</option>
+</select>
+</div>
+<!-- RECURRING EVENT OPTIONS -->
+<div class="md:col-span-2 space-y-2 rounded-2xl bg-gray-50 p-3 ring-subtle">
+<div class="flex items-center justify-between">
+<label class="text-[13px] font-medium text-gray-700 cursor-pointer select-none" for="ev-repeats-weekly">Repetir semanalmente</label>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" id="ev-repeats-weekly" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600"></div>
+</label>
+</div>
+<div class="hidden pt-2" id="ev-repeat-options">
+<label class="text-[13px] font-medium text-gray-700">Semanas visíveis simultaneamente</label>
+<select class="mt-1 w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-display-count">
+<option value="1">1 semana (padrão)</option>
+<option value="2">2 semanas</option>
+<option value="3">3 semanas</option>
+<option value="4">4 semanas</option>
+<option value="5">5 semanas</option>
+<option value="6">6 semanas</option>
+<option value="7">7 semanas</option>
+<option value="8">8 semanas</option>
+<option value="9">9 semanas</option>
+<option value="10">10 semanas</option>
+</select>
+</div>
+</div>
+<div class="md:col-span-2">
+<label class="text-[13px] font-medium text-gray-700">Descrição</label>
+<textarea class="mt-1 w-full min-h-[100px] rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-desc" placeholder="Detalhes do evento..."></textarea>
+</div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Estilo Musical</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-style" placeholder="Funk / Eletrônica / Samba" type="text">
+</input></div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Link de Compra</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-buy" placeholder="https://..." type="url"/>
+</div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Cupom de Desconto</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-coupon" placeholder="RIO10" type="text"/>
+</div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Importância (0–10)</label>
+<div class="mt-1 flex items-center gap-3">
+<input class="w-full" id="ev-importance" max="10" min="0" step="1" type="range" value="5"/>
+<span class="w-10 text-right font-semibold" id="ev-importance-value">5</span>
+</div>
+</div>
+<div class="md:col-span-2">
+<label class="text-[13px] font-medium text-gray-700">Fotos do Evento</label>
+<div class="mt-1">
+<label class="w-full inline-block text-center rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white cursor-pointer hover:opacity-90" for="ev-photo-upload">
+                    Selecionar Fotos
+                </label>
+<input accept="image/jpeg,image/png,image/webp" class="hidden" id="ev-photo-upload" multiple="" type="file"/>
+</div>
+<p class="mt-1 text-xs text-gray-500">Selecione uma ou mais imagens (JPG, PNG, WEBP). Você pode remover imagens abaixo.</p>
+<div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4" id="preview-photos"></div>
+</div>
+<div class="md:col-span-2 hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="event-error"></div>
+</div>
+<div class="sticky bottom-0 z-10 -mx-6 mt-4 bg-gradient-to-t from-white via-white/95 to-white/0 px-6 pt-3 pb-4 border-t border-gray-100 flex items-center justify-end gap-2">
+<button class="inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="event" type="button">Cancelar</button>
+<button class="inline-flex items-center rounded-full bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90" id="btn-save-event" type="submit">Salvar Evento</button>
+</div>
+</form>
+</div>
+</div>
+<!-- MODAL: EVENTO (ORGANIZADOR) sem prioridade -->
+<div class="fixed inset-0 z-[60] hidden" id="org-event-modal">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="org-event"></div>
+<div class="relative z-[61] mx-auto mt-8 w-[94%] max-w-2xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[88vh] flex flex-col">
+<div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
+<h3 class="text-xl font-semibold">Criar evento (Organizador)</h3>
+<button aria-label="Fechar" class="rounded-full p-2 hover:bg-gray-100" data-close="org-event">✕</button>
+</div>
+<form class="px-6 pb-3 overflow-y-auto" id="org-event-form">
+<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+<div class="md:col-span-2">
+<label class="text-[13px] font-medium text-gray-700">Nome do Evento</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-ev-name" required="" type="text">
+</input></div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Data de Início</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-ev-date" required="" type="date"/>
+</div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Horário (início)</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-ev-time-start" type="time"/>
+</div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Data de Fim (opcional)</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-ev-date-end" type="date"/>
+</div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Horário (fim)</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-ev-time-end" type="time"/>
+</div>
+<div class="md:col-span-2">
+<label class="text-[13px] font-medium text-gray-700">Endereço</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-ev-local" required="" type="text"/>
+</div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Bairro</label>
+<select class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="org-ev-bairro">
+<option value="">Selecione...</option>
+</select>
+</div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Gênero Musical</label>
+<select class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="org-ev-genero">
+<option value="">Selecione...</option>
+</select>
+</div>
+<div class="md:col-span-2">
+<label class="text-[13px] font-medium text-gray-700">Local/Evento Recorrente (Opcional)</label>
+<select class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="org-ev-recurring">
+<option value="">Nenhum</option>
+</select>
+</div>
+<!-- RECURRING EVENT OPTIONS (ORGANIZER) -->
+<div class="md:col-span-2 space-y-2 rounded-2xl bg-gray-50 p-3 ring-subtle">
+<div class="flex items-center justify-between">
+<label class="text-[13px] font-medium text-gray-700 cursor-pointer select-none" for="org-ev-repeats-weekly">Repetir semanalmente</label>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" id="org-ev-repeats-weekly" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600"></div>
+</label>
+</div>
+<div class="hidden pt-2" id="org-ev-repeat-options">
+<label class="text-[13px] font-medium text-gray-700">Semanas visíveis simultaneamente</label>
+<select class="mt-1 w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-600/35" id="org-ev-display-count">
+<option value="1">1 semana (padrão)</option>
+<option value="2">2 semanas</option>
+<option value="3">3 semanas</option>
+<option value="4">4 semanas</option>
+<option value="5">5 semanas</option>
+<option value="6">6 semanas</option>
+<option value="7">7 semanas</option>
+<option value="8">8 semanas</option>
+<option value="9">9 semanas</option>
+<option value="10">10 semanas</option>
+</select>
+</div>
+</div>
+<div class="md:col-span-2">
+<label class="text-[13px] font-medium text-gray-700">Descrição</label>
+<textarea class="mt-1 w-full min-h-[100px] rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-ev-desc" placeholder="Detalhes do evento..."></textarea>
+</div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Estilo Musical</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-ev-style" type="text">
+</input></div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Link de Compra</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-ev-buy" type="url"/>
+</div>
+<div>
+<label class="text-[13px] font-medium text-gray-700">Cupom de Desconto</label>
+<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-ev-coupon" type="text"/>
+</div>
+<div class="md:col-span-2">
+<label class="text-[13px] font-medium text-gray-700">Fotos</label>
+<div class="mt-1">
+<label class="w-full inline-block text-center rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white cursor-pointer hover:opacity-90" for="org-ev-photo-upload">
+                    Selecionar Fotos
+                </label>
+<input accept="image/jpeg,image/png,image/webp" class="hidden" id="org-ev-photo-upload" multiple="" type="file"/>
+</div>
+<p class="mt-1 text-xs text-gray-500">Selecione uma ou mais imagens (JPG, PNG, WEBP). Você pode remover imagens abaixo.</p>
+<div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4" id="org-preview-photos"></div>
+</div>
+<div class="md:col-span-2 hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="org-event-error"></div>
+</div>
+<div class="sticky bottom-0 z-10 -mx-6 mt-4 bg-gradient-to-t from-white via-white/95 to-white/0 px-6 pt-3 pb-4 border-t border-gray-100 flex items-center justify-end gap-2">
+<button class="inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="org-event" type="button">Cancelar</button>
+<button class="inline-flex items-center rounded-full bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white" id="org-btn-save" type="submit">Enviar para aprovação</button>
+</div>
+</form>
+</div>
+</div>
+<!-- MODAL: VISUALIZAÇÃO DO EVENTO -->
+<div class="fixed inset-0 z-[60] hidden" id="event-view">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="view"></div>
+<div class="relative z-[61] mx-auto mt-8 w-[96%] max-w-4xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[92vh] overflow-hidden flex flex-col">
+<div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
+<h3 class="text-xl font-semibold" id="view-title">Evento</h3>
+<button aria-label="Fechar" class="rounded-full p-2 hover:bg-gray-100" data-close="view">✕</button>
+</div>
+<div class="grid md:grid-cols-[1.2fr_.8fr] gap-6 p-6 overflow-y-auto">
+<div>
+<div class="grid grid-cols-1 md:gap-3" id="view-gallery"></div>
+</div>
+<aside class="space-y-4">
+<div class="rounded-3xl ring-subtle p-4">
+<div class="text-sm text-gray-500">Data</div>
+<div class="text-lg font-semibold" id="view-date">—</div>
+<div class="mt-3 text-sm text-gray-500">Local</div>
+<div class="text-lg font-semibold" id="view-local">—</div>
+<div class="mt-3 text-sm text-gray-500">Estilo</div>
+<div class="text-lg font-semibold" id="view-style">—</div>
+</div>
+<div class="hidden rounded-3xl ring-subtle p-4" id="view-rating-display-container"></div>
+<div class="rounded-3xl ring-subtle p-4">
+<div class="text-sm text-gray-500">Descrição</div>
+<p class="mt-1 text-[15px] leading-relaxed text-gray-700" id="view-desc">—</p>
+</div>
+<div class="rounded-3xl ring-subtle p-4 space-y-2">
+<a class="block w-full text-center rounded-full bg-pink-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50" id="view-buy" target="_blank">Comprar Ingresso</a>
+<div class="text-center text-sm text-gray-600">Cupom: <span class="font-semibold" id="view-coupon">—</span></div>
+</div>
+<div class="rounded-3xl ring-subtle p-4">
+<button class="w-full inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90" id="btn-going">
+<svg fill="none" height="16" viewbox="0 0 24 24" width="16"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span id="btn-going-text">Confirmar Presença</span>
+</button>
+<div class="mt-2 text-center text-xs text-gray-500" id="going-count"></div>
+<!-- Amigos que vão -->
+<div class="mt-2 text-center hidden" id="friends-going-container">
+<button class="inline-flex items-center gap-2 rounded-full bg-pink-50 px-3 py-1.5 text-sm font-semibold text-pink-700 hover:bg-pink-100" id="friends-going-button">
+<!-- Text set by JS -->
+</button>
+</div>
+</div>
+<div class="hidden rounded-3xl ring-subtle p-4" id="view-rating-input-container"></div>
+</aside>
+</div>
+</div>
+</div>
+<!-- MODAL DE PERFIL DE USUÁRIO -->
+<div class="fixed inset-0 z-[70] hidden" id="user-profile-modal">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="user-profile"></div>
+<div class="relative z-[71] mx-auto mt-8 w-[96%] max-w-2xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[92vh] overflow-hidden flex flex-col">
+<div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
+<h3 class="text-xl font-semibold" id="profile-title">Perfil de Usuário</h3>
+<button aria-label="Fechar" class="rounded-full p-2 hover:bg-gray-100" data-close="user-profile">✕</button>
+</div>
+<div class="p-6 overflow-y-auto" id="profile-content"></div>
+</div>
+</div>
+<!-- MODAL: LISTA DE AMIGOS -->
+<div class="fixed inset-0 z-[70] hidden" id="friends-list-modal">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="friends-list"></div>
+<div class="relative z-[71] mx-auto mt-20 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-semibold">Amigos que vão</h3>
+<button aria-label="Fechar" class="rounded-full p-2 hover:bg-gray-100" data-close="friends-list">✕</button>
+</div>
+<div class="mt-4 max-h-[60vh] overflow-y-auto space-y-3" id="friends-list-content">
+<!-- Friends list will be populated by JS -->
+</div>
+</div>
+</div>
+<!-- MODAL: LISTA DE SEGUIDORES/SEGUINDO -->
+<div class="fixed inset-0 z-[75] hidden" id="follow-list-modal">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="follow-list"></div>
+<div class="relative z-[76] mx-auto mt-20 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-semibold" id="follow-list-title">Lista</h3>
+<button aria-label="Fechar" class="rounded-full p-2 hover:bg-gray-100" data-close="follow-list">✕</button>
+</div>
+<div class="mt-4 max-h-[60vh] overflow-y-auto space-y-2" id="follow-list-content">
+<!-- User list will be populated by JS -->
+</div>
+</div>
+</div>
+<!-- Modal: Aprovar pendente -->
+<div class="fixed inset-0 z-[70] hidden" id="approve-modal">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="approve"></div>
+<div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-sm rounded-2xl bg-white p-5 shadow-soft ring-subtle">
+<h4 class="text-lg font-semibold">Definir importância (0–10)</h4>
+<div class="mt-3 flex items-center gap-3">
+<input class="w-full" id="approve-importance" max="10" min="0" type="range" value="5">
+<span class="w-8 text-right font-semibold" id="approve-importance-value">5</span>
+</input></div>
+<div class="mt-4 flex justify-end gap-2">
+<button class="rounded-full border border-gray-200 px-4 py-2.5 text-sm" data-close="approve">Cancelar</button>
+<button class="rounded-full bg-pink-600 px-4 py-2.5 text-sm font-semibold text-white" id="approve-confirm">Aprovar</button>
+</div>
+</div>
+</div>
+<div class="fixed inset-0 z-[70] hidden" id="organizer-details-modal">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="organizer-details"></div>
+<div class="relative z-[71] mx-auto mt-20 w-[92%] max-w-lg rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-semibold">Detalhes do Organizador</h3>
+<button aria-label="Fechar" class="rounded-full p-2 hover:bg-gray-100" data-close="organizer-details">✕</button>
+</div>
+<div class="mt-4 space-y-3 text-sm" id="organizer-details-content"></div>
+</div>
+</div>
+<!-- Modal de Confirmação para Excluir Evento -->
+<div class="fixed inset-0 z-[70] hidden" id="delete-modal">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="delete"></div>
+<div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
+<h4 class="text-lg font-bold">Confirmar Exclusão</h4>
+<p class="mt-2 text-sm text-gray-600">Você tem certeza que deseja excluir o evento "<span class="font-semibold" id="delete-event-name"></span>"? Esta ação não pode ser desfeita.</p>
+<div class="mt-5 flex justify-end gap-2">
+<button class="rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="delete">Cancelar</button>
+<button class="rounded-full bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90" id="delete-confirm-btn">Excluir</button>
+</div>
+</div>
+</div>
+<!-- Modal de Confirmação para Remover Seguidor -->
+<div class="fixed inset-0 z-[70] hidden" id="remove-follower-modal">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="remove-follower"></div>
+<div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
+<h4 class="text-lg font-bold">Remover Seguidor</h4>
+<p class="mt-2 text-sm text-gray-600">Você tem certeza que deseja remover <span class="font-semibold" id="remove-follower-name"></span> dos seus seguidores?</p>
+<div class="mt-5 flex justify-end gap-2">
+<button class="rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="remove-follower">Cancelar</button>
+<button class="rounded-full bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90" id="remove-follower-confirm-btn">Remover</button>
+</div>
+</div>
+</div>
+<!-- Modal de Confirmação para Excluir Notificação -->
+<div class="fixed inset-0 z-[70] hidden" id="delete-notification-modal">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="delete-notification"></div>
+<div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
+<h4 class="text-lg font-bold">Excluir Notificação</h4>
+<p class="mt-2 text-sm text-gray-600">Você tem certeza que deseja excluir esta notificação? Esta ação não pode ser desfeita.</p>
+<div class="mt-5 flex justify-end gap-2">
+<button class="rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="delete-notification">Cancelar</button>
+<button class="rounded-full bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90" id="delete-notification-confirm-btn">Excluir</button>
+</div>
+</div>
+</div>
+<!-- Modal de Confirmação para Zerar Avaliações -->
+<div class="fixed inset-0 z-[70] hidden" id="reset-ratings-modal">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="reset-ratings"></div>
+<div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
+<h4 class="text-lg font-bold">Zerar Avaliações</h4>
+<p class="mt-2 text-sm text-gray-600">Você tem certeza que deseja apagar todas as avaliações para "<span class="font-semibold" id="reset-ratings-name"></span>"? Esta ação não pode ser desfeita.</p>
+<div class="mt-5 flex justify-end gap-2">
+<button class="rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-gray-50" data-close="reset-ratings">Cancelar</button>
+<button class="rounded-full bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90" id="reset-ratings-confirm-btn">Zerar</button>
+</div>
+</div>
+</div>
+<!-- Toast Container -->
+<div class="pointer-events-none fixed inset-x-0 bottom-5 z-[90] flex flex-col items-center gap-2" id="toast-container"></div>
+<!-- Firebase (ESM) -->
+<script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
     import {
       getAuth, setPersistence, browserLocalPersistence, signInAnonymously,
@@ -1049,7 +1050,7 @@
     // Caminhos
     const appId = firebaseConfig.appId;
     const EVENTS_PATH   = `artifacts/${appId}/public/data/events`;
-    const EVENT_EXCEPTIONS_PATH = `artifacts/${appId}/public/data/eventExceptions`; // NOVO
+    const EVENT_EXCEPTIONS_PATH = `artifacts/${appId}/public/data/eventExceptions`; 
     const PENDING_PATH  = `artifacts/${appId}/public/data/events_pending`;
     const USERS_PATH    = `artifacts/${appId}/public/data/users`;
     const USERNAMES_PATH = `artifacts/${appId}/public/data/usernames`;
@@ -1128,7 +1129,7 @@
     function next7End(){ const x=startOfToday(); x.setDate(x.getDate()+6); x.setHours(23,59,59,999); return x; }
 
     // ===== Sessão & roles =====
-    const state = { baseEvents: [], events:[], pending:[], users:{}, recurringEvents: [], settings: {}, eventExceptions: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, deleteNotificationTarget: null, removeFollowerTarget: null, resetRatingsTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} }, adminEventsView: 'active' };
+    const state = { baseEvents: [], events:[], pending:[], users:{}, recurringEvents: [], settings: {}, eventExceptions: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, deleteNotificationTarget: null, removeFollowerTarget: null, resetRatingsTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, photoRemovalFlag: false, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} }, adminEventsView: 'active', selectedBairros: new Set(), selectedGeneros: new Set() };
     let _unsubRole = null, _unsubEvents=null, _unsubPending=null, _unsubGoingTo=null, _unsubFollowing=null, _unsubFollowers=null, _unsubOutgoingRequests=null, _unsubIncomingRequests=null, _unsubNotifications=null, _unsubRecurring=null, _unsubSettings=null, _unsubExceptions=null;
 
     const renderHeader = ()=>{
@@ -1351,7 +1352,6 @@
     // ===== Navegação =====
     const allViews = ['#home-view', '#view-admin', '#view-social', '#hero-section', '#view-profile', '#view-about', '#view-locations'];
     
-    // NOVO: Função para indicar a página ativa no header
     function updateHeaderStyles(activeViewId) {
         const buttons = {
             home: { el: $('#btn-home-header'), view: '#home-view', default: 'bg-white', active: 'bg-gray-100' },
@@ -1379,7 +1379,7 @@
       if (viewId === '#home-view') show($('#hero-section'));
       if (viewId === '#view-locations') renderLocationsPage();
       window.scrollTo(0, 0);
-      updateHeaderStyles(viewId); // ATUALIZAÇÃO: Chama a função de estilo
+      updateHeaderStyles(viewId); 
     }
     $('#logo-link').addEventListener('click', () => showView('#home-view'));
     $('#btn-home-header').addEventListener('click', () => showView('#home-view'));
@@ -1399,7 +1399,6 @@
             openLogin();
         }
     });
-    // ATUALIZAÇÃO: Carrega os dados do admin ao abrir a página
     $('#go-admin').addEventListener('click', ()=>{ 
         if(!ensureAdmin()) return; 
         showView('#view-admin'); 
@@ -1422,6 +1421,7 @@
         $('#account-private').checked = u.isPrivate || false;
         $('#account-photo-preview').src = u.photoUrl || `https://placehold.co/64x64/f472b6/ffffff?text=${initials(u.name)}`;
         state.newProfilePhotoUrl = null;
+        state.photoRemovalFlag = false; // Reset flag
         showView('#view-profile');
         loadFollowLists();
     }
@@ -1436,7 +1436,6 @@
     }
     subEvents();
     
-    // NOVO: Listener para exceções de eventos recorrentes
     function subEventExceptions() {
         if (_unsubExceptions) _unsubExceptions();
         _unsubExceptions = onSnapshot(collection(db, EVENT_EXCEPTIONS_PATH), (snap) => {
@@ -1446,18 +1445,16 @@
                 if (!exceptions[data.eventId]) {
                     exceptions[data.eventId] = [];
                 }
-                // Armazena o início do dia em milissegundos para comparação de data, ignorando a hora
                 const d = data.deletedDate.toDate();
                 d.setHours(0,0,0,0);
                 exceptions[data.eventId].push(d.getTime());
             });
             state.eventExceptions = exceptions;
-            processAndRenderAllViews(); // Re-renderiza tudo quando uma exceção muda
+            processAndRenderAllViews();
         });
     }
     subEventExceptions();
 
-    // LÓGICA ATUALIZADA: Geração dinâmica de eventos recorrentes
     function getFirstUpcomingDate(startDate) {
         const now = new Date();
         now.setHours(0, 0, 0, 0); 
@@ -1486,7 +1483,7 @@
         
         (state.baseEvents || []).forEach(event => {
             if (event.repeatsWeekly) {
-                const displayCount = event.displayCount || 4;
+                const displayCount = event.displayCount || 1; // CORREÇÃO: Padrão para 1
                 const baseStartDate = event.date;
                 if (!baseStartDate) return;
 
@@ -1507,7 +1504,7 @@
                         clone.date = Timestamp.fromDate(currentDate);
                         clone._original_id = event._id;
                         clone._path = event._path;
-                        clone._id = `${event._id}_${currentDate.getTime()}`; // ID único para a DOM
+                        clone._id = `${event._id}_${currentDate.getTime()}`; 
                         clone.isGenerated = true;
                         
                         expandedEvents.push(clone);
@@ -1521,10 +1518,9 @@
         });
 
         state.events = expandedEvents;
-
-        renderAllHome();
-        renderAdminEventsView();
-        renderSocialFeeds();
+        
+        // CORREÇÃO: Aplica filtros e renderiza tudo
+        applyFiltersAndRender();
     }
 
 
@@ -1552,7 +1548,6 @@
       _unsubSettings = onSnapshot(doc(db, SETTINGS_PATH, 'global'), (doc) => {
         if (doc.exists()) {
           state.settings = doc.data();
-          // Update UI elements that depend on global settings
           $('#whatsapp-support-link').href = state.settings.whatsappLink || 'https://wa.me/5521000000000';
           $('#whatsapp-link-input').value = state.settings.whatsappLink || '';
         }
@@ -1603,7 +1598,7 @@
             status:'pending', 
             recurringEventId: $('#org-ev-recurring').value || null,
             bairroId: (document.getElementById('org-ev-bairro')?.value || null), generoId: (document.getElementById('org-ev-genero')?.value || null), bairroName: (state.bairros.find(b=>b.id===document.getElementById('org-ev-bairro')?.value)?.name || null), generoName: (state.generos.find(g=>g.id===document.getElementById('org-ev-genero')?.value)?.name || null), repeatsWeekly: $('#org-ev-repeats-weekly').checked,
-            displayCount: parseInt($('#org-ev-display-count').value, 10) || 4
+            displayCount: parseInt($('#org-ev-display-count').value, 10) || 1
         };
         await addDoc(collection(db, PENDING_PATH), payload); hide($('#org-event-modal')); toast('Evento enviado para aprovação!', 'info');
       }catch(err){ console.error(err); showOrgEventError('Falha ao enviar evento.'); }
@@ -1699,14 +1694,12 @@
         const now = new Date();
         const startDate = ev.date?.toDate ? ev.date.toDate() : new Date();
         
-        // Se não tem hora de fim, o evento termina às 23:59:59 do dia de início (ou de fim, se houver)
         if (!ev.timeEnd) {
           const endDateForLogic = ev.endDate?.toDate ? ev.endDate.toDate() : startDate;
           endDateForLogic.setHours(23, 59, 59, 999);
           return now <= endDateForLogic;
         }
 
-        // Se tem hora de fim, constrói a data/hora exata do fim
         const endDatePart = ev.endDate?.toDate ? ev.endDate.toDate() : startDate;
         const [endHours, endMinutes] = ev.timeEnd.split(':').map(Number);
         
@@ -1715,7 +1708,7 @@
 
         return now <= exactEndDate;
       } catch {
-        return true; // Failsafe
+        return true; 
       }
     }
 
@@ -1748,27 +1741,70 @@
 
     function renderCarousel(containerId, list, emptyId){ const wrap=$('#'+containerId); const emptyEl=$('#'+emptyId); wrap.innerHTML=''; if(!list || !list.length){ show(emptyEl); hide(wrap); return } else { hide(emptyEl); show(wrap); } list.forEach(ev=> wrap.appendChild(eventCard(ev)) ); }
 
-    function buildNext7Menu(){ const menu=$('#weekday-menu'); menu.innerHTML=''; const today=startOfToday(); const labels=[]; for(let i=0;i<7;i++){ const d=new Date(today); d.setDate(today.getDate()+i); labels.push({date:d,label:weekdayLong[d.getDay()]}); } labels.forEach((it,idx)=>{ const b=document.createElement('button'); b.className='flex-shrink-0 rounded-full border px-4 py-2 text-sm '+(idx===state.byDayOffset? 'bg-pink-600 text-white border-pink-600':'bg-white border-gray-200 hover:bg-gray-50'); b.textContent=it.label; b.addEventListener('click', ()=>{ state.byDayOffset=idx; renderByDay(); buildNext7Menu(); }); menu.appendChild(b); }); }
+    function buildNext7Menu(){ const menu=$('#weekday-menu'); menu.innerHTML=''; const today=startOfToday(); const labels=[]; for(let i=0;i<7;i++){ const d=new Date(today); d.setDate(today.getDate()+i); labels.push({date:d,label:weekdayLong[d.getDay()]}); } labels.forEach((it,idx)=>{ const b=document.createElement('button'); b.className='flex-shrink-0 rounded-full border px-4 py-2 text-sm '+(idx===state.byDayOffset? 'bg-pink-600 text-white border-pink-600':'bg-white border-gray-200 hover:bg-gray-50'); b.textContent=it.label; b.addEventListener('click', ()=>{ state.byDayOffset=idx; applyFiltersAndRender(); }); menu.appendChild(b); }); }
 
-    function renderAllHome(){
-      const activeEvents = state.events.filter(isEventActive);
+    function renderAllHome(filteredEvents){
+      const activeEvents = filteredEvents.filter(isEventActive);
       const evs=[...activeEvents].sort((a,b)=>(b.importance||0)-(a.importance||0));
       const start=startOfToday(); const end=next7End();
       const inNext7 = evs.filter(ev=>{ const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); return d>=start && d<=end; });
       const others=evs.filter(ev=>{ const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); return !(d>=start && d<=end); });
-      const popular = [...activeEvents].sort((a, b) => (b.goingCount || 0) - (a.goingCount || 0)).slice(0, 10);
+      // CORREÇÃO: Filtra populares por goingCount > 0
+      const popular = [...activeEvents].filter(ev => ev.goingCount > 0).sort((a, b) => (b.goingCount || 0) - (a.goingCount || 0)).slice(0, 10);
+      
       renderCarousel('carousel-week-top', inNext7, 'empty-week-top');
       renderCarousel('carousel-popular', popular, 'empty-popular');
-      buildNext7Menu();
-      renderByDay();
+      renderByDay(activeEvents);
       renderCarousel('carousel-others', others, 'empty-others');
-      renderFeed();
+      renderFeed(activeEvents);
     }
 
-    function renderByDay(){ const start=startOfToday(); const target=new Date(start); target.setDate(start.getDate()+state.byDayOffset); const a=new Date(target); a.setHours(0,0,0,0); const b=new Date(target); b.setHours(23,59,59,999); const list=state.events.filter(isEventActive).filter(ev=>{ const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); return d>=a && d<=b; }); renderCarousel('carousel-byday', list, 'empty-byday'); }
+    function renderByDay(filteredEvents){ 
+        buildNext7Menu();
+        const start=startOfToday(); 
+        const target=new Date(start); 
+        target.setDate(start.getDate()+state.byDayOffset); 
+        const a=new Date(target); a.setHours(0,0,0,0); 
+        const b=new Date(target); b.setHours(23,59,59,999); 
+        const list=filteredEvents.filter(ev=>{ const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); return d>=a && d<=b; }); 
+        renderCarousel('carousel-byday', list, 'empty-byday'); 
+    }
 
-    function renderFeed(){ const grid=$('#grid-events'); const empty=$('#empty-feed'); grid.innerHTML=''; const q=$('#search-input').value.trim().toLowerCase(); if (!q) { hide(grid.parentElement); return; } show(grid.parentElement); const list=state.events.filter(isEventActive).filter(ev=> ([ev.name,ev.style,ev.local,ev.description].filter(Boolean).some(v=>String(v).toLowerCase().includes(q)))); if(!list.length){ show(empty); hide(grid); return } else { hide(empty); show(grid); } list.forEach(ev=>{ const url=ev.imageUrls?.[0]||''; const card=document.createElement('article'); card.className='group rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer'; card.innerHTML=`<div class="relative h-48 w-full bg-gray-100 overflow-hidden"><img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" alt="${ev.name||''}" loading="lazy" /></div><div class="p-5 space-y-2"><h3 class="text-lg font-semibold line-clamp-1">${ev.name||''}</h3><div class="text-sm text-gray-600">${fmtDate(ev.date)} • ${ev.local||''}</div>${ev.style?`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-1 text-xs font-medium text-pink-600">${ev.style}</div>`:''}</div>`; card.addEventListener('click', ()=> openViewModal(ev)); grid.appendChild(card); }); }
-    $('#search-input').addEventListener('input', renderFeed);
+    function renderFeed(filteredEvents){ 
+        const grid=$('#grid-events'); 
+        const empty=$('#empty-feed');
+        const section = $('#search-results-section');
+        grid.innerHTML=''; 
+        const q=$('#search-input').value.trim().toLowerCase(); 
+        if (!q) { hide(section); return; } 
+        show(section); 
+        const list=filteredEvents.filter(ev=> ([ev.name,ev.style,ev.local,ev.description].filter(Boolean).some(v=>String(v).toLowerCase().includes(q)))); 
+        if(!list.length){ show(empty); hide(grid); } 
+        else { hide(empty); show(grid); } 
+        list.forEach(ev=>{ const url=ev.imageUrls?.[0]||''; const card=document.createElement('article'); card.className='group rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer'; card.innerHTML=`<div class="relative h-48 w-full bg-gray-100 overflow-hidden"><img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" alt="${ev.name||''}" loading="lazy" /></div><div class="p-5 space-y-2"><h3 class="text-lg font-semibold line-clamp-1">${ev.name||''}</h3><div class="text-sm text-gray-600">${fmtDate(ev.date)} • ${ev.local||''}</div>${ev.style?`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-1 text-xs font-medium text-pink-600">${ev.style}</div>`:''}</div>`; card.addEventListener('click', ()=> openViewModal(ev)); grid.appendChild(card); }); 
+    }
+    
+    // CORREÇÃO: Função central para aplicar filtros e re-renderizar
+    function applyFiltersAndRender() {
+        let filtered = [...state.events];
+        const hasB = state.selectedBairros.size > 0;
+        const hasG = state.selectedGeneros.size > 0;
+
+        if (hasB || hasG) {
+            filtered = filtered.filter(ev => {
+                const matchB = !hasB || (ev.bairroId && state.selectedBairros.has(ev.bairroId));
+                const matchG = !hasG || (ev.generoId && state.selectedGeneros.has(ev.generoId));
+                return matchB && matchG;
+            });
+        }
+        
+        renderAllHome(filtered);
+        renderAdminEventsView(); // Re-renderiza a view do admin também se estiver aberta
+        renderSocialFeeds(); // Re-renderiza feeds sociais
+    }
+
+    $('#search-input').addEventListener('input', () => applyFiltersAndRender());
+
 
     function refreshAllAdminViews() {
       renderAdminEventsView();
@@ -1778,7 +1814,6 @@
       renderRecurringEventsAdmin();
     }
 
-    // ===== NOVO: Renderização da Página de Locais =====
     function renderLocationsPage() {
         const container = $('#locations-container');
         container.innerHTML = ''; 
@@ -1873,7 +1908,6 @@
         renderAdminPastEventsResults(e.target.value);
     });
     
-    // NOVO: Função para deletar uma instância de evento recorrente
     async function deleteRecurringInstance(eventInstance) {
         if (!ensureAdmin()) return;
         const { _original_id, date, name } = eventInstance;
@@ -1885,7 +1919,7 @@
         try {
             await addDoc(collection(db, EVENT_EXCEPTIONS_PATH), {
                 eventId: _original_id,
-                deletedDate: date // Salva o timestamp da data a ser pulada
+                deletedDate: date 
             });
             toast(`Ocorrência de "${name}" para ${fmtDate(date)} foi removida.`);
         } catch (err) {
@@ -1933,7 +1967,6 @@
                   </td>`;
                 tr.querySelector('[data-act="edit"]').addEventListener('click', () => {
                     if (!ensureAdmin()) return;
-                    // Ao editar, sempre edita o evento "molde" original.
                     const baseEvent = state.baseEvents.find(base => base._id === (ev._original_id || ev._id));
                     if (baseEvent) {
                         openEventModal('edit', baseEvent);
@@ -1944,10 +1977,8 @@
                 tr.querySelector('[data-act="del"]').addEventListener('click', () => {
                     if (!ensureAdmin()) return;
                     if (ev.isGenerated) {
-                        // Se for uma instância gerada, usa a nova lógica de exclusão
                         deleteRecurringInstance(ev);
                     } else {
-                        // Se for um evento normal, usa a lógica antiga
                         state.deleteTarget = { path: ev._path, name: ev.name };
                         $('#delete-event-name').textContent = ev.name || 'este evento';
                         show($('#delete-modal'));
@@ -2163,6 +2194,11 @@
     $('#ev-photo-upload').addEventListener('change', (e) => handleFileUpload(e.target.files, 'admin'));
     $('#org-ev-photo-upload').addEventListener('change', (e) => handleFileUpload(e.target.files, 'organizer'));
 
+    // CORREÇÃO: Listener do slider de importância
+    $('#ev-importance').addEventListener('input', (e) => {
+        $('#ev-importance-value').textContent = e.target.value;
+    });
+
     function resetEventForm(context){
         const formState = context === 'admin' ? state.eventForm : state.orgEventForm;
         const formEl = context === 'admin' ? $('#event-form') : $('#org-event-form');
@@ -2182,7 +2218,6 @@
         
         state.editingId=null;
         formState.imageUrls = [];
-        // Não cancele tarefas aqui, isso será feito ao fechar o modal
         formState.uploadTasks = {};
     }
 
@@ -2199,7 +2234,6 @@
         if (context === 'admin' && !ensureAdmin()) return;
         if (context === 'organizer' && (!auth.currentUser || auth.currentUser.isAnonymous)) return openLogin();
 
-        // Limpa estado anterior ANTES de popular
         formState.imageUrls = [];
         formState.uploadTasks = {};
         resetEventForm(context);
@@ -2229,12 +2263,10 @@
             formState.imageUrls = [...(ev.imageUrls||[])];
             state._editPending = (mode==='edit-pending');
 
-            // Recurring fields
             $(`#${prefix}-repeats-weekly`).checked = ev.repeatsWeekly || false;
-            $(`#${prefix}-display-count`).value = ev.displayCount || 4;
+            $(`#${prefix}-display-count`).value = ev.displayCount || 1;
         }
         
-        // Setup recurring fields visibility toggle
         const repeatsCheckbox = $(`#${prefix}-repeats-weekly`);
         const repeatOptions = $(`#${prefix}-repeat-options`);
         repeatOptions.style.display = repeatsCheckbox.checked ? 'block' : 'none';
@@ -2276,7 +2308,7 @@
           recurringEventId: $('#ev-recurring').value || null, 
           bairroId: (document.getElementById('ev-bairro')?.value || null), generoId: (document.getElementById('ev-genero')?.value || null), bairroName: (state.bairros.find(b=>b.id===document.getElementById('ev-bairro')?.value)?.name || null), generoName: (state.generos.find(g=>g.id===document.getElementById('ev-genero')?.value)?.name || null), updatedAt: serverTimestamp(),
           repeatsWeekly: $('#ev-repeats-weekly').checked,
-          displayCount: parseInt($('#ev-display-count').value, 10) || 4
+          displayCount: parseInt($('#ev-display-count').value, 10) || 1
         };
         
         if(state._editPending){ await updateDoc(doc(db, PENDING_PATH, state.editingId), payload); toast('Rascunho pendente atualizado!'); } 
@@ -2372,15 +2404,14 @@
 
         if (buttonEl) buttonEl.disabled = true;
 
-        // --- ATUALIZAÇÃO OTIMISTA DA UI ---
         if (buttonEl) {
-            if (isFollowing) { // Ação: Unfollow
+            if (isFollowing) { 
                 buttonEl.textContent = 'Seguir';
                 buttonEl.className = buttonEl.className.replace(/bg-gray-200\s+text-gray-800/, 'bg-pink-600 text-white');
-            } else if (hasRequested) { // Ação: Cancelar Pedido
+            } else if (hasRequested) { 
                 buttonEl.textContent = 'Seguir';
                 buttonEl.className = buttonEl.className.replace(/bg-gray-100\s+text-gray-600\s+border\s+border-gray-300/, 'bg-pink-600 text-white');
-            } else { // Ação: Follow/Request
+            } else { 
                 if (targetUser.isPrivate) {
                     buttonEl.textContent = 'Solicitado';
                     buttonEl.className = buttonEl.className.replace(/bg-pink-600\s+text-white/, 'bg-gray-100 text-gray-600 border border-gray-300');
@@ -2395,7 +2426,6 @@
         const currentUserRef = doc(db, USERS_PATH, currentUser.uid);
         const targetUserRef = doc(db, USERS_PATH, targetUserId);
 
-        // --- Lógica de Deixar de Seguir (Unfollow) ---
         if (isFollowing) {
             const followingRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/following`, targetUserId);
             const followerRef = doc(db, `artifacts/${appId}/users/${targetUserId}/followers`, currentUser.uid);
@@ -2404,7 +2434,6 @@
             batch.update(currentUserRef, { followingCount: increment(-1) });
             batch.update(targetUserRef, { followersCount: increment(-1) });
         } 
-        // --- Lógica de Cancelar Solicitação ---
         else if (hasRequested) {
             const outgoingRequestRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/outgoingFollowRequests`, targetUserId);
             const incomingRequestRef = doc(db, `artifacts/${appId}/users/${targetUserId}/followRequests`, currentUser.uid);
@@ -2413,7 +2442,6 @@
             batch.delete(incomingRequestRef);
             batch.delete(notificationRef);
         } 
-        // --- Lógica de Seguir (Follow) ---
         else {
             if (targetUser.isPrivate) {
                 const outgoingRequestRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/outgoingFollowRequests`, targetUserId);
@@ -2439,11 +2467,9 @@
 
         try {
             await batch.commit();
-            // A UI já foi atualizada otimisticamente
         } catch (err) {
             console.error("Erro na operação de seguir:", err);
             toast("Ocorreu um erro.", 'error');
-            // Reverter a UI em caso de erro
             if (buttonEl) {
                 if (originalState.isFollowing) {
                     buttonEl.textContent = 'Seguindo';
@@ -2507,10 +2533,9 @@
             toast(`Você removeu ${name} dos seus seguidores.`);
             
             if (fromProfile) {
-                // Re-render the profile modal to update its state
                 openUserProfileModal(followerId);
             } else {
-                loadFollowLists(); // Refresh list in "My Profile"
+                loadFollowLists(); 
             }
         } catch (err) {
             console.error("Erro ao remover seguidor:", err);
@@ -2526,7 +2551,7 @@
 
     // ===== Social: Feeds =====
     async function renderSocialFeeds() {
-        const popular = [...state.events].filter(isEventActive).sort((a, b) => (b.goingCount || 0) - (a.goingCount || 0)).slice(0, 10);
+        const popular = [...state.events].filter(isEventActive).filter(ev => ev.goingCount > 0).sort((a, b) => (b.goingCount || 0) - (a.goingCount || 0)).slice(0, 10);
         renderCarousel('carousel-social-popular', popular, 'empty-social-popular');
 
         const friendsEvents = await getFriendsEvents();
@@ -2536,7 +2561,7 @@
     async function updateFriendsGoingMap() {
         state.friendsGoingMap.clear();
         if (state.userFollowing.size === 0) {
-            renderAllHome(); // Re-render to remove counters
+            applyFiltersAndRender(); 
             return;
         }
 
@@ -2556,7 +2581,7 @@
                 state.friendsGoingMap.get(eventId).add(friendId);
             });
         });
-        renderAllHome(); // Re-render carousels with new data
+        applyFiltersAndRender(); 
     }
 
     async function getFriendsEvents() {
@@ -2637,7 +2662,6 @@
         const hasPendingRequestFromUser = state.incomingFollowRequests.has(userId);
         const isOwnProfile = auth.currentUser?.uid === userId;
         
-        // CORREÇÃO: Lógica de permissão de visualização
         const canViewDetails = !user.isPrivate || isFollowing || isOwnProfile;
 
         let actionButtonsHTML = '';
@@ -2671,7 +2695,6 @@
             }
         }
         
-        // CORREÇÃO: HTML condicional para eventos e listas
         let detailsHTML = '';
         if (canViewDetails) {
             const goingToSnap = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/goingTo`));
@@ -2724,7 +2747,6 @@
             </div>
             ${detailsHTML}`;
 
-        // Re-anexar listeners
         if (!isOwnProfile) {
             const followBtn = $('#profile-follow-btn');
             if (followBtn) followBtn.addEventListener('click', () => toggleFollow(userId, followBtn));
@@ -2741,7 +2763,7 @@
         
         contentEl.querySelectorAll('[data-action="view-follow-list"]').forEach(btn => {
             btn.addEventListener('click', () => {
-                if (!canViewDetails) return; // Segurança extra
+                if (!canViewDetails) return;
                 const targetUserId = btn.dataset.userId;
                 const listType = btn.dataset.listType;
                 openFollowListModal(targetUserId, listType);
@@ -2774,11 +2796,12 @@
         }
     });
 
-    // ===== Meu Perfil (Salvar & Upload Foto) =====
+    // ===== Meu Perfil (Salvar & Upload/Remover Foto) =====
     $('#account-photo-upload').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file || !file.type.startsWith('image/')) return;
         
+        state.photoRemovalFlag = false; // Desmarca a remoção se uma nova foto for escolhida
         const previewEl = $('#account-photo-preview');
         previewEl.src = URL.createObjectURL(file);
         
@@ -2805,6 +2828,13 @@
         );
     });
 
+    $('#btn-remove-photo').addEventListener('click', () => {
+        state.photoRemovalFlag = true;
+        state.newProfilePhotoUrl = null; // Cancela qualquer upload pendente
+        $('#account-photo-preview').src = `https://placehold.co/64x64/f472b6/ffffff?text=${initials(state.currentUserData.name)}`;
+        toast('A foto será removida ao salvar.', 'info');
+    });
+
     $('#account-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const user = auth.currentUser;
@@ -2817,19 +2847,22 @@
       hide(errEl);
 
       const updateData = { name, bio, isPrivate };
-      if (state.newProfilePhotoUrl) {
+      if (state.photoRemovalFlag) {
+          updateData.photoUrl = null;
+      } else if (state.newProfilePhotoUrl) {
           updateData.photoUrl = state.newProfilePhotoUrl;
       }
 
       try {
         await updateDoc(doc(db, USERS_PATH, user.uid), updateData);
-        if (updateData.photoUrl) {
+        if (updateData.photoUrl !== undefined) { // Se photoUrl foi modificado (adicionado ou removido)
             await updateProfile(user, { photoURL: updateData.photoUrl });
         }
         await updateProfile(user, { displayName: name });
         
         toast('Perfil atualizado com sucesso!');
         state.newProfilePhotoUrl = null;
+        state.photoRemovalFlag = false;
       } catch (err) {
         errEl.textContent = 'Falha ao atualizar o perfil.';
         show(errEl);
@@ -2885,7 +2918,7 @@
         }
     }
 
-    // ===== Sistema de Notificações (LÓGICA ATUALIZADA) =====
+    // ===== Sistema de Notificações =====
     $('#account-notify-check').addEventListener('change', async (e) => {
         const user = auth.currentUser;
         if (!user) return;
@@ -2957,7 +2990,7 @@
         batch.delete(incomingRequestRef);
 
         if (accept) {
-            batch.update(notificationRef, { type: 'new_follower' }); // Transforma em notificação de novo seguidor
+            batch.update(notificationRef, { type: 'new_follower' }); 
             
             const followingRef = doc(db, `artifacts/${appId}/users/${requesterId}/following`, currentUser.uid);
             const followerRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/followers`, requesterId);
@@ -2972,7 +3005,6 @@
             const acceptedNotificationRef = doc(db, `artifacts/${appId}/users/${requesterId}/notifications`, `request_accepted_${currentUser.uid}`);
             batch.set(acceptedNotificationRef, { type: 'request_accepted', fromUserId: currentUser.uid, timestamp: serverTimestamp(), read: false });
         } else {
-            // Recusou: Apenas atualiza a notificação para não ter mais ações
             batch.update(notificationRef, { type: 'request_declined' });
         }
         
@@ -2980,7 +3012,7 @@
             await batch.commit();
             if (banner) {
                  banner.innerHTML = `<p class="text-sm font-medium text-emerald-700">Solicitação ${accept ? 'aceita' : 'recusada'}!</p>`;
-                 setTimeout(() => openUserProfileModal(requesterId), 1000); // Refresh profile view
+                 setTimeout(() => openUserProfileModal(requesterId), 1000); 
             }
         } catch (err) {
             console.error("Erro ao processar solicitação:", err);
@@ -3082,7 +3114,6 @@
         });
     }
     
-    // NOVO: Função para confirmar a exclusão da notificação
     async function confirmNotificationDeletion() {
         if (!state.deleteNotificationTarget) return;
 
@@ -3090,10 +3121,8 @@
         const user = auth.currentUser;
         if (!user) return;
 
-        // Animação de exclusão
         element.classList.add('deleting');
         
-        // Esconde o modal
         hide($('#delete-notification-modal'));
 
         try {
@@ -3103,7 +3132,6 @@
         } catch (err) {
             console.error("Erro ao apagar notificação:", err);
             toast('Erro ao apagar notificação.', 'error');
-            // Se der erro, remove a classe para o item reaparecer
             element.classList.remove('deleting');
         } finally {
             state.deleteNotificationTarget = null;
@@ -3116,9 +3144,9 @@
         let startX = 0;
         let currentX = 0;
         let isDragging = false;
-        let hasMovedEnough = false; // Flag para diferenciar clique de arrasto
-        const clickThreshold = 5; // Mínimo de pixels para considerar um arrasto
-        const deleteThreshold = -100; // Distância em pixels para acionar a exclusão
+        let hasMovedEnough = false; 
+        const clickThreshold = 5; 
+        const deleteThreshold = -100; 
         const content = element.querySelector('.notification-content');
 
         const onDragStart = (clientX) => {
@@ -3136,7 +3164,7 @@
                 hasMovedEnough = true;
             }
 
-            if (currentX > 0) currentX = 0; // Não permite arrastar para a direita
+            if (currentX > 0) currentX = 0; 
             content.style.transform = `translateX(${currentX}px)`;
         };
 
@@ -3145,7 +3173,6 @@
             isDragging = false;
             element.classList.remove('swiping');
 
-            // Só processa a exclusão se o usuário realmente arrastou o dedo/mouse
             if (hasMovedEnough) {
                 if (currentX < deleteThreshold) {
                     state.deleteNotificationTarget = { id: notificationId, element: element };
@@ -3155,17 +3182,14 @@
                     content.style.transform = 'translateX(0)';
                 }
             } else {
-                // Se não moveu o suficiente, foi um clique, então reseta a posição sem fazer nada.
                 content.style.transform = 'translateX(0)';
             }
         };
 
-        // Eventos de Mouse
         content.addEventListener('mousedown', (e) => onDragStart(e.clientX));
         document.addEventListener('mousemove', (e) => onDragMove(e.clientX));
         document.addEventListener('mouseup', onDragEnd);
 
-        // Eventos de Toque
         content.addEventListener('touchstart', (e) => onDragStart(e.touches[0].clientX), { passive: true });
         content.addEventListener('touchmove', (e) => onDragMove(e.touches[0].clientX), { passive: true });
         content.addEventListener('touchend', onDragEnd);
@@ -3200,7 +3224,6 @@
         followersListEl.innerHTML = 'Carregando...';
         followingListEl.innerHTML = 'Carregando...';
 
-        // Carregar Seguidores
         const followersSnap = await getDocs(collection(db, `artifacts/${appId}/users/${user.uid}/followers`));
         if (followersSnap.empty) {
             followersListEl.innerHTML = '<p class="text-sm text-gray-500">Nenhum seguidor ainda.</p>';
@@ -3212,7 +3235,6 @@
             });
         }
 
-        // Carregar Seguindo
         const followingSnap = await getDocs(collection(db, `artifacts/${appId}/users/${user.uid}/following`));
         if (followingSnap.empty) {
             followingListEl.innerHTML = '<p class="text-sm text-gray-500">Você não segue ninguém ainda.</p>';
@@ -3808,6 +3830,99 @@
         if (selG && state.generos) selG.value = ev?.generoId || '';
       }, 10);
     };
+
+
+
+// === PATCH: Corrige menu de filtros recolhível e aplica filtros nos carrosséis ===
+(function(){
+  const $ = (sel)=> document.querySelector(sel);
+  const $$ = (sel)=> Array.from(document.querySelectorAll(sel));
+
+  const bar = $('#filters-bar');
+  const toggleBtn = $('#btn-toggle-filters');
+  const countEl = $('#active-filters-count');
+  const clearBtn = $('#btn-clear-filters');
+
+  function updateFiltersBadge(){
+    try{
+      const total = (state?.selectedBairros?.size||0) + (state?.selectedGeneros?.size||0);
+      if (countEl){
+        countEl.textContent = String(total);
+        countEl.classList.toggle('hidden', total===0);
+      }
+      if (clearBtn){
+        clearBtn.disabled = total===0;
+        clearBtn.classList.toggle('text-gray-400', total===0);
+        clearBtn.classList.toggle('no-underline', total===0);
+      }
+    }catch(e){ console.warn('Badge update failed', e); }
+  }
+
+  function wireChipsExtraHandlers(){
+    try{
+      // Evita duplicar handlers
+      $$('#chips-bairros button, #chips-generos button').forEach(btn=>{
+        if (btn.dataset.wiredPatch === '1') return;
+        btn.dataset.wiredPatch = '1';
+        btn.addEventListener('click', ()=>{
+          // Deixa o handler original rodar primeiro
+          setTimeout(()=>{
+            updateFiltersBadge();
+            if (typeof applyFiltersAndRender === 'function') {
+              applyFiltersAndRender();
+            } else {
+              // fallback (não deve acontecer, mas garante feed filtrado)
+              if (typeof renderFeed === 'function') renderFeed();
+            }
+          }, 0);
+        });
+      });
+    }catch(e){ console.warn('wireChipsExtraHandlers failed', e); }
+  }
+
+  // Hook na função que já atualiza chips/listas para reforçar wiring e badge
+  if (typeof updateTaxonomyUIs === 'function'){
+    const _origUpdateTaxonomyUIs = updateTaxonomyUIs;
+    updateTaxonomyUIs = function(){
+      const res = _origUpdateTaxonomyUIs.apply(this, arguments);
+      // Após o UI original ser construído, reforça nossos handlers
+      wireChipsExtraHandlers();
+      updateFiltersBadge();
+      return res;
+    };
+  } else {
+    document.addEventListener('DOMContentLoaded', wireChipsExtraHandlers);
+  }
+
+  // Botão "Limpar filtros"
+  if (clearBtn){
+    const _origClear = clearBtn.onclick;
+    clearBtn.onclick = function(ev){
+      try{
+        state?.selectedBairros?.clear?.();
+        state?.selectedGeneros?.clear?.();
+      }catch(e){}
+      updateFiltersBadge();
+      if (typeof applyFiltersAndRender === 'function') applyFiltersAndRender();
+      // Chama handler antigo (atualiza selects/chips, se houver)
+      if (typeof _origClear === 'function') _origClear.call(this, ev);
+    };
+  }
+
+  // Toggle do menu recolhível
+  if (toggleBtn && bar){
+    toggleBtn.addEventListener('click', ()=>{
+      bar.classList.toggle('filters-open');
+    });
+  }
+
+  // Garante estado inicial consistente
+  setTimeout(()=>{
+    wireChipsExtraHandlers();
+    updateFiltersBadge();
+  }, 400);
+})();
+// === FIM DO PATCH ===
 </script>
 </body>
 </html>
