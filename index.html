@@ -1326,6 +1326,7 @@
             snap.forEach(doc => state.userFollowing.add(doc.id));
             renderSocialFeeds();
             updateFriendsGoingMap();
+            if (state.notifications) renderNotifications(state.notifications);
         });
 
         const followersRef = collection(db, `artifacts/${appId}/users/${user.uid}/followers`);
@@ -1338,6 +1339,7 @@
         _unsubOutgoingRequests = onSnapshot(outgoingRequestsRef, (snap) => {
             state.userOutgoingRequests.clear();
             snap.forEach(doc => state.userOutgoingRequests.add(doc.id));
+            if (state.notifications) renderNotifications(state.notifications);
         });
 
         const incomingRequestsRef = collection(db, `artifacts/${appId}/users/${user.uid}/followRequests`);
@@ -1348,8 +1350,8 @@
 
         const notificationsRef = query(collection(db, `artifacts/${appId}/users/${user.uid}/notifications`), orderBy('timestamp', 'desc'), limit(20));
         _unsubNotifications = onSnapshot(notificationsRef, (snap) => {
-            const notifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            renderNotifications(notifications);
+            state.notifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderNotifications(state.notifications);
         });
       } else {
         if (!user) {
@@ -3069,7 +3071,21 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             
             let contentHTML = '';
             const isFollowingBack = state.userFollowing.has(notif.fromUserId);
-            const followButtonHTML = `<button class="rounded-full px-3 py-1.5 text-xs font-semibold ${isFollowingBack ? 'bg-gray-200 text-gray-800' : 'bg-pink-600 text-white'}" data-follow-id="${fromUser.id}">${isFollowingBack ? 'Seguindo' : 'Seguir de volta'}</button>`;
+            const hasPending = state.userOutgoingRequests.has(notif.fromUserId);
+            
+            let btnText, btnClass;
+            if (isFollowingBack) {
+              btnText = 'Seguindo';
+              btnClass = 'bg-gray-200 text-gray-800';
+            } else if (hasPending) {
+              btnText = 'Solicitado';
+              btnClass = 'bg-gray-100 text-gray-600 ring-1 ring-gray-200';
+            } else {
+              btnText = 'Seguir';
+              btnClass = 'bg-pink-600 text-white';
+            }
+
+            const followButtonHTML = `<button class="rounded-full px-3 py-1.5 text-xs font-semibold ${btnClass}" data-follow-id="${fromUser.id}">${btnText}</button>`;
 
             if (notif.type === 'new_follower') {
                 contentHTML = `
