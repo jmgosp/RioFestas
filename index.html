@@ -193,7 +193,27 @@
     #filters-content > .inner-filter-content {
         overflow: hidden;
     }
-  </style>
+  
+/* === Fixes rápidos de mobile para Taxonomias + selects múltiplos === */
+@media (max-width: 640px) {
+  /* Painel de Bairros & Gêneros */
+  #taxonomy-panel .grid { grid-template-columns: 1fr !important; }
+  #taxonomy-panel form { flex-direction: column; gap: .5rem; }
+  #taxonomy-panel form input, #taxonomy-panel form button { width: 100%; }
+  #bairro-list, #genero-list { max-height: 220px; overflow-y: auto; }
+  /* Select múltiplo nos modais de evento */
+  #ev-genero, #org-ev-genero { max-height: 180px; }
+}
+/* Estilo dos itens das listas de Bairros/Gêneros para melhor leitura no mobile */
+#bairro-list li, #genero-list li {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .75rem; padding: .5rem .75rem; border: 1px solid #f3f4f6;
+  border-radius: .75rem; background: #fff;
+}
+#bairro-list li button, #genero-list li button { color: #ef4444; font-weight: 600; }
+#ev-genero, #org-ev-genero { min-height: 160px; }
+
+</style>
 </head>
 <body class="bg-gray-50 md:bg-white text-gray-900 selection:bg-pink-600/10">
 <!-- HEADER -->
@@ -662,6 +682,7 @@
 </div>
 <div>
 <label class="text-[13px] font-medium text-gray-700">Gênero Musical</label>
+<p class="mt-1 text-xs text-gray-500">No PC, segure <span class="font-semibold">Ctrl</span> para selecionar 2 ou mais gêneros.</p>
 <select class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-genero" multiple size="6">
 <option value="">Selecione...</option>
 </select>
@@ -778,6 +799,7 @@
 </div>
 <div>
 <label class="text-[13px] font-medium text-gray-700">Gênero Musical</label>
+<p class="mt-1 text-xs text-gray-500">No PC, segure <span class="font-semibold">Ctrl</span> para selecionar 2 ou mais gêneros.</p>
 <select class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="org-ev-genero" multiple size="6">
 <option value="">Selecione...</option>
 </select>
