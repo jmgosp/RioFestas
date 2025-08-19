@@ -662,7 +662,7 @@
 </div>
 <div>
 <label class="text-[13px] font-medium text-gray-700">Gênero Musical</label>
-<select class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-genero">
+<select class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-genero" multiple size="6">
 <option value="">Selecione...</option>
 </select>
 </div>
@@ -778,7 +778,7 @@
 </div>
 <div>
 <label class="text-[13px] font-medium text-gray-700">Gênero Musical</label>
-<select class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="org-ev-genero">
+<select class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="org-ev-genero" multiple size="6">
 <option value="">Selecione...</option>
 </select>
 </div>
@@ -1576,11 +1576,12 @@
       
       try{
         const when=parseDateInput(dateS); 
-        const generoId = document.getElementById('org-ev-genero')?.value || null;
-        const generoName = state.generos.find(g=>g.id===generoId)?.name || null;
+        const generoSel = document.getElementById('org-ev-genero');
+const generoIds = generoSel ? Array.from(generoSel.selectedOptions).map(o=>o.value).filter(Boolean) : [];
+const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).filter(Boolean);
         const payload={ 
             name, local, description:$('#org-ev-desc').value.trim(), 
-            style: generoName,
+            styles: generoNames, style: (generoNames[0] || null),
             buyLink:$('#org-ev-buy').value.trim(), 
             coupon:$('#org-ev-coupon').value.trim(), 
             imageUrls: formState.imageUrls, 
@@ -1592,9 +1593,9 @@
             status:'pending', 
             recurringEventId: $('#org-ev-recurring').value || null,
             bairroId: (document.getElementById('org-ev-bairro')?.value || null), 
-            generoId: generoId, 
+            generoIds: generoIds, generoId: (generoIds[0] || null), 
             bairroName: (state.bairros.find(b=>b.id===document.getElementById('org-ev-bairro')?.value)?.name || null), 
-            generoName: generoName, 
+            generoNames: generoNames, 
             repeatsWeekly: $('#org-ev-repeats-weekly').checked,
             displayCount: parseInt($('#org-ev-display-count').value, 10) || 1
         };
@@ -1731,7 +1732,7 @@
           <div class="p-4 md:p-5 space-y-1.5">
             <h3 class="text-base md:text-lg font-semibold line-clamp-1">${ev.name||''}</h3>
             <div class="text-xs md:text-sm text-gray-600">${fmtDate(ev.date)} • ${ev.local||''}</div>
-            ${ev.style?`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-1 text-xs font-medium text-pink-600">${ev.style}</div>`:''}
+            ${(Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : [])).map(s=>`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-1 text-xs font-medium text-pink-600">${s}</div>`).join('')}
           </div>`;
         el.addEventListener('click',()=>openViewModal(ev));
         return el;
@@ -1779,7 +1780,7 @@
         const list=filteredEvents.filter(ev=> ([ev.name,ev.style,ev.local,ev.description].filter(Boolean).some(v=>String(v).toLowerCase().includes(q)))); 
         if(!list.length){ show(empty); hide(grid); } 
         else { hide(empty); show(grid); } 
-        list.forEach(ev=>{ const url=ev.imageUrls?.[0]||''; const card=document.createElement('article'); card.className='group rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer'; card.innerHTML=`<div class="relative h-48 w-full bg-gray-100 overflow-hidden"><img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" alt="${ev.name||''}" loading="lazy" /></div><div class="p-5 space-y-2"><h3 class="text-lg font-semibold line-clamp-1">${ev.name||''}</h3><div class="text-sm text-gray-600">${fmtDate(ev.date)} • ${ev.local||''}</div>${ev.style?`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-1 text-xs font-medium text-pink-600">${ev.style}</div>`:''}</div>`; card.addEventListener('click', ()=> openViewModal(ev)); grid.appendChild(card); }); 
+        list.forEach(ev=>{ const url=ev.imageUrls?.[0]||''; const card=document.createElement('article'); card.className='group rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer'; card.innerHTML=`<div class="relative h-48 w-full bg-gray-100 overflow-hidden"><img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" alt="${ev.name||''}" loading="lazy" /></div><div class="p-5 space-y-2"><h3 class="text-lg font-semibold line-clamp-1">${ev.name||''}</h3><div class="text-sm text-gray-600">${fmtDate(ev.date)} • ${ev.local||''}</div>${(Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : [])).map(s=>`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-1 text-xs font-medium text-pink-600">${s}</div>`).join('')}</div>`; card.addEventListener('click', ()=> openViewModal(ev)); grid.appendChild(card); }); 
     }
     
     // CORREÇÃO: Função central para aplicar filtros e re-renderizar
@@ -1791,7 +1792,7 @@
         if (hasB || hasG) {
             filtered = filtered.filter(ev => {
                 const matchB = !hasB || (ev.bairroId && state.selectedBairros.has(ev.bairroId));
-                const matchG = !hasG || (ev.generoId && state.selectedGeneros.has(ev.generoId));
+                const matchG = !hasG || ( (ev.generoId && state.selectedGeneros.has(ev.generoId)) || (Array.isArray(ev.generoIds) && ev.generoIds.some(id=> state.selectedGeneros.has(id))) );
                 return matchB && matchG;
             });
         }
@@ -1950,7 +1951,7 @@
                           <img src="${ev.imageUrls?.[0]||''}" onerror="this.src='https://placehold.co/64x48/f9a8d4/ffffff?text=RioFestas'" class="h-12 w-16 rounded-lg object-cover ring-subtle" />
                           <div>
                               <div class="font-medium">${ev.name||''}</div>
-                              <div class="text-xs text-gray-500">${ev.style||''}</div>
+                              <div class="text-xs text-gray-500">${Array.isArray(ev.styles) ? ev.styles.join(', ') : (ev.style||'')}</div>
                           </div>
                       </div>
                   </td>
@@ -2025,7 +2026,7 @@
                       <img src="${ev.imageUrls?.[0]||''}" onerror="this.src='https://placehold.co/64x48/f9a8d4/ffffff?text=RioFestas'" class="h-12 w-16 rounded-lg object-cover ring-subtle" />
                       <div>
                           <div class="font-medium">${ev.name||''}</div>
-                          <div class="text-xs text-gray-500">${ev.style||''}</div>
+                          <div class="text-xs text-gray-500">${Array.isArray(ev.styles) ? ev.styles.join(', ') : (ev.style||'')}</div>
                       </div>
                   </div>
               </td>
@@ -2295,21 +2296,22 @@
       try{
         const when=parseDateInput(dateS);
         const endDateVal = $('#ev-date-end').value;
-        const generoId = document.getElementById('ev-genero')?.value || null;
-        const generoName = state.generos.find(g=>g.id===generoId)?.name || null;
+        const generoSel = document.getElementById('ev-genero');
+const generoIds = generoSel ? Array.from(generoSel.selectedOptions).map(o=>o.value).filter(Boolean) : [];
+const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).filter(Boolean);
         const payload={ 
           name, local, date: Timestamp.fromDate(when),
           endDate: endDateVal ? Timestamp.fromDate(parseDateInput(endDateVal)) : null,
           description:$('#ev-desc').value.trim(), 
-          style: generoName, 
+          styles: generoNames, style: (generoNames[0] || null), 
           buyLink:$('#ev-buy').value.trim(), coupon:$('#ev-coupon').value.trim(), 
           timeStart:$('#ev-time-start').value||null, timeEnd:$('#ev-time-end').value||null, 
           importance:Number($('#ev-importance').value), imageUrls: formState.imageUrls, 
           recurringEventId: $('#ev-recurring').value || null, 
           bairroId: (document.getElementById('ev-bairro')?.value || null), 
-          generoId: generoId, 
+          generoIds: generoIds, generoId: (generoIds[0] || null), 
           bairroName: (state.bairros.find(b=>b.id===document.getElementById('ev-bairro')?.value)?.name || null), 
-          generoName: generoName, 
+          generoNames: generoNames, 
           updatedAt: serverTimestamp(),
           repeatsWeekly: $('#ev-repeats-weekly').checked,
           displayCount: parseInt($('#ev-display-count').value, 10) || 1
@@ -2326,7 +2328,7 @@
     // ===== Visualização =====
     async function openViewModal(ev){
       state.currentViewEvent = ev;
-      $('#view-title').textContent=ev.name||'Evento'; const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); const dateStr = `${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})} (${weekdayLabels[d.getDay()]})`; $('#view-date').textContent = dateStr + (ev.timeStart?` • ${ev.timeStart}${ev.timeEnd?`–${ev.timeEnd}`:''}`:''); $('#view-local').textContent=ev.local||'—'; $('#view-style').textContent=ev.style||'—'; $('#view-desc').textContent=ev.description||'—'; const buy=$('#view-buy'); if(ev.buyLink){ buy.href=ev.buyLink; buy.classList.remove('pointer-events-none','opacity-50'); } else { buy.href='#'; buy.classList.add('pointer-events-none','opacity-50'); } $('#view-coupon').textContent=ev.coupon||'—'; const g=$('#view-gallery'); g.innerHTML=''; (ev.imageUrls||[]).forEach((u,i)=> g.insertAdjacentHTML('beforeend', `<img src="${u}" alt="${ev.name||''} - foto ${i+1}" class="w-full aspect-[16/10] object-cover rounded-2xl ring-subtle"/>`) );
+      $('#view-title').textContent=ev.name||'Evento'; const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); const dateStr = `${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})} (${weekdayLabels[d.getDay()]})`; $('#view-date').textContent = dateStr + (ev.timeStart?` • ${ev.timeStart}${ev.timeEnd?`–${ev.timeEnd}`:''}`:''); $('#view-local').textContent=ev.local||'—'; $('#view-style').textContent = (Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : [])).join(' e ') || '—'; $('#view-desc').textContent=ev.description||'—'; const buy=$('#view-buy'); if(ev.buyLink){ buy.href=ev.buyLink; buy.classList.remove('pointer-events-none','opacity-50'); } else { buy.href='#'; buy.classList.add('pointer-events-none','opacity-50'); } $('#view-coupon').textContent=ev.coupon||'—'; const g=$('#view-gallery'); g.innerHTML=''; (ev.imageUrls||[]).forEach((u,i)=> g.insertAdjacentHTML('beforeend', `<img src="${u}" alt="${ev.name||''} - foto ${i+1}" class="w-full aspect-[16/10] object-cover rounded-2xl ring-subtle"/>`) );
       updateGoingButtonUI();
       await renderFriendsGoing(ev._original_id || ev._id);
       await renderRatingSection(ev.recurringEventId);
@@ -3731,7 +3733,7 @@
         if (hasB || hasG) {
           state.events = original.filter(ev=>{
             const matchB = !hasB || (ev.bairroId && state.selectedBairros.has(ev.bairroId));
-            const matchG = !hasG || (ev.generoId && state.selectedGeneros.has(ev.generoId));
+            const matchG = !hasG || ( (ev.generoId && state.selectedGeneros.has(ev.generoId)) || (Array.isArray(ev.generoIds) && ev.generoIds.some(id=> state.selectedGeneros.has(id))) );
             return matchB && matchG;
           });
         }
@@ -3831,7 +3833,7 @@
         const selB = document.getElementById(isOrg ? 'org-ev-bairro' : 'ev-bairro');
         const selG = document.getElementById(isOrg ? 'org-ev-genero' : 'ev-genero');
         if (selB && state.bairros) selB.value = ev?.bairroId || '';
-        if (selG && state.generos) selG.value = ev?.generoId || '';
+        if (selG && state.generos) { const ids = Array.isArray(ev?.generoIds) ? ev.generoIds : (ev?.generoId ? [ev.generoId] : []); Array.from(selG.options).forEach(o=> o.selected = ids.includes(o.value)); }
       }, 10);
     };
 
