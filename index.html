@@ -702,10 +702,6 @@
 <textarea class="mt-1 w-full min-h-[100px] rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-desc" placeholder="Detalhes do evento..."></textarea>
 </div>
 <div>
-<label class="text-[13px] font-medium text-gray-700">Estilo Musical</label>
-<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-style" placeholder="Funk / Eletrônica / Samba" type="text">
-</input></div>
-<div>
 <label class="text-[13px] font-medium text-gray-700">Link de Compra</label>
 <input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-buy" placeholder="https://..." type="url"/>
 </div>
@@ -713,7 +709,7 @@
 <label class="text-[13px] font-medium text-gray-700">Cupom de Desconto</label>
 <input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="ev-coupon" placeholder="RIO10" type="text"/>
 </div>
-<div>
+<div class="md:col-span-2">
 <label class="text-[13px] font-medium text-gray-700">Importância (0–10)</label>
 <div class="mt-1 flex items-center gap-3">
 <input class="w-full" id="ev-importance" max="10" min="0" step="1" type="range" value="5"/>
@@ -821,10 +817,6 @@
 <label class="text-[13px] font-medium text-gray-700">Descrição</label>
 <textarea class="mt-1 w-full min-h-[100px] rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-ev-desc" placeholder="Detalhes do evento..."></textarea>
 </div>
-<div>
-<label class="text-[13px] font-medium text-gray-700">Estilo Musical</label>
-<input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-ev-style" type="text">
-</input></div>
 <div>
 <label class="text-[13px] font-medium text-gray-700">Link de Compra</label>
 <input class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-ev-buy" type="url"/>
@@ -1584,9 +1576,11 @@
       
       try{
         const when=parseDateInput(dateS); 
+        const generoId = document.getElementById('org-ev-genero')?.value || null;
+        const generoName = state.generos.find(g=>g.id===generoId)?.name || null;
         const payload={ 
             name, local, description:$('#org-ev-desc').value.trim(), 
-            style:$('#org-ev-style').value.trim(), 
+            style: generoName,
             buyLink:$('#org-ev-buy').value.trim(), 
             coupon:$('#org-ev-coupon').value.trim(), 
             imageUrls: formState.imageUrls, 
@@ -1597,7 +1591,11 @@
             createdAt: serverTimestamp(), 
             status:'pending', 
             recurringEventId: $('#org-ev-recurring').value || null,
-            bairroId: (document.getElementById('org-ev-bairro')?.value || null), generoId: (document.getElementById('org-ev-genero')?.value || null), bairroName: (state.bairros.find(b=>b.id===document.getElementById('org-ev-bairro')?.value)?.name || null), generoName: (state.generos.find(g=>g.id===document.getElementById('org-ev-genero')?.value)?.name || null), repeatsWeekly: $('#org-ev-repeats-weekly').checked,
+            bairroId: (document.getElementById('org-ev-bairro')?.value || null), 
+            generoId: generoId, 
+            bairroName: (state.bairros.find(b=>b.id===document.getElementById('org-ev-bairro')?.value)?.name || null), 
+            generoName: generoName, 
+            repeatsWeekly: $('#org-ev-repeats-weekly').checked,
             displayCount: parseInt($('#org-ev-display-count').value, 10) || 1
         };
         await addDoc(collection(db, PENDING_PATH), payload); hide($('#org-event-modal')); toast('Evento enviado para aprovação!', 'info');
@@ -2252,7 +2250,6 @@
             $(`#${prefix}-time-end`).value=ev.timeEnd||'';
             $(`#${prefix}-local`).value=ev.local||'';
             $(`#${prefix}-desc`).value=ev.description||'';
-            $(`#${prefix}-style`).value=ev.style||'';
             $(`#${prefix}-buy`).value=ev.buyLink||'';
             $(`#${prefix}-coupon`).value=ev.coupon||'';
             if (context === 'admin') {
@@ -2298,15 +2295,22 @@
       try{
         const when=parseDateInput(dateS);
         const endDateVal = $('#ev-date-end').value;
+        const generoId = document.getElementById('ev-genero')?.value || null;
+        const generoName = state.generos.find(g=>g.id===generoId)?.name || null;
         const payload={ 
           name, local, date: Timestamp.fromDate(when),
           endDate: endDateVal ? Timestamp.fromDate(parseDateInput(endDateVal)) : null,
-          description:$('#ev-desc').value.trim(), style:$('#ev-style').value.trim(), 
+          description:$('#ev-desc').value.trim(), 
+          style: generoName, 
           buyLink:$('#ev-buy').value.trim(), coupon:$('#ev-coupon').value.trim(), 
           timeStart:$('#ev-time-start').value||null, timeEnd:$('#ev-time-end').value||null, 
           importance:Number($('#ev-importance').value), imageUrls: formState.imageUrls, 
           recurringEventId: $('#ev-recurring').value || null, 
-          bairroId: (document.getElementById('ev-bairro')?.value || null), generoId: (document.getElementById('ev-genero')?.value || null), bairroName: (state.bairros.find(b=>b.id===document.getElementById('ev-bairro')?.value)?.name || null), generoName: (state.generos.find(g=>g.id===document.getElementById('ev-genero')?.value)?.name || null), updatedAt: serverTimestamp(),
+          bairroId: (document.getElementById('ev-bairro')?.value || null), 
+          generoId: generoId, 
+          bairroName: (state.bairros.find(b=>b.id===document.getElementById('ev-bairro')?.value)?.name || null), 
+          generoName: generoName, 
+          updatedAt: serverTimestamp(),
           repeatsWeekly: $('#ev-repeats-weekly').checked,
           displayCount: parseInt($('#ev-display-count').value, 10) || 1
         };
