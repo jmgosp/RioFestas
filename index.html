@@ -243,6 +243,29 @@
 
   <!-- HOME SECTIONS -->
   <main id="home-view" class="max-w-6xl mx-auto px-4 pb-24 space-y-12">
+    <!-- BARRA DE FILTROS (Bairros & Gêneros) -->
+    <section id="filters-bar" class="mt-2 mb-6">
+      <div class="rounded-3xl bg-white p-3 shadow-soft ring-subtle">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#d1d5db" stroke-width="2"/><path d="M4 8h16M8 12h8M10 16h4" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="text-sm font-semibold text-gray-700">Filtros</span>
+          </div>
+          <button id="btn-clear-filters" class="text-xs font-semibold text-pink-600 hover:underline">Limpar</button>
+        </div>
+        <div class="mt-3 space-y-2">
+          <div>
+            <div class="text-xs font-medium text-gray-500 mb-1">Bairros</div>
+            <div id="chips-bairros" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div>
+            <div class="text-xs font-medium text-gray-500 mb-1">Gêneros musicais</div>
+            <div id="chips-generos" class="flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section>
       <div class="flex items-center justify-between">
         <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Destaques da Semana</h2>
@@ -496,7 +519,36 @@
         <p id="admin-events-placeholder" class="hidden text-center text-sm text-gray-500 p-6"></p>
       </div>
     </div>
-  </section>
+  
+    <div class="mt-6 rounded-3xl bg-white p-4 shadow-soft ring-subtle">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Bairros & Gêneros (Configurações)</h3>
+        <button id="toggle-taxonomy-panel" class="rounded-full border border-gray-200 px-3 py-1.5 text-sm hover:bg-gray-50">Mostrar/Ocultar</button>
+      </div>
+      <div id="taxonomy-panel" class="mt-4 hidden">
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl ring-subtle p-4">
+            <h4 class="font-semibold">Bairros</h4>
+            <form id="bairro-form" class="mt-2 flex gap-2">
+              <input id="bairro-name-input" type="text" placeholder="Ex: Copacabana" class="flex-1 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" />
+              <button type="submit" class="rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90">Adicionar</button>
+            </form>
+            <div id="bairro-error" class="hidden mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
+            <ul id="bairro-list" class="mt-3 space-y-2 text-sm"></ul>
+          </div>
+          <div class="rounded-2xl ring-subtle p-4">
+            <h4 class="font-semibold">Gêneros Musicais</h4>
+            <form id="genero-form" class="mt-2 flex gap-2">
+              <input id="genero-name-input" type="text" placeholder="Ex: Funk" class="flex-1 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" />
+              <button type="submit" class="rounded-2xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white hover:opacity-90">Adicionar</button>
+            </form>
+            <div id="genero-error" class="hidden mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700"></div>
+            <ul id="genero-list" class="mt-3 space-y-2 text-sm"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
 
   <!-- MODAL: LOGIN -->
   <div id="auth-login" class="fixed inset-0 z-[80] hidden">
@@ -585,9 +637,22 @@
             <input id="ev-time-end" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="time" />
           </div>
           <div class="md:col-span-2">
-            <label class="text-[13px] font-medium text-gray-700">Local (ex: Lapa)</label>
+            <label class="text-[13px] font-medium text-gray-700">Endereço</label>
             <input id="ev-local" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" type="text" required />
           </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Bairro</label>
+            <select id="ev-bairro" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Gênero Musical</label>
+            <select id="ev-genero" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+
           <div class="md:col-span-2">
             <label class="text-[13px] font-medium text-gray-700">Local/Evento Recorrente (Opcional)</label>
             <select id="ev-recurring" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35">
@@ -693,9 +758,22 @@
             <input id="org-ev-time-end" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="time" />
           </div>
           <div class="md:col-span-2">
-            <label class="text-[13px] font-medium text-gray-700">Local</label>
+            <label class="text-[13px] font-medium text-gray-700">Endereço</label>
             <input id="org-ev-local" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" type="text" required />
           </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Bairro</label>
+            <select id="org-ev-bairro" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[13px] font-medium text-gray-700">Gênero Musical</label>
+            <select id="org-ev-genero" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+
           <div class="md:col-span-2">
             <label class="text-[13px] font-medium text-gray-700">Local/Evento Recorrente (Opcional)</label>
             <select id="org-ev-recurring" class="mt-1 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35">
@@ -1524,7 +1602,7 @@
             createdAt: serverTimestamp(), 
             status:'pending', 
             recurringEventId: $('#org-ev-recurring').value || null,
-            repeatsWeekly: $('#org-ev-repeats-weekly').checked,
+            bairroId: (document.getElementById('org-ev-bairro')?.value || null), generoId: (document.getElementById('org-ev-genero')?.value || null), bairroName: (state.bairros.find(b=>b.id===document.getElementById('org-ev-bairro')?.value)?.name || null), generoName: (state.generos.find(g=>g.id===document.getElementById('org-ev-genero')?.value)?.name || null), repeatsWeekly: $('#org-ev-repeats-weekly').checked,
             displayCount: parseInt($('#org-ev-display-count').value, 10) || 4
         };
         await addDoc(collection(db, PENDING_PATH), payload); hide($('#org-event-modal')); toast('Evento enviado para aprovação!', 'info');
@@ -2196,7 +2274,7 @@
           timeStart:$('#ev-time-start').value||null, timeEnd:$('#ev-time-end').value||null, 
           importance:Number($('#ev-importance').value), imageUrls: formState.imageUrls, 
           recurringEventId: $('#ev-recurring').value || null, 
-          updatedAt: serverTimestamp(),
+          bairroId: (document.getElementById('ev-bairro')?.value || null), generoId: (document.getElementById('ev-genero')?.value || null), bairroName: (state.bairros.find(b=>b.id===document.getElementById('ev-bairro')?.value)?.name || null), generoName: (state.generos.find(g=>g.id===document.getElementById('ev-genero')?.value)?.name || null), updatedAt: serverTimestamp(),
           repeatsWeekly: $('#ev-repeats-weekly').checked,
           displayCount: parseInt($('#ev-display-count').value, 10) || 4
         };
@@ -3545,6 +3623,191 @@
 
     // ===== Aux =====
     function mapAuthErr(err){ const c=String(err?.code||''); if(c.includes('auth/invalid-email')) return 'E-mail inválido.'; if(c.includes('auth/user-not-found')) return 'Usuário não encontrado.'; if(c.includes('auth/wrong-password')) return 'Senha incorreta.'; if(c.includes('auth/email-already-in-use')) return 'E-mail já cadastrado.'; if(c.includes('auth/weak-password')) return 'A senha precisa ter no mínimo 6 caracteres.'; return 'Falha de autenticação.'; }
-  </script>
+  
+    // ======= Bairros & Gêneros (Taxonomias) + Filtros =======
+    const BAIRROS_PATH = `artifacts/${appId}/public/data/bairros`;
+    const GENEROS_PATH = `artifacts/${appId}/public/data/generos`;
+    state.bairros = [];
+    state.generos = [];
+    state.selectedBairros = new Set();
+    state.selectedGeneros = new Set();
+
+    // Observers para listas
+    onSnapshot(collection(db, BAIRROS_PATH), (snap)=>{
+      state.bairros = snap.docs.map(d=>({id:d.id, ...d.data()})).sort((a,b)=> (a.name||'').localeCompare(b.name||''));
+      updateTaxonomyUIs();
+    });
+    onSnapshot(collection(db, GENEROS_PATH), (snap)=>{
+      state.generos = snap.docs.map(d=>({id:d.id, ...d.data()})).sort((a,b)=> (a.name||'').localeCompare(b.name||''));
+      updateTaxonomyUIs();
+    });
+
+    // UI chips + selects
+    function el(tag, cls='', html=''){ const e=document.createElement(tag); if(cls) e.className=cls; if(html) e.innerHTML=html; return e; }
+    function updateTaxonomyUIs(){
+      // Chips (home)
+      const chipWrapB = document.getElementById('chips-bairros');
+      const chipWrapG = document.getElementById('chips-generos');
+      if (chipWrapB) {
+        chipWrapB.innerHTML='';
+        state.bairros.forEach(b=>{
+          const active = state.selectedBairros.has(b.id);
+          const btn = el('button', `px-3 py-1.5 rounded-full border text-xs font-semibold ${active?'bg-pink-600 text-white border-pink-600':'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}`);
+          btn.textContent = b.name||'—';
+          btn.onclick = ()=>{ 
+            if (state.selectedBairros.has(b.id)) state.selectedBairros.delete(b.id); else state.selectedBairros.add(b.id);
+            renderFeed();
+            updateTaxonomyUIs();
+          };
+          chipWrapB.appendChild(btn);
+        });
+      }
+      if (chipWrapG) {
+        chipWrapG.innerHTML='';
+        state.generos.forEach(g=>{
+          const active = state.selectedGeneros.has(g.id);
+          const btn = el('button', `px-3 py-1.5 rounded-full border text-xs font-semibold ${active?'bg-pink-600 text-white border-pink-600':'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}`);
+          btn.textContent = g.name||'—';
+          btn.onclick = ()=>{ 
+            if (state.selectedGeneros.has(g.id)) state.selectedGeneros.delete(g.id); else state.selectedGeneros.add(g.id);
+            renderFeed();
+            updateTaxonomyUIs();
+          };
+          chipWrapG.appendChild(btn);
+        });
+      }
+
+      // Selects (modais)
+      const mapOpts = (arr)=> ['<option value="">Selecione...</option>'].concat(arr.map(x=>`<option value="${x.id}">${x.name||'—'}</option>`)).join('');
+      const selEvB = document.getElementById('ev-bairro');
+      const selEvG = document.getElementById('ev-genero');
+      if (selEvB) selEvB.innerHTML = mapOpts(state.bairros);
+      if (selEvG) selEvG.innerHTML = mapOpts(state.generos);
+      const selOrgB = document.getElementById('org-ev-bairro');
+      const selOrgG = document.getElementById('org-ev-genero');
+      if (selOrgB) selOrgB.innerHTML = mapOpts(state.bairros);
+      if (selOrgG) selOrgG.innerHTML = mapOpts(state.generos);
+    }
+
+    // Botão limpar filtros
+    const btnClearFilters = document.getElementById('btn-clear-filters');
+    if (btnClearFilters){
+      btnClearFilters.onclick = ()=>{ state.selectedBairros.clear(); state.selectedGeneros.clear(); renderFeed(); updateTaxonomyUIs(); };
+    }
+
+    // Patch renderFeed para aplicar filtros
+    const _renderFeedOriginal = renderFeed;
+    renderFeed = function(){
+      const original = state.events;
+      try {
+        const hasB = state.selectedBairros.size>0;
+        const hasG = state.selectedGeneros.size>0;
+        if (hasB || hasG) {
+          state.events = original.filter(ev=>{
+            const matchB = !hasB || (ev.bairroId && state.selectedBairros.has(ev.bairroId));
+            const matchG = !hasG || (ev.generoId && state.selectedGeneros.has(ev.generoId));
+            return matchB && matchG;
+          });
+        }
+        _renderFeedOriginal();
+      } finally {
+        state.events = original;
+      }
+    };
+
+    // Painel Admin (toggle)
+    const taxToggle = document.getElementById('toggle-taxonomy-panel');
+    if (taxToggle){
+      taxToggle.onclick = ()=>{
+        const p = document.getElementById('taxonomy-panel');
+        if (p) p.classList.toggle('hidden');
+      };
+    }
+
+    // Ações Admin: adicionar/remover bairros & gêneros
+    async function addTaxonomy(path, name){
+      if (!ensureAdmin()) return;
+      const clean = (name||'').trim();
+      if (!clean) return;
+      await addDoc(collection(db, path), { name: clean });
+      toast('Adicionado com sucesso!');
+    }
+    async function removeTaxonomy(path, id){
+      if (!ensureAdmin()) return;
+      await deleteDoc(doc(db, path, id));
+      toast('Removido.');
+    }
+
+    const bairroForm = document.getElementById('bairro-form');
+    if (bairroForm){
+      bairroForm.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const name = (document.getElementById('bairro-name-input')?.value||'').trim();
+        if (!name) return;
+        try{
+          await addTaxonomy(BAIRROS_PATH, name);
+          document.getElementById('bairro-name-input').value='';
+        }catch(err){ console.error(err); const el=document.getElementById('bairro-error'); if(el){ el.textContent='Falha ao adicionar.'; el.classList.remove('hidden'); } }
+      });
+    }
+    const generoForm = document.getElementById('genero-form');
+    if (generoForm){
+      generoForm.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const name = (document.getElementById('genero-name-input')?.value||'').trim();
+        if (!name) return;
+        try{
+          await addTaxonomy(GENEROS_PATH, name);
+          document.getElementById('genero-name-input').value='';
+        }catch(err){ console.error(err); const el=document.getElementById('genero-error'); if(el){ el.textContent='Falha ao adicionar.'; el.classList.remove('hidden'); } }
+      });
+    }
+
+    function renderTaxonomyLists(){
+      const ulB = document.getElementById('bairro-list');
+      const ulG = document.getElementById('genero-list');
+      if (ulB){
+        ulB.innerHTML='';
+        state.bairros.forEach(b=>{
+          const li = el('li', 'flex items-center justify-between rounded-xl border border-gray-200 px-3 py-2');
+          li.innerHTML = `<span>${b.name||'—'}</span><button class="text-sm text-red-600 hover:underline" data-id="${b.id}" data-tx="bairro">Remover</button>`;
+          ulB.appendChild(li);
+        });
+      }
+      if (ulG){
+        ulG.innerHTML='';
+        state.generos.forEach(g=>{
+          const li = el('li', 'flex items-center justify-between rounded-xl border border-gray-200 px-3 py-2');
+          li.innerHTML = `<span>${g.name||'—'}</span><button class="text-sm text-red-600 hover:underline" data-id="${g.id}" data-tx="genero">Remover</button>`;
+          ulG.appendChild(li);
+        });
+      }
+      // Bind remove actions
+      document.querySelectorAll('#bairro-list [data-tx="bairro"]').forEach(btn=>{
+        btn.onclick = async ()=>{ try{ await removeTaxonomy(BAIRROS_PATH, btn.dataset.id); }catch(e){ console.error(e) } };
+      });
+      document.querySelectorAll('#genero-list [data-tx="genero"]').forEach(btn=>{
+        btn.onclick = async ()=>{ try{ await removeTaxonomy(GENEROS_PATH, btn.dataset.id); }catch(e){ console.error(e) } };
+      });
+    }
+
+    // Atualiza listas quando taxonomias mudarem
+    const _updateTaxonomyUIsRef = updateTaxonomyUIs;
+    updateTaxonomyUIs = function(){ _updateTaxonomyUIsRef(); renderTaxonomyLists(); };
+
+    // Preenche selects quando abrir modal de evento
+    const _openEventModalOriginal = openEventModal;
+    openEventModal = function(mode='create', ev=null){
+      _openEventModalOriginal(mode, ev);
+      // Tente pré-selecionar valores existentes
+      setTimeout(()=>{
+        const isOrg = mode.startsWith('org-');
+        const selB = document.getElementById(isOrg ? 'org-ev-bairro' : 'ev-bairro');
+        const selG = document.getElementById(isOrg ? 'org-ev-genero' : 'ev-genero');
+        if (selB && state.bairros) selB.value = ev?.bairroId || '';
+        if (selG && state.generos) selG.value = ev?.generoId || '';
+      }, 10);
+    };
+</script>
 </body>
 </html>
