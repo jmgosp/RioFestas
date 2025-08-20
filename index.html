@@ -439,6 +439,22 @@
 }
 </style>
 
+<style id="toggle-dark-fix">
+/* Fix: switches show pink (peer-checked:bg-pink-600) in dark mode too */
+[data-theme="dark"] .peer:checked + .peer-checked\:bg-pink-600,
+.dark .peer:checked + .peer-checked\:bg-pink-600 {
+  background-color: #db2777 !important; /* pink-600 */
+}
+[data-theme="dark"] .peer:focus + .peer-focus\:ring-pink-300,
+.dark .peer:focus + .peer-focus\:ring-pink-300 {
+  box-shadow: 0 0 0 3px rgba(244, 114, 182, .35) !important;
+}
+[data-theme="dark"] .peer:checked + .peer-checked\:bg-pink-600::after,
+.dark .peer:checked + .peer-checked\:bg-pink-600::after {
+  background-color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+</style>
 </head>
 <body class="bg-gray-50 md:bg-white text-gray-900 selection:bg-pink-600/10">
 <!-- HEADER -->
@@ -700,7 +716,7 @@
 <label class="text-sm font-medium text-gray-700" for="account-private">Tornar perfil privado</label>
 <label class="relative inline-flex items-center cursor-pointer">
 <input class="sr-only peer" id="account-private" type="checkbox"/>
-<div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600"></div>
+<div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600 transition-colors"></div>
 </label>
 </div>
 <div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="account-error"></div>
@@ -946,7 +962,7 @@
 <label class="text-[13px] font-medium text-gray-700 cursor-pointer select-none" for="ev-repeats-weekly">Repetir semanalmente</label>
 <label class="relative inline-flex items-center cursor-pointer">
 <input class="sr-only peer" id="ev-repeats-weekly" type="checkbox"/>
-<div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600"></div>
+<div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600 transition-colors"></div>
 </label>
 </div>
 <div class="hidden pt-2" id="ev-repeat-options">
@@ -1063,7 +1079,7 @@
 <label class="text-[13px] font-medium text-gray-700 cursor-pointer select-none" for="org-ev-repeats-weekly">Repetir semanalmente</label>
 <label class="relative inline-flex items-center cursor-pointer">
 <input class="sr-only peer" id="org-ev-repeats-weekly" type="checkbox"/>
-<div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600"></div>
+<div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600 transition-colors"></div>
 </label>
 </div>
 <div class="hidden pt-2" id="org-ev-repeat-options">
