@@ -1164,8 +1164,10 @@
 <div class="rounded-3xl ring-subtle p-4">
 <div class="text-sm text-gray-500">Data</div>
 <div class="text-lg font-semibold" id="view-date">—</div>
-<div class="mt-3 text-sm text-gray-500">Local</div>
+<div class="mt-3 text-sm text-gray-500">Endereço</div>
 <div class="text-lg font-semibold" id="view-local">—</div>
+<div class="mt-3 text-sm text-gray-500">Bairro</div>
+<div class="text-lg font-semibold" id="view-bairro">—</div>
 <div class="mt-3 text-sm text-gray-500">Estilo</div>
 <div class="text-lg font-semibold" id="view-style">—</div>
 </div>
@@ -2684,7 +2686,18 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       updateGoingButtonUI();
       await renderFriendsGoing(ev._original_id || ev._id);
       await renderRatingSection(ev.recurringEventId);
-      show($('#event-view'));
+      
+    (function(){
+      try{
+        const bairroName = ev.bairroName || (Array.isArray(state.bairros) ? (state.bairros.find(b=>b.id===ev.bairroId)||{}).name : null) || '—';
+        const bEl = document.getElementById('view-bairro');
+        if (bEl) bEl.textContent = bairroName;
+        // Garantir Endereço preenchido
+        const lEl = document.getElementById('view-local');
+        if (lEl) lEl.textContent = ev.local || '—';
+      }catch(_e){ /* noop */ }
+    })();
+    show($('#event-view'));
     }
 
     // ===== Social: "Vou nesse" =====
