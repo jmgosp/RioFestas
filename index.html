@@ -723,6 +723,15 @@
 <div class="mt-4 space-y-3" id="followers-list"></div>
 <div class="mt-4 space-y-3 hidden" id="following-list"></div>
 </div>
+<div class="mt-6 rounded-3xl bg-white p-6 shadow-soft ring-subtle">
+  <h3 class="text-lg font-semibold">Próximos eventos confirmados</h3>
+  <div id="my-upcoming-events" class="mt-3 space-y-2 text-xs"></div>
+</div>
+
+<div class="mt-6 rounded-3xl bg-white p-6 shadow-soft ring-subtle">
+  <h3 class="text-lg font-semibold">Eventos que já fui</h3>
+  <div id="my-past-events" class="mt-3 space-y-2 text-xs"></div>
+</div>
 </section>
 <!-- ADMIN -->
 <section class="hidden max-w-6xl mx-auto px-4 pb-28" id="view-admin">
@@ -1684,6 +1693,64 @@
         renderSocialFeeds();
     }
     
+    // ===== Meu Perfil: Eventos confirmados (próximos e passados) =====
+    async function renderMyProfileEventSections() {
+      const upcomingEl = $('#my-upcoming-events');
+      const pastEl = $('#my-past-events');
+      if (!upcomingEl || !pastEl) return;
+      const user = auth.currentUser;
+      if (!user) {
+        upcomingEl.innerHTML = '<p class="text-xs text-gray-500">Entre para ver seus eventos.</p>';
+        pastEl.innerHTML = '';
+        return;
+      }
+      upcomingEl.innerHTML = '<div class="text-gray-500 text-xs">Carregando...</div>';
+      pastEl.innerHTML = '';
+
+      let confirmedIds = null;
+      if (state.userGoingTo && state.userGoingTo.size >= 0) {
+        confirmedIds = new Set(state.userGoingTo);
+      }
+      if (!confirmedIds) {
+        try {
+          const snap = await getDocs(collection(db, `artifacts/${appId}/users/${user.uid}/goingTo`));
+          confirmedIds = new Set(snap.docs.map(d => d.id));
+        } catch (e) { confirmedIds = new Set(); }
+      }
+
+      const list = (state.events || []).filter(ev => {
+        const baseId = ev._original_id || ev._id;
+        return confirmedIds.has(baseId);
+      });
+
+      const getDate = (ev) => (ev.date?.toDate ? ev.date.toDate() : new Date(ev.date || Date.now()));
+      const upcoming = list.filter(isEventActive).sort((a,b) => getDate(a) - getDate(b));
+      const past = list.filter(ev => !isEventActive(ev)).sort((a,b) => getDate(b) - getDate(a));
+
+      const renderItem = (ev) => {
+        const url = ev.imageUrls?.[0] || '';
+        return `
+          <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 cursor-pointer" data-open-event="${ev._id}">
+            <img src="${url}" onerror="this.src='https://placehold.co/48x48/f9a8d4/ffffff?text=RF'" class="h-10 w-12 rounded-lg object-cover ring-subtle"/>
+            <div class="min-w-0">
+              <div class="font-medium text-sm truncate">${ev.name || ''}</div>
+              <div class="text-[11px] text-gray-600 truncate">${fmtDate(ev.date)} • ${ev.local || ''}</div>
+            </div>
+          </div>`;
+      };
+
+      upcomingEl.innerHTML = upcoming.length ? upcoming.map(renderItem).join('') : '<p class="text-xs text-gray-500">Você ainda não confirmou nenhum evento futuro.</p>';
+      pastEl.innerHTML = past.length ? past.map(renderItem).join('') : '<p class="text-xs text-gray-500">Nada por aqui ainda.</p>';
+
+      $$('#my-upcoming-events [data-open-event], #my-past-events [data-open-event]').forEach(el => {
+        const id = el.getAttribute('data-open-event');
+        el.addEventListener('click', () => {
+          const ev = (state.events || []).find(e => e._id === id);
+          if (ev) openViewModal(ev);
+        });
+      });
+    }
+
     function openProfileView() {
         if (!state.currentUserData) return;
         const u = state.currentUserData;
@@ -1696,6 +1763,7 @@
         state.photoRemovalFlag = false; // Reset flag
         showView('#view-profile');
         loadFollowLists();
+        renderMyProfileEventSections();
     }
 
     // ===== Realtime: eventos e usuários =====
