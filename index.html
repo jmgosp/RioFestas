@@ -824,6 +824,9 @@
 <button class="px-4 py-1.5 text-sm font-semibold rounded-full text-gray-600" id="admin-tab-past">Passados</button>
 </div>
 </div>
+<div class="px-4 pt-4 hidden" id="active-events-search-container">
+  <input id="active-events-search" class="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5" placeholder="Buscar eventos ativos por nome, local ou gênero."/>
+</div>
 <div class="px-4 pt-4 hidden" id="past-events-search-container">
 <input class="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5" id="past-events-search" placeholder="Buscar eventos passados por nome..."/>
 </div>
@@ -2201,6 +2204,8 @@ const activeEvents = filteredEvents.filter(isEventActive);
     const adminThead = $('#admin-events-thead');
     const adminTbody = $('#admin-events-tbody');
     const adminPlaceholder = $('#admin-events-placeholder');
+    const activeSearchContainer = $('#active-events-search-container');
+    const activeSearchInput = $('#active-events-search');
 
     const activeTheadHTML = `
         <tr class="text-left text-sm text-gray-600">
@@ -2241,7 +2246,14 @@ const activeEvents = filteredEvents.filter(isEventActive);
         renderAdminPastEventsResults(e.target.value);
     });
     
-    async function deleteRecurringInstance(eventInstance) {
+    
+    // Busca (Ativos): re-renderiza tabela enquanto digita
+    if (activeSearchInput) {
+        let _t;
+        activeSearchInput.addEventListener('input', () => { clearTimeout(_t); _t = setTimeout(()=>{ if (state.adminEventsView === 'active') renderAdminEventsView(); }, 120); });
+        activeSearchInput.addEventListener('keydown', (e)=>{ if (e.key==='Escape'){ activeSearchInput.value=''; renderAdminEventsView(); }});
+    }
+async function deleteRecurringInstance(eventInstance) {
         if (!ensureAdmin()) return;
         const { _original_id, date, name } = eventInstance;
         if (!_original_id || !date) {
@@ -2268,11 +2280,25 @@ const activeEvents = filteredEvents.filter(isEventActive);
         hide(adminPlaceholder);
 
         if (state.adminEventsView === 'active') {
+            show(activeSearchContainer);
+            hide(pastSearchContainer);
             hide(pastSearchContainer);
             adminThead.innerHTML = activeTheadHTML;
             
-            const activeEvents = state.events.filter(isEventActive);
+            let activeEvents = state.events.filter(isEventActive);
+            const _q = (activeSearchInput && activeSearchInput.value ? activeSearchInput.value : '').trim().toLowerCase();
+            if (_q) {
+                activeEvents = activeEvents.filter(ev => {
+                    const name = (ev.name||'').toLowerCase();
+                    const local = (ev.local||'').toLowerCase();
+                    const stylesArr = Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : []);
+                    const inStyle = stylesArr.some(s => (s||'').toLowerCase().includes(_q));
+                    return name.includes(_q) || local.includes(_q) || inStyle;
+                });
+            }
             if (activeEvents.length === 0) {
+                const hasQuery = !!_q;
+                adminPlaceholder.textContent = hasQuery ? 'Nenhum evento encontrado para essa busca.' : 'Nenhum evento ativo no momento.';
                 adminPlaceholder.textContent = 'Nenhum evento ativo no momento.';
                 show(adminPlaceholder);
                 return;
@@ -2321,6 +2347,7 @@ const activeEvents = filteredEvents.filter(isEventActive);
                 adminTbody.appendChild(tr);
             });
         } else { // 'past' view
+            hide(activeSearchContainer);
             show(pastSearchContainer);
             pastSearchInput.value = '';
             adminThead.innerHTML = pastTheadHTML;
