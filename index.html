@@ -1585,7 +1585,7 @@
         state.events = expandedEvents;
         
         // CORREÇÃO: Aplica filtros e renderiza tudo
-        applyFiltersAndRender();
+        applyFiltersAndRender().catch(console.error);
     }
 
 
@@ -1786,7 +1786,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       }
     }
 
-    function eventCard(ev){
+    async function eventCard(ev){
         const url=ev.imageUrls?.[0]||'';
         const el=document.createElement('article');
         el.className='group w-\[150px\] md:w-[280px] shrink-0 snap-start rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer';
@@ -1801,19 +1801,30 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
 
         // Verifica se é evento privado
         const isPrivate = ev.isPrivate || false;
+        
+        // Verifica se o usuário tem acesso ao evento privado
+        let hasAccess = false;
+        if (isPrivate && auth.currentUser && !auth.currentUser.isAnonymous) {
+            try {
+                hasAccess = await checkPrivateEventAccess(ev._original_id || ev._id);
+            } catch (err) {
+                console.error('Erro ao verificar acesso:', err);
+                hasAccess = false;
+            }
+        }
 
         el.innerHTML=`
           <div class="relative h-28 md:h-44 w-full bg-gray-100 overflow-hidden">
             <img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" onerror="this.src='https://placehold.co/280x176/f9a8d4/ffffff?text=RioFestas'" alt="${ev.name||''}" loading="lazy" />
             ${friendsGoingHTML}
-            ${isPrivate ? `<div class="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-purple-600/90 px-2 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-white backdrop-blur-sm">
+            ${isPrivate && !hasAccess ? `<div class="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-purple-600/90 px-2 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-white backdrop-blur-sm">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z"/></svg>
                 Privado
             </div>` : ''}
           </div>
           <div class="p-3 md:p-5 space-y-1.5">
             <h3 class="text-sm md:text-lg font-semibold line-clamp-1">${ev.name||''}</h3>
-            ${isPrivate ? `<div class="text-[11px] md:text-sm text-gray-500">Evento privado</div>` : 
+            ${isPrivate && !hasAccess ? `<div class="text-[11px] md:text-sm text-gray-500">Evento privado</div>` : 
             `<div class="text-[11px] md:text-sm text-gray-600">${fmtDate(ev.date)} • ${ev.local||''}</div>
             ${(Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : [])).map(s=>`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-pink-600">${s}</div>`).join('')}`}
           </div>`;
@@ -1821,20 +1832,40 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         return el;
     }
 
-    function renderCarousel(containerId, list, emptyId){ const wrap=$('#'+containerId); const emptyEl=$('#'+emptyId); wrap.innerHTML=''; if(!list || !list.length){ show(emptyEl); hide(wrap); return } else { hide(emptyEl); show(wrap); } list.forEach((ev, idx)=>{
-  const card = eventCard(ev);
-  const img = card.querySelector && card.querySelector('img');
-  if (img) {
-    img.setAttribute('decoding','async');
-    if (idx < 2) { img.setAttribute('loading','eager'); img.setAttribute('fetchpriority','high'); }
-    else { img.setAttribute('loading','lazy'); img.removeAttribute('fetchpriority'); }
-  }
-  wrap.appendChild(card);
-}); }
+    async function renderCarousel(containerId, list, emptyId){ 
+        const wrap=$('#'+containerId); 
+        const emptyEl=$('#'+emptyId); 
+        wrap.innerHTML=''; 
+        if(!list || !list.length){ 
+            show(emptyEl); 
+            hide(wrap); 
+            return 
+        } else { 
+            hide(emptyEl); 
+            show(wrap); 
+        } 
+        
+        for (let idx = 0; idx < list.length; idx++) {
+            const ev = list[idx];
+            const card = await eventCard(ev);
+            const img = card.querySelector && card.querySelector('img');
+            if (img) {
+                img.setAttribute('decoding','async');
+                if (idx < 2) { 
+                    img.setAttribute('loading','eager'); 
+                    img.setAttribute('fetchpriority','high'); 
+                } else { 
+                    img.setAttribute('loading','lazy'); 
+                    img.removeAttribute('fetchpriority'); 
+                }
+            }
+            wrap.appendChild(card);
+        }
+    }
 
-    function buildNext7Menu(){ const menu=$('#weekday-menu'); menu.innerHTML=''; const today=startOfToday(); const labels=[]; for(let i=0;i<7;i++){ const d=new Date(today); d.setDate(today.getDate()+i); labels.push({date:d,label:weekdayLong[d.getDay()]}); } labels.forEach((it,idx)=>{ const b=document.createElement('button'); b.className='flex-shrink-0 rounded-full border px-4 py-2 text-sm '+(idx===state.byDayOffset? 'bg-pink-600 text-white border-pink-600':'bg-white border-gray-200 hover:bg-gray-50'); b.textContent=it.label; b.addEventListener('click', ()=>{ state.byDayOffset=idx; applyFiltersAndRender(); }); menu.appendChild(b); }); }
+    function buildNext7Menu(){ const menu=$('#weekday-menu'); menu.innerHTML=''; const today=startOfToday(); const labels=[]; for(let i=0;i<7;i++){ const d=new Date(today); d.setDate(today.getDate()+i); labels.push({date:d,label:weekdayLong[d.getDay()]}); } labels.forEach((it,idx)=>{ const b=document.createElement('button'); b.className='flex-shrink-0 rounded-full border px-4 py-2 text-sm '+(idx===state.byDayOffset? 'bg-pink-600 text-white border-pink-600':'bg-white border-gray-200 hover:bg-gray-50'); b.textContent=it.label; b.addEventListener('click', ()=>{ state.byDayOffset=idx; applyFiltersAndRender().catch(console.error); }); menu.appendChild(b); }); }
 
-    function renderAllHome(filteredEvents){
+    async function renderAllHome(filteredEvents){
       
       // Query-aware: hide hero sections when searching
       try {
@@ -1875,10 +1906,10 @@ const activeEvents = filteredEvents.filter(isEventActive);
       // CORREÇÃO: Filtra populares por goingCount > 0
       const popular = [...activeEvents].filter(ev => ev.goingCount > 0).sort((a, b) => (b.goingCount || 0) - (a.goingCount || 0)).slice(0, 10);
       
-      renderCarousel('carousel-week-top', inNext7, 'empty-week-top');
-      renderCarousel('carousel-popular', popular, 'empty-popular');
+      await renderCarousel('carousel-week-top', inNext7, 'empty-week-top');
+      await renderCarousel('carousel-popular', popular, 'empty-popular');
       renderByDay(activeEvents);
-     renderCarousel('carousel-others', others, 'empty-others');
+      await renderCarousel('carousel-others', others, 'empty-others');
       renderFeed(activeEvents);
     }
 
@@ -1908,7 +1939,7 @@ const activeEvents = filteredEvents.filter(isEventActive);
     }
     
     // CORREÇÃO: Função central para aplicar filtros e re-renderizar
-    function applyFiltersAndRender() {
+    async function applyFiltersAndRender() {
         let filtered = [...state.events];
 
         const qEl = document.getElementById('search-input');
@@ -1937,12 +1968,12 @@ const activeEvents = filteredEvents.filter(isEventActive);
             });
         }
 
-        renderAllHome(filtered);
+        await renderAllHome(filtered);
         renderAdminEventsView(); // Re-renderiza a view do admin também se estiver aberta
         renderSocialFeeds(); // Re-renderiza feeds sociais
     }
 
-    $('#search-input').addEventListener('input', () => applyFiltersAndRender());
+    $('#search-input').addEventListener('input', () => applyFiltersAndRender().catch(console.error));
 
 
     function refreshAllAdminViews() {
@@ -3943,7 +3974,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     // Botão limpar filtros
     const btnClearFilters = document.getElementById('btn-clear-filters');
     if (btnClearFilters){
-      btnClearFilters.onclick = ()=>{ state.selectedBairros.clear(); state.selectedGeneros.clear(); applyFiltersAndRender(); updateTaxonomyUIs(); };
+      btnClearFilters.onclick = ()=>{ state.selectedBairros.clear(); state.selectedGeneros.clear(); applyFiltersAndRender().catch(console.error); updateTaxonomyUIs(); };
     }
 
     // Patch renderFeed: encaminha com fallback seguro
