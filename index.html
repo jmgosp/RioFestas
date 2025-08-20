@@ -455,6 +455,24 @@
   border-color: #ffffff !important;
 }
 </style>
+<style id="genre-select-scrollbar">
+/* Better mouse scrolling & visible scrollbar on desktop for genre multi-selects */
+#ev-genero, #org-ev-genero {
+  scrollbar-width: thin;
+  scrollbar-color: #db2777 transparent;
+}
+#ev-genero::-webkit-scrollbar, #org-ev-genero::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+#ev-genero::-webkit-scrollbar-thumb, #org-ev-genero::-webkit-scrollbar-thumb {
+  background: #db2777;
+  border-radius: 9999px;
+}
+#ev-genero::-webkit-scrollbar-track, #org-ev-genero::-webkit-scrollbar-track {
+  background: transparent;
+}
+</style>
 </head>
 <body class="bg-gray-50 md:bg-white text-gray-900 selection:bg-pink-600/10">
 <!-- HEADER -->
@@ -4434,5 +4452,61 @@ window.addEventListener('resize', enhanceAdminMobileCollapsibles);
     });
     </script>
     
+
+<script id="cleanup-no-pc-hint">
+document.addEventListener('DOMContentLoaded', function(){
+  const phrase = /No PC.*Ctrl.*(gêneros|generos)/i;
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let n;
+  const toRemove = new Set();
+  while((n = walker.nextNode())){
+    if(phrase.test(n.nodeValue)){
+      if(n.parentElement) toRemove.add(n.parentElement);
+    }
+  }
+  toRemove.forEach(el => el.remove());
+});
+</script>
+<script id="genre-select-mouse-toggle">
+(function(){
+  // Desktop detection: fine pointer & hover support
+  function isDesktop(){
+    return window.matchMedia && window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+  }
+  function enableMultiToggle(selectEl){
+    if(!selectEl) return;
+    if (selectEl.dataset.toggleBound === '1') return;
+    selectEl.dataset.toggleBound = '1';
+
+    // 1) Mouse click toggles options without Ctrl, keeps scroll and selection
+    selectEl.addEventListener('mousedown', function(e){
+      if(!isDesktop()) return; // only on PC
+      const opt = e.target;
+      if(opt && opt.tagName === 'OPTION'){
+        e.preventDefault();
+        const st = this.scrollTop;
+        opt.selected = !opt.selected;
+        this.focus();
+        this.scrollTop = st;
+        this.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+
+    // 2) On desktop, arrow keys scroll the list instead of changing selection
+    selectEl.addEventListener('keydown', function(e){
+      if(!isDesktop()) return;
+      if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+        e.preventDefault();
+        const delta = (e.key === 'ArrowDown') ? 24 : -24; // approx option height
+        this.scrollTop += delta;
+      }
+    });
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    enableMultiToggle(document.getElementById('ev-genero'));
+    enableMultiToggle(document.getElementById('org-ev-genero'));
+  });
+})();
+</script>
 </body>
 </html>
