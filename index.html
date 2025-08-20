@@ -2089,7 +2089,24 @@ const activeEvents = filteredEvents.filter(isEventActive);
       // CORREÇÃO: Filtra populares por goingCount > 0
       const popular = [...activeEvents].filter(ev => ev.goingCount > 0).sort((a, b) => (b.goingCount || 0) - (a.goingCount || 0)).slice(0, 10);
       
-      renderCarousel('carousel-week-top', inNext7, 'empty-week-top');
+      const inNext7Sorted = [...inNext7].sort((a,b)=>{
+  const priA = a.importance || 0;
+  const priB = b.importance || 0;
+  if (priB !== priA) return priB - priA; // 1) prioridade do evento
+
+  const friendsA = (state.friendsGoingMap.get(a._original_id || a._id)?.size) || 0;
+  const friendsB = (state.friendsGoingMap.get(b._original_id || b._id)?.size) || 0;
+  if (friendsB !== friendsA) return friendsB - friendsA; // 2) amigos que vão
+
+  const nonA = Math.max(0, (a.goingCount || 0) - friendsA);
+  const nonB = Math.max(0, (b.goingCount || 0) - friendsB);
+  if (nonB !== nonA) return nonB - nonA; // 3) pessoas no geral (não-amigos)
+
+  const da = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+  const db = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+  return da - db; // 4) data (mais próximo primeiro)
+});
+renderCarousel('carousel-week-top', inNext7Sorted, 'empty-week-top');
       renderCarousel('carousel-popular', popular, 'empty-popular');
       renderByDay(activeEvents);
      renderCarousel('carousel-others', others, 'empty-others');
