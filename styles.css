@@ -1,0 +1,1295 @@
+
+
+/* --- Split from inline <style> blocks --- */
+
+
+    body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+    .shadow-soft{box-shadow:0 12px 26px rgba(17,17,18,.08)}
+    .ring-subtle{box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+    .fade{animation:fade .18s ease-out}
+    .pop{animation:pop .18s ease-out}
+    @keyframes fade{from{opacity:0}to{opacity:1}}
+    @keyframes pop{from{transform:translateY(6px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+    ::-webkit-scrollbar{width:10px;height:10px}
+    ::-webkit-scrollbar-thumb{background:#dedede;border-radius:999px}
+    ::-webkit-scrollbar-track{background:transparent}
+    .star-rating input[type="radio"] { display: none; }
+    .star-rating label { font-size: 28px; color: #ddd; cursor: pointer; transition: color 0.2s; }
+    .star-rating input[type="radio"]:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label { color: #facc15; /* yellow-400 */ }
+    .progress-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 4px;
+        background-color: #f472b6; /* pink-500 */
+        transition: width 0.2s ease-out;
+    }
+    
+    /* Swipe to delete styles */
+    .notification-item {
+        position: relative;
+        overflow: hidden;
+        touch-action: pan-y; /* Permite rolagem vertical */
+        transition: opacity 0.3s ease-out, max-height 0.3s ease-out, margin 0.3s ease-out;
+    }
+    .notification-content {
+        position: relative;
+        z-index: 10;
+        background-color: white;
+        transition: transform 0.2s ease-out;
+        will-change: transform;
+    }
+    .delete-background {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 100px;
+        background-color: #ef4444; /* red-500 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.2s ease-out;
+        z-index: 1;
+    }
+    .notification-item.swiping .notification-content {
+        transition: none;
+    }
+    .notification-item.swiping .delete-background {
+        opacity: 1;
+    }
+    .notification-item.deleting {
+        opacity: 0;
+        max-height: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        border-width: 0 !important;
+    }
+
+    /* Estilos do Toast (Notificação) */
+    .toast-in { animation: toast-in 0.3s ease-out forwards; }
+    .toast-out { animation: toast-out 0.3s ease-in forwards; }
+    @keyframes toast-in {
+      from { transform: translateY(20px) scale(0.95); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    @keyframes toast-out {
+      from { transform: translateY(0) scale(1); opacity: 1; }
+      to { transform: translateY(20px) scale(0.95); opacity: 0; }
+    }
+
+
+    /* Custom styles for mobile admin view */
+    @media (max-width: 767px) {
+      /* Remove a visualização de tabela tradicional */
+      .admin-table-container table,
+      .admin-table-container thead,
+      .admin-table-container tbody,
+      .admin-table-container th,
+      .admin-table-container td,
+      .admin-table-container tr {
+        display: block;
+      }
+      
+      .admin-table-container thead {
+        display: none;
+      }
+
+      .admin-table-container tr {
+        background-color: white;
+        border-radius: 1rem; /* rounded-2xl */
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+        border: 1px solid #f3f4f6; /* border-gray-100 */
+      }
+
+      .admin-table-container td {
+        border: none;
+        padding: 0.5rem 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      
+      /* Adiciona um "label" antes de cada célula de dados */
+      .admin-table-container td:before {
+        content: attr(data-label);
+        font-weight: 500;
+        color: #6b7280; /* text-gray-500 */
+        font-size: 0.875rem;
+      }
+
+      .admin-table-container .event-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-bottom: 0.75rem;
+        margin-bottom: 0.75rem;
+        border-bottom: 1px solid #f3f4f6;
+      }
+
+      .admin-table-container .event-cell:before {
+        display: none; /* O card do evento não precisa de label */
+      }
+      
+      .admin-table-container .actions-cell {
+        padding-top: 0.75rem;
+      }
+      .admin-table-container .actions-cell:before {
+        display: none; /* Célula de ações não precisa de label */
+      }
+      
+      /* Carousel de fotos do evento na visualização mobile */
+      #view-gallery {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch; /* Rolagem suave no iOS */
+        padding-bottom: 8px; /* Espaço para a barra de rolagem */
+        gap: 0.75rem; /* Adiciona espaço entre as imagens */
+      }
+      #view-gallery::-webkit-scrollbar {
+        height: 6px;
+      }
+      #view-gallery::-webkit-scrollbar-thumb {
+        background-color: #e5e7eb; /* bg-gray-200 */
+        border-radius: 999px;
+      }
+      #view-gallery > img {
+        width: 85%; /* Cada imagem ocupa 85% da largura do container */
+        flex-shrink: 0;
+        scroll-snap-align: center; /* Centraliza a imagem ao parar de rolar */
+      }
+    }
+    
+    /* NOVOS ESTILOS PARA FILTROS */
+    #filters-bar.filters-open #filters-chevron {
+        transform: rotate(180deg);
+    }
+    #filters-content {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.3s ease-out;
+    }
+    #filters-bar.filters-open #filters-content {
+        grid-template-rows: 1fr;
+    }
+    #filters-content > .inner-filter-content {
+        overflow: hidden;
+    }
+  
+/* === Fixes rápidos de mobile para Taxonomias + selects múltiplos === */
+@media (max-width: 640px) {
+  /* Painel de Bairros & Gêneros */
+  #taxonomy-panel .grid { grid-template-columns: 1fr !important; }
+  #taxonomy-panel form { flex-direction: column; gap: .5rem; }
+  #taxonomy-panel form input, #taxonomy-panel form button { width: 100%; }
+  #bairro-list, #genero-list { max-height: 220px; overflow-y: auto; }
+  /* Select múltiplo nos modais de evento */
+  #ev-genero, #org-ev-genero { max-height: 180px; }
+}
+/* Estilo dos itens das listas de Bairros/Gêneros para melhor leitura no mobile */
+#bairro-list li, #genero-list li {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .75rem; padding: .5rem .75rem; border: 1px solid #f3f4f6;
+  border-radius: .75rem; background: #fff;
+}
+#bairro-list li button, #genero-list li button { color: #ef4444; font-weight: 600; }
+#ev-genero, #org-ev-genero { min-height: 160px; }
+
+
+/* === FINAL dark fixes: gradients, admin wrapper, selects === */
+/* Gradients that use Tailwind CSS variables */
+[data-theme="dark"] [class*="from-white"] {
+  --tw-gradient-from: rgb(15 18 24 / 1) !important;
+  --tw-gradient-to: rgb(15 18 24 / 0) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+[data-theme="dark"] [class*="via-white"] {
+  --tw-gradient-stops: var(--tw-gradient-from), rgb(15 18 24 / 1), var(--tw-gradient-to) !important;
+}
+[data-theme="dark"] [class*="to-white"] {
+  --tw-gradient-to: rgb(15 18 24 / 1) !important;
+}
+/* Gray variants that sometimes appear in gradients */
+[data-theme="dark"] [class*="from-gray-50"] {
+  --tw-gradient-from: rgb(20 25 36 / 1) !important;
+  --tw-gradient-to: rgb(20 25 36 / 0) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+[data-theme="dark"] [class*="via-gray-50"] {
+  --tw-gradient-stops: var(--tw-gradient-from), rgb(20 25 36 / 1), var(--tw-gradient-to) !important;
+}
+[data-theme="dark"] [class*="to-gray-50"] {
+  --tw-gradient-to: rgb(20 25 36 / 1) !important;
+}
+
+/* Fallback for explicit gradient utilities */
+[data-theme="dark"] .bg-gradient-to-t[class*="from-white"] { background-image: linear-gradient(to top, rgba(15,18,24,1), rgba(15,18,24,0)) !important; }
+[data-theme="dark"] .bg-gradient-to-b[class*="from-white"] { background-image: linear-gradient(to bottom, rgba(15,18,24,1), rgba(15,18,24,0)) !important; }
+[data-theme="dark"] .bg-gradient-to-r[class*="from-white"] { background-image: linear-gradient(to right, rgba(15,18,24,1), rgba(15,18,24,0)) !important; }
+[data-theme="dark"] .bg-gradient-to-l[class*="from-white"] { background-image: linear-gradient(to left, rgba(15,18,24,1), rgba(15,18,24,0)) !important; }
+
+/* Admin cards wrapper: ensure top header area isn't white */
+[data-theme="dark"] #view-admin .rounded-3xl { background-color: var(--rf-elev) !important; }
+
+/* Notifications: ensure containers are dark even without ring classes */
+[data-theme="dark"] #view-social .rounded-2xl { background-color: #0f1218 !important; border-color: var(--rf-border) !important; }
+
+/* Form selects (multiple) – default highlight is too clara in dark */
+[data-theme="dark"] select[multiple] option { background-color: #0f1218 !important; color: var(--rf-text) !important; }
+[data-theme="dark"] select[multiple] option:checked { background-color: #1b2230 !important; color: var(--rf-text) !important; }
+
+
+/* === Additional fixes: table row whites & modal footer clip === */
+
+/* Force table parts transparent so row utilities can't show white */
+[data-theme="dark"] table,
+[data-theme="dark"] thead,
+[data-theme="dark"] tbody,
+[data-theme="dark"] tr { background-color: transparent !important; }
+
+/* Rows using Tailwind odd:/even: background utilities */
+[data-theme="dark"] .odd\:bg-white:nth-child(odd),
+[data-theme="dark"] .even\:bg-white:nth-child(even),
+[data-theme="dark"] .odd\:bg-gray-50:nth-child(odd),
+[data-theme="dark"] .even\:bg-gray-50:nth-child(even) { background-color: var(--rf-surface) !important; }
+
+/* Hover variants on rows */
+[data-theme="dark"] .hover\:bg-white:hover,
+[data-theme="dark"] .hover\:bg-gray-50:hover { background-color: #131722 !important; }
+
+/* Arbitrary small opacities that might still appear */
+[data-theme="dark"] .bg-white\/5 { background-color: rgba(15,18,24,.95) !important; }
+[data-theme="dark"] .bg-white\/0 { background-color: rgba(15,18,24,0) !important; }
+
+/* Divider lines */
+[data-theme="dark"] .divide-y > :not([hidden]) ~ :not([hidden]) { border-color: var(--rf-border) !important; }
+
+/* Modal/card rounded containers: clip internal gradients so no white bars escape */
+.fixed.inset-0 .rounded-2xl,
+.fixed.inset-0 .rounded-3xl { overflow: hidden !important; }
+
+/* Footer fade bars inside modals should match surface on dark */
+[data-theme="dark"] .bg-gradient-to-t.from-white { 
+  background-image: linear-gradient(to top, rgba(15,18,24,1), rgba(15,18,24,0)) !important;
+}
+
+
+
+/* --- next block --- */
+
+
+
+/* === Dark mode main palette & admin collapsibles === */
+:root {
+  --rf-bg: #0b0d12;
+  --rf-surface: #0f1218;
+  --rf-elev: #141924;
+  --rf-text: #e5e7eb;
+  --rf-muted: #a3a3a3;
+  --rf-border: #283140;
+  --rf-ring: rgba(148,163,184,.25);
+}
+[data-theme="dark"] body { background: var(--rf-bg) !important; color: var(--rf-text) !important; }
+[data-theme="dark"] header { background: rgba(15,18,24,.8) !important; border-color: var(--rf-border) !important; }
+[data-theme="dark"] .bg-white { background-color: var(--rf-surface) !important; }
+[data-theme="dark"] .bg-gray-50 { background-color: var(--rf-surface) !important; }
+[data-theme="dark"] .text-gray-900 { color: var(--rf-text) !important; }
+[data-theme="dark"] .text-gray-800 { color: var(--rf-text) !important; }
+[data-theme="dark"] .text-gray-700 { color: #d1d5db !important; }
+[data-theme="dark"] .text-gray-600 { color: #cbd5e1 !important; }
+[data-theme="dark"] .text-gray-500 { color: var(--rf-muted) !important; }
+[data-theme="dark"] .border-gray-100,
+[data-theme="dark"] .border-gray-200,
+[data-theme="dark"] .border-gray-300 { border-color: var(--rf-border) !important; }
+[data-theme="dark"] .ring-subtle { box-shadow: inset 0 0 0 1px var(--rf-ring) !important; }
+[data-theme="dark"] .shadow-soft { box-shadow: 0 16px 32px rgba(0,0,0,.45) !important; }
+[data-theme="dark"] .hover\:bg-gray-50:hover { background-color: #131722 !important; }
+[data-theme="dark"] .hover\:bg-gray-50\/70:hover { background-color: #131722 !important; }
+[data-theme="dark"] input, [data-theme="dark"] textarea, [data-theme="dark"] select {
+  background-color: #0f1218 !important;
+  border-color: var(--rf-border) !important;
+  color: var(--rf-text) !important;
+}
+[data-theme="dark"] .prose :where(p, li, h1, h2, h3, h4, h5, h6) { color: var(--rf-text) !important; }
+[data-theme="dark"] .prose a { color: #f472b6 !important; }
+[data-theme="dark"] .bg-gray-100 { background-color: #141924 !important; }
+[data-theme="dark"] .bg-gray-200 { background-color: #1b2230 !important; }
+[data-theme="dark"] input:focus { box-shadow: 0 0 0 3px rgba(244,114,182,.25) !important; }
+[data-theme="dark"] .bg-black\/40 { background-color: rgba(0,0,0,.6) !important; }
+
+.collapsible { border-radius: 1rem; overflow: hidden; }
+.collapsible-toggle {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  padding: .75rem 1rem; font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
+}
+[data-theme="dark"] .collapsible-toggle { border-color: var(--rf-border); }
+.collapsible-body { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .25s ease; }
+.collapsible.collapsed .collapsible-body { grid-template-rows: 0fr; }
+.collapsible-body > .collapsible-inner { overflow: hidden; }
+
+@media (max-width: 767px) {
+  header .rounded-full { border-radius: 9999px; }
+  #view-admin .rounded-3xl.bg-white { padding: 0 !important; }
+  #view-admin .collapsible-inner { padding: 1rem; }
+  #view-admin .collapsible-toggle { position: sticky; top: 0; background: inherit; }
+  #home-view .grid, #view-social .grid { gap: .75rem !important; }
+}
+@media (min-width: 1024px) {
+  #view-admin .rounded-3xl.bg-white { border: 1px solid rgba(148,163,184,.15); }
+  [data-theme="dark"] #view-admin .rounded-3xl.bg-white { border-color: var(--rf-border); }
+}
+
+
+/* === Extra dark fixes for semi-transparent whites & tables === */
+[data-theme="dark"] .bg-white\/95 { background-color: rgba(15,18,24,.95) !important; }
+[data-theme="dark"] .bg-white\/90 { background-color: rgba(15,18,24,.90) !important; }
+[data-theme="dark"] .bg-white\/80 { background-color: rgba(15,18,24,.80) !important; }
+[data-theme="dark"] .bg-white\/70 { background-color: rgba(15,18,24,.70) !important; }
+[data-theme="dark"] .bg-white\/60 { background-color: rgba(15,18,24,.60) !important; }
+[data-theme="dark"] .bg-white\/50 { background-color: rgba(15,18,24,.50) !important; }
+[data-theme="dark"] .bg-white\/40 { background-color: rgba(15,18,24,.40) !important; }
+[data-theme="dark"] .bg-white\/30 { background-color: rgba(15,18,24,.30) !important; }
+[data-theme="dark"] .bg-white\/20 { background-color: rgba(15,18,24,.20) !important; }
+[data-theme="dark"] .bg-white\/10 { background-color: rgba(15,18,24,.10) !important; }
+[data-theme="dark"] .bg-gray-50\/90 { background-color: rgba(20,25,36,.90) !important; }
+[data-theme="dark"] .bg-gray-50\/80 { background-color: rgba(20,25,36,.80) !important; }
+[data-theme="dark"] .bg-gray-50\/70 { background-color: rgba(20,25,36,.70) !important; }
+[data-theme="dark"] .bg-gray-100\/80 { background-color: rgba(27,34,48,.80) !important; }
+[data-theme="dark"] .bg-gray-100\/70 { background-color: rgba(27,34,48,.70) !important; }
+[data-theme="dark"] .bg-slate-50, 
+[data-theme="dark"] .bg-gray-50 { background-color: var(--rf-surface) !important; }
+[data-theme="dark"] .bg-slate-100, 
+[data-theme="dark"] .bg-gray-100 { background-color: #141924 !important; }
+[data-theme="dark"] thead tr { background-color: #141924 !important; }
+[data-theme="dark"] tr:nth-child(even).bg-white, 
+[data-theme="dark"] tr:nth-child(even).bg-gray-50 { background-color: #0f1218 !important; }
+[data-theme="dark"] .backdrop-blur, 
+[data-theme="dark"] .backdrop-blur-sm, 
+[data-theme="dark"] .backdrop-blur-md { background-color: rgba(15,18,24,.85) !important; }
+[data-theme="dark"] .ring-1.bg-white,
+[data-theme="dark"] .ring-1.bg-gray-50,
+[data-theme="dark"] .ring-1.bg-gray-100 {
+  background-color: #0f1218 !important;
+  border-color: var(--rf-border) !important;
+}
+
+
+/* === Broad catch-alls and rounded containers === */
+[data-theme="dark"] [class*="bg-white/"] { background-color: rgba(15,18,24,.88) !important; }
+[data-theme="dark"] [class*="bg-gray-50/"] { background-color: rgba(20,25,36,.88) !important; }
+[data-theme="dark"] [class*="bg-gray-100/"] { background-color: rgba(27,34,48,.88) !important; }
+[data-theme="dark"] [class*="bg-slate-50/"] { background-color: rgba(20,25,36,.88) !important; }
+[data-theme="dark"] [class*="bg-neutral-50/"], 
+[data-theme="dark"] [class*="bg-zinc-50/"], 
+[data-theme="dark"] [class*="bg-neutral-100/"], 
+[data-theme="dark"] [class*="bg-zinc-100/"] { background-color: rgba(20,25,36,.88) !important; }
+[data-theme="dark"] .bg-neutral-50, 
+[data-theme="dark"] .bg-neutral-100,
+[data-theme="dark"] .bg-zinc-50,
+[data-theme="dark"] .bg-zinc-100,
+[data-theme="dark"] .bg-slate-50, 
+[data-theme="dark"] .bg-slate-100,
+[data-theme="dark"] .bg-gray-50, 
+[data-theme="dark"] .bg-gray-100,
+[data-theme="dark"] .bg-white { background-color: var(--rf-surface) !important; }
+[data-theme="dark"] .table-header, 
+[data-theme="dark"] thead, 
+[data-theme="dark"] thead tr, 
+[data-theme="dark"] thead th { background-color: #141924 !important; color: var(--rf-text) !important; }
+[data-theme="dark"] .notification-item,
+[data-theme="dark"] .notif-item,
+[data-theme="dark"] .bg-white.notification,
+[data-theme="dark"] .bg-white.rounded-2xl { 
+  background-color: #0f1218 !important; 
+  border-color: var(--rf-border) !important;
+}
+[data-theme="dark"] .rounded-2xl.bg-white, 
+[data-theme="dark"] .rounded-3xl.bg-white { background-color: var(--rf-elev) !important; }
+
+
+
+[data-theme="dark"] #bairro-list li,
+[data-theme="dark"] #genero-list li {
+  background-color: var(--rf-surface) !important;
+  border-color: var(--rf-border) !important;
+}
+
+/* Estilos para eventos privados */
+.private-event-badge {
+    background: linear-gradient(135deg, #8b5cf6, #a855f7);
+    color: white;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.private-event-card {
+    border: 2px solid #e9d5ff;
+    background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+}
+
+.private-event-card:hover {
+    border-color: #c084fc;
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.15);
+}
+
+/* Estilos para solicitações de eventos privados */
+.private-request-card {
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border: 1px solid #bae6fd;
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.private-request-card:hover {
+    background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+    border-color: #7dd3fc;
+}
+
+/* Otimizações para mobile */
+@media (max-width: 768px) {
+    .private-request-card {
+        padding: 0.4rem !important;
+        margin-bottom: 0.4rem !important;
+        border-radius: 0.5rem !important;
+    }
+    
+    .private-request-card .event-info h4 {
+        font-size: 0.8rem !important;
+        margin-bottom: 0.2rem !important;
+    }
+    
+    .private-request-card .event-info p {
+        font-size: 0.65rem !important;
+    }
+    
+    .private-request-card .user-avatar {
+        width: 1.5rem !important;
+        height: 1.5rem !important;
+        font-size: 0.7rem !important;
+    }
+    
+    .private-request-card .user-details h5 {
+        font-size: 0.7rem !important;
+        margin-bottom: 0.1rem !important;
+    }
+    
+    .private-request-card .user-details p {
+        font-size: 0.6rem !important;
+    }
+    
+    .private-request-card .request-date {
+        font-size: 0.55rem !important;
+        margin-top: 0.2rem !important;
+    }
+    
+    /* Reorganizar botões em coluna para mobile */
+    .private-request-card .request-actions {
+        flex-direction: column !important;
+        gap: 0.3rem !important;
+        align-items: stretch !important;
+    }
+    
+    .private-request-card .request-actions button {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
+
+/* Estilos para modo escuro nos cards de solicitação */
+[data-theme="dark"] .private-request-card {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    border-color: #475569;
+}
+
+[data-theme="dark"] .private-request-card:hover {
+    background: linear-gradient(135deg, #334155, #475569);
+    border-color: #64748b;
+}
+
+[data-theme="dark"] .bg-gradient-to-r.from-gray-50.to-gray-100 {
+    background: linear-gradient(135deg, #374151, #4b5563) !important;
+    border-color: #6b7280 !important;
+}
+
+[data-theme="dark"] .text-gray-900 {
+    color: #f9fafb !important;
+}
+
+[data-theme="dark"] .text-gray-600 {
+    color: #d1d5db !important;
+}
+
+[data-theme="dark"] .text-gray-500 {
+    color: #9ca3af !important;
+}
+
+/* Estilos para modo escuro nos cards de pessoas aprovadas */
+[data-theme="dark"] .bg-gradient-to-r.from-green-50.to-green-100 {
+    background: linear-gradient(135deg, #064e3b, #065f46) !important;
+    border-color: #047857 !important;
+}
+
+[data-theme="dark"] .border-green-200 {
+    border-color: #047857 !important;
+}
+
+/* Estilos para botões de aprovação/rejeição */
+.approve-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.approve-btn:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.reject-btn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.reject-btn:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Otimizações para mobile nos botões */
+@media (max-width: 768px) {
+    .approve-btn, .reject-btn {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.65rem !important;
+        gap: 0.15rem !important;
+        border-radius: 0.5rem !important;
+    }
+    
+    .approve-btn svg, .reject-btn svg {
+        width: 0.7rem !important;
+        height: 0.7rem !important;
+    }
+}
+
+/* Estilos para botão de remover acesso */
+.remove-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.remove-btn:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+/* Otimizações para mobile no botão remover */
+@media (max-width: 768px) {
+    .remove-btn {
+        padding: 0.3rem 0.6rem !important;
+        font-size: 0.7rem !important;
+        gap: 0.2rem !important;
+    }
+    
+    .remove-btn svg {
+        width: 0.8rem !important;
+        height: 0.8rem !important;
+    }
+}
+
+/* Estilos para modo escuro no botão de remover */
+[data-theme="dark"] .remove-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+[data-theme="dark"] .remove-btn:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+}
+
+/* Estilos para mensagens de evento privado */
+.private-event-message {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 1px solid #f59e0b;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin: 1rem 0;
+    text-align: center;
+    color: #92400e;
+    font-weight: 500;
+}
+
+/* Estilos para indicador de evento privado no card */
+.private-indicator {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: rgba(139, 92, 246, 0.9);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+/* Estilos para área do organizador */
+.organizer-section {
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #e2e8f0;
+}
+
+.organizer-section h3 {
+    color: #1e293b;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    font-size: 1.125rem;
+}
+
+/* Otimizações para mobile na área do organizador */
+@media (max-width: 768px) {
+    .organizer-section {
+        padding: 0.75rem !important;
+        margin-bottom: 0.75rem !important;
+        border-radius: 0.75rem !important;
+    }
+    
+    .organizer-section h3 {
+        font-size: 1rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+}
+
+/* Estilos para modo escuro na área do organizador */
+[data-theme="dark"] .organizer-section {
+    background: linear-gradient(135deg, #1f2937, #111827);
+    border: 1px solid #374151;
+}
+
+[data-theme="dark"] .organizer-section h3 {
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .organizer-section .text-gray-500 {
+    color: #9ca3af !important;
+}
+
+/* Estilos para modo escuro no container principal da área do organizador */
+[data-theme="dark"] #view-organizer {
+    background: #111827;
+}
+
+[data-theme="dark"] #view-organizer .text-gray-500 {
+    color: #9ca3af !important;
+}
+
+[data-theme="dark"] #view-organizer .text-2xl,
+[data-theme="dark"] #view-organizer .text-3xl {
+    color: #f9fafb !important;
+}
+
+/* Estilos para grid de eventos do organizador */
+.organizer-events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+/* Otimizações para mobile no grid de eventos */
+@media (max-width: 768px) {
+    .organizer-events-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.5rem !important;
+        margin-top: 0.5rem !important;
+    }
+}
+
+/* Estilos para cards de eventos do organizador */
+.organizer-event-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.organizer-event-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Otimizações para mobile nos cards de eventos */
+@media (max-width: 768px) {
+    .organizer-event-card {
+        padding: 0.5rem !important;
+        border-radius: 0.5rem !important;
+    }
+    
+    .organizer-event-card h4 {
+        font-size: 0.9rem !important;
+    }
+    
+    .organizer-event-card p {
+        font-size: 0.75rem !important;
+    }
+}
+
+/* Estilos para modo escuro nos cards de eventos do organizador */
+[data-theme="dark"] .organizer-event-card {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .organizer-event-card:hover {
+    border-color: #4b5563;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    background: #374151;
+}
+
+[data-theme="dark"] .organizer-event-card .text-gray-600 {
+    color: #d1d5db !important;
+}
+
+/* Estilos para status de evento */
+.event-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+}
+
+.event-status.private {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
+
+.event-status.public {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+/* Estilos para modo escuro nos status de evento */
+[data-theme="dark"] .event-status.private {
+    background: #581c87;
+    color: #c084fc;
+}
+
+[data-theme="dark"] .event-status.public {
+    background: #166534;
+    color: #4ade80;
+}
+
+/* Responsividade para mobile */
+@media (max-width: 768px) {
+    .organizer-events-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .private-indicator {
+        font-size: 0.625rem;
+        padding: 0.125rem 0.375rem;
+    }
+    
+    .approve-btn, .reject-btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Estilos para botões na área do organizador no modo escuro */
+[data-theme="dark"] #btn-new-org-event {
+    background: linear-gradient(135deg, #ec4899, #db2777);
+    color: white;
+    border: none;
+}
+
+[data-theme="dark"] #btn-new-org-event:hover {
+    background: linear-gradient(135deg, #db2777, #be185d);
+    opacity: 0.9;
+}
+
+/* Estilos para modal de evento privado no modo escuro */
+[data-theme="dark"] #private-event-access-modal .bg-white {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+}
+
+[data-theme="dark"] #private-event-access-modal .text-gray-900 {
+    color: #f9fafb !important;
+}
+
+[data-theme="dark"] #private-event-access-modal .text-gray-600 {
+    color: #d1d5db !important;
+}
+
+[data-theme="dark"] #private-event-access-modal .text-gray-500 {
+    color: #9ca3af !important;
+}
+
+[data-theme="dark"] #private-event-access-modal .text-gray-700 {
+    color: #e5e7eb !important;
+}
+
+[data-theme="dark"] #private-event-access-modal .bg-gray-100 {
+    background-color: #374151 !important;
+}
+
+[data-theme="dark"] #private-event-access-modal .text-purple-600 {
+    color: #a855f7 !important;
+}
+
+[data-theme="dark"] #private-event-access-modal .border-gray-200 {
+    border-color: #4b5563 !important;
+}
+
+[data-theme="dark"] #private-event-access-modal .hover\:bg-gray-50:hover {
+    background-color: #374151 !important;
+}
+
+/* Melhorias para modo escuro no modal mobile */
+@media (max-width: 768px) {
+    [data-theme="dark"] #private-event-access-modal .bg-white {
+        background-color: #1f2937 !important;
+        border: 1px solid #374151 !important;
+    }
+    
+    [data-theme="dark"] #private-event-access-modal .bg-purple-100 {
+        background: linear-gradient(135deg, #581c87, #4c1d95) !important;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2) !important;
+    }
+    
+    [data-theme="dark"] #private-event-access-modal .text-purple-600 {
+        color: #a855f7 !important;
+    }
+    
+    [data-theme="dark"] #private-event-access-modal .border-gray-200 {
+        border-color: #4b5563 !important;
+    }
+    
+    [data-theme="dark"] #private-event-access-modal .hover\:bg-gray-50:hover {
+        background-color: #374151 !important;
+        border-color: #6b7280 !important;
+    }
+}
+
+/* Estilos específicos para o botão cancelar no modo escuro */
+[data-theme="dark"] #cancel-access-btn {
+    background-color: #374151 !important;
+    border-color: #4b5563 !important;
+    color: #e5e7eb !important;
+}
+
+[data-theme="dark"] #cancel-access-btn:hover {
+    background-color: #4b5563 !important;
+}
+
+/* Estilos para modo escuro no modal de confirmação de remoção */
+[data-theme="dark"] #remove-access-modal .bg-white {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+}
+
+[data-theme="dark"] #remove-access-modal .text-gray-900 {
+    color: #f9fafb !important;
+}
+
+[data-theme="dark"] #remove-access-modal .text-gray-600 {
+    color: #d1d5db !important;
+}
+
+[data-theme="dark"] #remove-access-modal .text-gray-700 {
+    color: #e5e7eb !important;
+}
+
+[data-theme="dark"] #remove-access-modal .border-gray-200 {
+    border-color: #4b5563 !important;
+}
+
+[data-theme="dark"] #remove-access-modal .hover\:bg-gray-50:hover {
+    background-color: #374151 !important;
+}
+
+[data-theme="dark"] #remove-access-modal .bg-orange-100 {
+    background: linear-gradient(135deg, #7c2d12, #9a3412) !important;
+}
+
+[data-theme="dark"] #remove-access-modal .text-orange-600 {
+    color: #fb923c !important;
+}
+
+/* Melhorias no design do modal */
+#private-event-access-modal .bg-purple-100 {
+    background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+}
+
+#private-event-access-modal .text-purple-600 {
+    color: #7c3aed;
+}
+
+#private-event-access-modal .bg-purple-600 {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+}
+
+#private-event-access-modal .hover\:bg-purple-700:hover {
+    background: linear-gradient(135deg, #6d28d9, #5b21b6);
+}
+
+/* Melhorias específicas para mobile no modal */
+@media (max-width: 768px) {
+    #private-event-access-modal .bg-purple-100 {
+        background: linear-gradient(135deg, #f3e8ff, #e9d5ff) !important;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15) !important;
+    }
+    
+    #private-event-access-modal .bg-purple-600 {
+        background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3) !important;
+    }
+    
+    #private-event-access-modal .hover\:bg-purple-700:hover {
+        background: linear-gradient(135deg, #6d28d9, #5b21b6) !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4) !important;
+    }
+    
+    #private-event-access-modal .border-gray-200 {
+        border-color: #e5e7eb !important;
+    }
+    
+    #private-event-access-modal .hover\:bg-gray-50:hover {
+        background-color: #f9fafb !important;
+        transform: translateY(-1px) !important;
+    }
+}
+
+/* Animação suave para o modal */
+#private-event-access-modal {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Otimizações para mobile no modal de solicitação de acesso */
+@media (max-width: 768px) {
+    #private-event-access-modal .bg-white {
+        padding: 1.25rem !important;
+        border-radius: 1rem !important;
+        max-width: 320px !important;
+        width: 90% !important;
+        margin: 1rem !important;
+    }
+    
+    #private-event-access-modal .text-2xl {
+        font-size: 1.375rem !important;
+        margin-bottom: 0.75rem !important;
+        line-height: 1.3 !important;
+    }
+    
+    #private-event-access-modal .text-gray-600 {
+        font-size: 0.9rem !important;
+        margin-bottom: 1rem !important;
+        line-height: 1.4 !important;
+    }
+    
+    #private-event-access-modal .text-purple-600 {
+        font-size: 0.95rem !important;
+        margin-bottom: 1.25rem !important;
+        font-weight: 600 !important;
+    }
+    
+    #private-event-access-modal .flex.gap-3 {
+        gap: 0.75rem !important;
+        margin-top: 1.5rem !important;
+    }
+    
+    #private-event-access-modal button {
+        padding: 0.75rem 1.25rem !important;
+        font-size: 0.875rem !important;
+        border-radius: 0.75rem !important;
+        font-weight: 600 !important;
+        min-width: 120px !important;
+    }
+    
+    #private-event-access-modal .w-16.h-16 {
+        width: 3.5rem !important;
+        height: 3.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    #private-event-access-modal .h-8.w-8 {
+        width: 1.75rem !important;
+        height: 1.75rem !important;
+    }
+    
+    #private-event-access-modal .text-3xl {
+        font-size: 1.75rem !important;
+    }
+    
+    /* Melhorar espaçamento geral */
+    #private-event-access-modal .text-center {
+        padding: 0 0.5rem !important;
+    }
+    
+    /* Garantir que o modal não saia da tela */
+    #private-event-access-modal .relative.z-\[71\] {
+        max-height: calc(100vh - 2rem) !important;
+        overflow-y: auto !important;
+    }
+}
+
+/* Estilos para o modal de confirmação de remoção de acesso */
+#remove-access-modal {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+#remove-access-modal .bg-orange-100 {
+    background: linear-gradient(135deg, #fed7aa, #fdba74);
+}
+
+#remove-access-modal .text-orange-600 {
+    color: #ea580c;
+}
+
+#remove-access-modal .bg-orange-600 {
+    background: linear-gradient(135deg, #ea580c, #dc2626);
+}
+
+#remove-access-modal .hover\:opacity-90:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+}
+
+/* Otimizações para mobile no modal de confirmação */
+@media (max-width: 768px) {
+    #remove-access-modal .bg-white {
+        padding: 1rem !important;
+        border-radius: 0.75rem !important;
+        max-width: 300px !important;
+        width: 95% !important;
+    }
+    
+    #remove-access-modal .text-xl {
+        font-size: 1.125rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    
+    #remove-access-modal .text-gray-600 {
+        font-size: 0.875rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    #remove-access-modal .flex.gap-3 {
+        gap: 0.5rem !important;
+    }
+    
+    #remove-access-modal button {
+        padding: 0.5rem 1rem !important;
+        font-size: 0.8rem !important;
+        border-radius: 0.5rem !important;
+    }
+    
+    #remove-access-modal .w-16.h-16 {
+        width: 3rem !important;
+        height: 3rem !important;
+    }
+    
+    #remove-access-modal .h-8.w-8 {
+        width: 1.5rem !important;
+        height: 1.5rem !important;
+    }
+}
+
+/* Estilos para barra de pesquisa */
+.search-container {
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Modo escuro para barra de pesquisa */
+[data-theme="dark"] .search-input {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .search-input:focus {
+    border-color: #a855f7;
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+}
+
+[data-theme="dark"] .search-icon {
+    color: #9ca3af;
+}
+
+/* Otimizações para mobile na barra de pesquisa */
+@media (max-width: 768px) {
+    .search-container {
+        margin-bottom: 0.75rem;
+    }
+    
+    .search-input {
+        padding: 0.5rem 0.75rem 0.5rem 2rem;
+        font-size: 0.8rem;
+        border-radius: 0.5rem;
+    }
+    
+    .search-icon {
+        left: 0.5rem;
+        width: 0.875rem;
+        height: 0.875rem;
+    }
+}
+
+/* Otimizações gerais para mobile */
+@media (max-width: 768px) {
+    /* Reduzir espaçamentos gerais */
+    .space-y-4 > * + * {
+        margin-top: 0.75rem !important;
+    }
+    
+    .space-y-6 > * + * {
+        margin-top: 1rem !important;
+    }
+    
+    /* Reduzir padding em containers */
+    .p-4 {
+        padding: 0.75rem !important;
+    }
+    
+    .p-6 {
+        padding: 1rem !important;
+    }
+    
+    /* Reduzir margens */
+    .mb-4 {
+        margin-bottom: 0.75rem !important;
+    }
+    
+    .mb-6 {
+        margin-bottom: 1rem !important;
+    }
+    
+    /* Ajustar tamanhos de fonte */
+    .text-lg {
+        font-size: 1rem !important;
+    }
+    
+    .text-xl {
+        font-size: 1.125rem !important;
+    }
+    
+    /* Ajustar gaps em flexbox */
+    .gap-3 {
+        gap: 0.5rem !important;
+    }
+    
+    .gap-4 {
+        gap: 0.75rem !important;
+    }
+    
+    /* Ajustar border-radius */
+    .rounded-3xl {
+        border-radius: 1rem !important;
+    }
+    
+    .rounded-2xl {
+        border-radius: 0.75rem !important;
+    }
+}
