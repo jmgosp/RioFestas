@@ -870,42 +870,7 @@
 }
 
 /* Estilos para modal de evento privado no modo escuro */
-[data-theme="dark"] #private-event-access-modal .bg-white {
-    background-color: #1f2937 !important;
-    color: #f9fafb !important;
-}
-
-[data-theme="dark"] #private-event-access-modal .text-gray-900 {
-    color: #f9fafb !important;
-}
-
-[data-theme="dark"] #private-event-access-modal .text-gray-600 {
-    color: #d1d5db !important;
-}
-
-[data-theme="dark"] #private-event-access-modal .text-gray-500 {
-    color: #9ca3af !important;
-}
-
-[data-theme="dark"] #private-event-access-modal .text-gray-700 {
-    color: #e5e7eb !important;
-}
-
-[data-theme="dark"] #private-event-access-modal .bg-gray-100 {
-    background-color: #374151 !important;
-}
-
-[data-theme="dark"] #private-event-access-modal .text-purple-600 {
-    color: #a855f7 !important;
-}
-
-[data-theme="dark"] #private-event-access-modal .border-gray-200 {
-    border-color: #4b5563 !important;
-}
-
-[data-theme="dark"] #private-event-access-modal .hover\:bg-gray-50:hover {
-    background-color: #374151 !important;
-}
+/* Estilos para modo escuro no modal de solicitação de acesso - REMOVIDO */
 
 /* Melhorias para modo escuro no modal mobile */
 @media (max-width: 768px) {
@@ -979,49 +944,9 @@
 }
 
 /* Melhorias no design do modal */
-#private-event-access-modal .bg-purple-100 {
-    background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
-}
+/* Estilos para o modal de solicitação de acesso - REMOVIDO */
 
-#private-event-access-modal .text-purple-600 {
-    color: #7c3aed;
-}
-
-#private-event-access-modal .bg-purple-600 {
-    background: linear-gradient(135deg, #7c3aed, #6d28d9);
-}
-
-#private-event-access-modal .hover\:bg-purple-700:hover {
-    background: linear-gradient(135deg, #6d28d9, #5b21b6);
-}
-
-/* Melhorias específicas para mobile no modal */
-@media (max-width: 768px) {
-    #private-event-access-modal .bg-purple-100 {
-        background: linear-gradient(135deg, #f3e8ff, #e9d5ff) !important;
-        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15) !important;
-    }
-    
-    #private-event-access-modal .bg-purple-600 {
-        background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
-        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3) !important;
-    }
-    
-    #private-event-access-modal .hover\:bg-purple-700:hover {
-        background: linear-gradient(135deg, #6d28d9, #5b21b6) !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4) !important;
-    }
-    
-    #private-event-access-modal .border-gray-200 {
-        border-color: #e5e7eb !important;
-    }
-    
-    #private-event-access-modal .hover\:bg-gray-50:hover {
-        background-color: #f9fafb !important;
-        transform: translateY(-1px) !important;
-    }
-}
+/* Melhorias específicas para mobile no modal - REMOVIDO */
 
 /* Animação suave para o modal */
 #private-event-access-modal {
@@ -1039,73 +964,7 @@
     }
 }
 
-/* Otimizações para mobile no modal de solicitação de acesso */
-@media (max-width: 768px) {
-    #private-event-access-modal .bg-white {
-        padding: 1.25rem !important;
-        border-radius: 1rem !important;
-        max-width: 320px !important;
-        width: 90% !important;
-        margin: 1rem !important;
-    }
-    
-    #private-event-access-modal .text-2xl {
-        font-size: 1.375rem !important;
-        margin-bottom: 0.75rem !important;
-        line-height: 1.3 !important;
-    }
-    
-    #private-event-access-modal .text-gray-600 {
-        font-size: 0.9rem !important;
-        margin-bottom: 1rem !important;
-        line-height: 1.4 !important;
-    }
-    
-    #private-event-access-modal .text-purple-600 {
-        font-size: 0.95rem !important;
-        margin-bottom: 1.25rem !important;
-        font-weight: 600 !important;
-    }
-    
-    #private-event-access-modal .flex.gap-3 {
-        gap: 0.75rem !important;
-        margin-top: 1.5rem !important;
-    }
-    
-    #private-event-access-modal button {
-        padding: 0.75rem 1.25rem !important;
-        font-size: 0.875rem !important;
-        border-radius: 0.75rem !important;
-        font-weight: 600 !important;
-        min-width: 120px !important;
-    }
-    
-    #private-event-access-modal .w-16.h-16 {
-        width: 3.5rem !important;
-        height: 3.5rem !important;
-        margin-bottom: 1rem !important;
-    }
-    
-    #private-event-access-modal .h-8.w-8 {
-        width: 1.75rem !important;
-        height: 1.75rem !important;
-    }
-    
-    #private-event-access-modal .text-3xl {
-        font-size: 1.75rem !important;
-    }
-    
-    /* Melhorar espaçamento geral */
-    #private-event-access-modal .text-center {
-        padding: 0 0.5rem !important;
-    }
-    
-    /* Garantir que o modal não saia da tela */
-    #private-event-access-modal .relative.z-\[71\] {
-        max-height: calc(100vh - 2rem) !important;
-        overflow-y: auto !important;
-    }
-}
+/* Otimizações para mobile no modal de solicitação de acesso - REMOVIDO */
 
 /* Estilos para o modal de confirmação de remoção de acesso */
 #remove-access-modal {
@@ -1235,6 +1094,64 @@
         width: 0.875rem;
         height: 0.875rem;
     }
+}
+
+/* Estilos para seção de notificações expansível */
+#notifications-toggle {
+    transition: all 0.2s ease;
+}
+
+#notifications-toggle:hover {
+    opacity: 0.8;
+}
+
+#notifications-toggle-btn {
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#notifications-toggle-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+#notifications-toggle-btn:active {
+    transform: scale(0.95);
+}
+
+#notifications-arrow {
+    transition: transform 0.3s ease;
+}
+
+#notifications-controls {
+    transition: opacity 0.3s ease, pointer-events 0.3s ease;
+}
+
+#notifications-content {
+    transition: max-height 0.3s ease;
+}
+
+/* Modo escuro para seção de notificações */
+[data-theme="dark"] #notifications-toggle {
+    color: #f9fafb;
+}
+
+[data-theme="dark"] #notifications-toggle-btn {
+    background-color: #374151;
+    border: 1px solid #4b5563;
+}
+
+[data-theme="dark"] #notifications-toggle-btn:hover {
+    background-color: #4b5563;
+    border-color: #6b7280;
+}
+
+[data-theme="dark"] #notifications-arrow {
+    color: #d1d5db;
+}
+
+[data-theme="dark"] #notifications-controls {
+    color: #d1d5db;
 }
 
 /* Otimizações gerais para mobile */
