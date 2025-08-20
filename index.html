@@ -439,6 +439,13 @@
 }
 </style>
 
+
+<!-- Perf: preconnect to common image hosts -->
+<link rel="preconnect" href="https://firebasestorage.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+<link rel="preconnect" href="https://placehold.co">
+
 </head>
 <body class="bg-gray-50 md:bg-white text-gray-900 selection:bg-pink-600/10">
 <!-- HEADER -->
@@ -560,14 +567,14 @@
 <div class="flex items-center justify-between">
 <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Destaques da Semana</h2>
 </div>
-<div class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-week-top"></div>
+<div class="mt-4 flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-week-top"></div>
 <div class="hidden mt-6 text-center text-gray-500" id="empty-week-top">Nenhum evento nos próximos 7 dias.</div>
 </section>
 <section>
 <div class="flex items-center justify-between">
 <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos Populares</h2>
 </div>
-<div class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-popular"></div>
+<div class="mt-4 flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-popular"></div>
 <div class="hidden mt-6 text-center text-gray-500" id="empty-popular">Nenhum evento com confirmações ainda.</div>
 </section>
 <section>
@@ -575,14 +582,14 @@
 <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos por Dia</h2>
 </div>
 <div class="mt-3 flex gap-2 overflow-x-auto pb-2 -mx-4 px-4" id="weekday-menu"></div>
-<div class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-byday"></div>
+<div class="mt-4 flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-byday"></div>
 <div class="hidden mt-6 text-center text-gray-500" id="empty-byday">Sem eventos nesse dia.</div>
 </section>
 <section>
 <div class="flex items-center justify-between">
 <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Outros Eventos</h2>
 </div>
-<div class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-others"></div>
+<div class="mt-4 flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-others"></div>
 <div class="hidden mt-6 text-center text-gray-500" id="empty-others">Nenhum outro evento encontrado.</div>
 </section>
 <section class="hidden" id="search-results-section">
@@ -654,12 +661,12 @@
 </section>
 <section>
 <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos que seus amigos vão</h2>
-<div class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-friends-popular"></div>
+<div class="mt-4 flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-friends-popular"></div>
 <div class="hidden mt-6 text-center text-gray-500" id="empty-friends-popular">Ninguém que você segue confirmou presença ainda.</div>
 </section>
 <section>
 <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos mais populares da rede</h2>
-<div class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-social-popular"></div>
+<div class="mt-4 flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-social-popular"></div>
 <div class="hidden mt-6 text-center text-gray-500" id="empty-social-popular">Nenhum evento com confirmações ainda.</div>
 </section>
 </main>
@@ -1984,31 +1991,40 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     function eventCard(ev){
         const url=ev.imageUrls?.[0]||'';
         const el=document.createElement('article');
-        el.className='group w-[180px] md:w-[280px] shrink-0 snap-start rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer';
+        el.className='group w-\[150px\] md:w-[280px] shrink-0 snap-start rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer';
         
         const friendsGoingCount = state.friendsGoingMap.get(ev._original_id || ev._id)?.size || 0;
         const friendsGoingHTML = friendsGoingCount > 0 
-            ? `<div class="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-black/50 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
+            ? `<div class="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-black/50 px-2 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-white backdrop-blur-sm">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 <span>${friendsGoingCount} amigo${friendsGoingCount > 1 ? 's' : ''} ${friendsGoingCount > 1 ? 'vão' : 'vai'}</span>
                </div>` 
             : '';
 
         el.innerHTML=`
-          <div class="relative h-32 md:h-44 w-full bg-gray-100 overflow-hidden">
+          <div class="relative h-28 md:h-44 w-full bg-gray-100 overflow-hidden">
             <img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" onerror="this.src='https://placehold.co/280x176/f9a8d4/ffffff?text=RioFestas'" alt="${ev.name||''}" loading="lazy" />
             ${friendsGoingHTML}
           </div>
-          <div class="p-4 md:p-5 space-y-1.5">
-            <h3 class="text-base md:text-lg font-semibold line-clamp-1">${ev.name||''}</h3>
-            <div class="text-xs md:text-sm text-gray-600">${fmtDate(ev.date)} • ${ev.local||''}</div>
-            ${(Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : [])).map(s=>`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-1 text-xs font-medium text-pink-600">${s}</div>`).join('')}
+          <div class="p-3 md:p-5 space-y-1.5">
+            <h3 class="text-sm md:text-lg font-semibold line-clamp-1">${ev.name||''}</h3>
+            <div class="text-[11px] md:text-sm text-gray-600">${fmtDate(ev.date)} • ${ev.local||''}</div>
+            ${(Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : [])).map(s=>`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-pink-600">${s}</div>`).join('')}
           </div>`;
         el.addEventListener('click',()=>openViewModal(ev));
         return el;
     }
 
-    function renderCarousel(containerId, list, emptyId){ const wrap=$('#'+containerId); const emptyEl=$('#'+emptyId); wrap.innerHTML=''; if(!list || !list.length){ show(emptyEl); hide(wrap); return } else { hide(emptyEl); show(wrap); } list.forEach(ev=> wrap.appendChild(eventCard(ev)) ); }
+    function renderCarousel(containerId, list, emptyId){ const wrap=$('#'+containerId); const emptyEl=$('#'+emptyId); wrap.innerHTML=''; if(!list || !list.length){ show(emptyEl); hide(wrap); return } else { hide(emptyEl); show(wrap); } list.forEach((ev, idx)=>{
+  const card = eventCard(ev);
+  const img = card.querySelector && card.querySelector('img');
+  if (img) {
+    img.setAttribute('decoding','async');
+    if (idx < 2) { img.setAttribute('loading','eager'); img.setAttribute('fetchpriority','high'); }
+    else { img.setAttribute('loading','lazy'); img.removeAttribute('fetchpriority'); }
+  }
+  wrap.appendChild(card);
+}); }
 
     function buildNext7Menu(){ const menu=$('#weekday-menu'); menu.innerHTML=''; const today=startOfToday(); const labels=[]; for(let i=0;i<7;i++){ const d=new Date(today); d.setDate(today.getDate()+i); labels.push({date:d,label:weekdayLong[d.getDay()]}); } labels.forEach((it,idx)=>{ const b=document.createElement('button'); b.className='flex-shrink-0 rounded-full border px-4 py-2 text-sm '+(idx===state.byDayOffset? 'bg-pink-600 text-white border-pink-600':'bg-white border-gray-200 hover:bg-gray-50'); b.textContent=it.label; b.addEventListener('click', ()=>{ state.byDayOffset=idx; applyFiltersAndRender(); }); menu.appendChild(b); }); }
 
@@ -2082,7 +2098,7 @@ const activeEvents = filteredEvents.filter(isEventActive);
         const list=filteredEvents.filter(ev=> ([ev.name,ev.style,ev.local,ev.description].filter(Boolean).some(v=>String(v).toLowerCase().includes(q)))); 
         if(!list.length){ show(empty); hide(grid); } 
         else { hide(empty); show(grid); } 
-        list.forEach(ev=>{ const url=ev.imageUrls?.[0]||''; const card=document.createElement('article'); card.className='group rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer'; card.innerHTML=`<div class="relative h-48 w-full bg-gray-100 overflow-hidden"><img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" alt="${ev.name||''}" loading="lazy" /></div><div class="p-5 space-y-2"><h3 class="text-lg font-semibold line-clamp-1">${ev.name||''}</h3><div class="text-sm text-gray-600">${fmtDate(ev.date)} • ${ev.local||''}</div>${(Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : [])).map(s=>`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-1 text-xs font-medium text-pink-600">${s}</div>`).join('')}</div>`; card.addEventListener('click', ()=> openViewModal(ev)); grid.appendChild(card); }); 
+        list.forEach(ev=>{ const url=ev.imageUrls?.[0]||''; const card=document.createElement('article'); card.className='group rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer'; card.innerHTML=`<div class="relative h-48 w-full bg-gray-100 overflow-hidden"><img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" alt="${ev.name||''}" loading="lazy" /></div><div class="p-5 space-y-2"><h3 class="text-lg font-semibold line-clamp-1">${ev.name||''}</h3><div class="text-sm text-gray-600">${fmtDate(ev.date)} • ${ev.local||''}</div>${(Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : [])).map(s=>`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-pink-600">${s}</div>`).join('')}</div>`; card.addEventListener('click', ()=> openViewModal(ev)); grid.appendChild(card); }); 
     }
     
     // CORREÇÃO: Função central para aplicar filtros e re-renderizar
@@ -2162,13 +2178,13 @@ const activeEvents = filteredEvents.filter(isEventActive);
                     <div class="flex items-center justify-between">
                         <h3 class="text-2xl md:text-3xl font-extrabold tracking-tight">${location.name}</h3>
                     </div>
-                    <div id="${carouselId}" class="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"></div>
+                    <div id="${carouselId}" class="mt-4 flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4"></div>
                 `;
                 
                 container.appendChild(sectionEl);
                 
                 const carouselContainer = sectionEl.querySelector(`#${carouselId}`);
-                locationEvents.slice().sort((a,b)=>{const da=a.date?.toDate?a.date.toDate():new Date(a.date);const db=b.date?.toDate?b.date.toDate():new Date(b.date);return da - db;}).forEach(ev=>carouselContainer.appendChild(eventCard(ev)));
+                locationEvents.forEach(ev => carouselContainer.appendChild(eventCard(ev)));
             }
         });
 
@@ -2234,6 +2250,7 @@ const activeEvents = filteredEvents.filter(isEventActive);
         }
         
         try {
+            (async ()=>{ if (!confirm('Remover esta ocorrência do evento?')) return; })();
             await addDoc(collection(db, EVENT_EXCEPTIONS_PATH), {
                 eventId: _original_id,
                 deletedDate: date 
@@ -3765,7 +3782,10 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             });
             el.querySelector('[data-delete-id]').addEventListener('click', async () => {
                 if (ensureAdmin() && confirm(`Tem certeza que quer excluir "${rev.name}"? Esta ação não pode ser desfeita.`)) {
-                    await deleteDoc(doc(db, RECURRING_EVENTS_PATH, rev.id));
+                    await (function(){ 
+        if (!confirm('Tem certeza que deseja apagar este evento? Essa ação não pode ser desfeita.')) return Promise.resolve(); 
+        return deleteDoc(doc(db, RECURRING_EVENTS_PATH, rev.id)); 
+    })();
                     toast('Excluído com sucesso.');
                 }
             });
@@ -4418,5 +4438,36 @@ window.addEventListener('resize', enhanceAdminMobileCollapsibles);
     });
     </script>
     
+
+<script id="preload-first-images">
+document.addEventListener('DOMContentLoaded', function(){
+  const preloadFirstImages = (root) => {
+    try {
+      const head = document.head || document.getElementsByTagName('head')[0];
+      const imgs = Array.from((root||document).querySelectorAll('img')).slice(0,2);
+      imgs.forEach(im => {
+        if (!im) return;
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = im.currentSrc || im.src;
+        head.appendChild(link);
+      });
+    } catch(e){}
+  };
+  // preload first images already on DOM
+  preloadFirstImages(document);
+  // Observe new carousels
+  const obs = new MutationObserver((muts)=>{
+    muts.forEach(m=>{
+      m.addedNodes && m.addedNodes.forEach(n=>{
+        if(n.nodeType===1 && n.id && n.id.startsWith('carousel-')){ preloadFirstImages(n); }
+      });
+    });
+  });
+  obs.observe(document.body, { childList: true, subtree: true });
+});
+</script>
+
 </body>
 </html>
