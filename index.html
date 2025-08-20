@@ -1756,7 +1756,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
 
     // ===== Eventos pendentes (admin) =====
     let _approveTarget=null;
-    function renderPending(){ const wrap=$('#pending-events'); wrap.innerHTML=''; if(!state.pending.length){ wrap.innerHTML='<div class="text-sm text-gray-500">Nenhum evento pendente.</div>'; return } state.pending.forEach(ev=>{ const card=document.createElement('div'); card.className='rounded-2xl border border-gray-200 p-3 flex items-start gap-3'; const cover=ev.imageUrls?.[0]||''; card.innerHTML=`<img src='${cover}' class='h-16 w-20 rounded-lg object-cover ring-subtle'/><div class='flex-1'><div class='font-medium'>${ev.name||''}</div><div class='text-xs text-gray-500'>${fmtDate(ev.date)} • ${ev.local||''}</div><div class='text-xs text-gray-500'>Enviado por ${ev.createdBy||'—'}</div></div><div class='flex gap-2'><button class='rounded-full border border-gray-200 px-3 py-1.5 text-xs' data-edit='${ev.id}'>Editar</button><button class='rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white' data-approve='${ev.id}'>Aprovar</button><button class='rounded-full bg-red-600 px-3 py-1.5 text-xs font-semibold text-white' data-reject='${ev.id}'>Recusar</button></div>`; card.querySelector(`[data-edit='${ev.id}']`).addEventListener('click',()=>{ if(!ensureAdmin()) return; openEventModal('edit-pending', ev); }); card.querySelector(`[data-approve='${ev.id}']`).addEventListener('click',()=>{ if(!ensureAdmin()) return; _approveTarget=ev; $('#approve-importance').value=5; $('#approve-importance-value').textContent='5'; show($('#approve-modal')); }); card.querySelector(`[data-reject='${ev.id}']`).addEventListener('click', async()=>{ if(!ensureAdmin()) return; await deleteDoc(doc(db, PENDING_PATH, ev.id)); toast('Evento recusado.'); }); wrap.appendChild(card); }); }
+    function renderPending(){ const wrap=$('#pending-events'); wrap.innerHTML=''; if(!state.pending.length){ wrap.innerHTML='<div class="text-sm text-gray-500">Nenhum evento pendente.</div>'; return } state.pending.forEach(ev=>{ const card=document.createElement('div'); card.className='rounded-2xl border border-gray-200 p-3 flex items-start gap-3'; const cover=ev.imageUrls?.[0]||''; card.innerHTML=`<img src='${cover}' class='h-16 w-20 rounded-lg object-cover ring-subtle'/><div class='flex-1'><div class='font-medium'>${ev.name||''}</div><div class='text-xs text-gray-500'>${fmtDate(ev.date)} • ${ev.local||''}</div><div class='text-xs text-gray-500'>Enviado por ${ev.createdBy||'—'}</div></div><div class='flex gap-3'><button class='rounded-full border border-gray-200 px-3 py-1.5 text-xs' data-edit='${ev.id}'>Editar</button><button class='rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white' data-approve='${ev.id}'>Aprovar</button><button class='rounded-full bg-red-600 px-3 py-1.5 text-xs font-semibold text-white' data-reject='${ev.id}'>Recusar</button></div>`; card.querySelector(`[data-edit='${ev.id}']`).addEventListener('click',()=>{ if(!ensureAdmin()) return; openEventModal('edit-pending', ev); }); card.querySelector(`[data-approve='${ev.id}']`).addEventListener('click',()=>{ if(!ensureAdmin()) return; _approveTarget=ev; $('#approve-importance').value=5; $('#approve-importance-value').textContent='5'; show($('#approve-modal')); }); card.querySelector(`[data-reject='${ev.id}']`).addEventListener('click', async()=>{ if(!ensureAdmin()) return; await deleteDoc(doc(db, PENDING_PATH, ev.id)); toast('Evento recusado.'); }); wrap.appendChild(card); }); }
 
     $('#approve-importance').addEventListener('input', e=> $('#approve-importance-value').textContent=e.target.value );
     $('#approve-confirm').addEventListener('click', async()=>{ if(!_approveTarget) return; try{ const imp=Number($('#approve-importance').value)||0; const payload={ ..._approveTarget, importance:imp, status:'approved', approvedAt:serverTimestamp() }; delete payload.id; await addDoc(collection(db, EVENTS_PATH), payload); await deleteDoc(doc(db, PENDING_PATH, _approveTarget.id)); hide($('#approve-modal')); toast('Evento aprovado!'); }catch(e){ console.error(e); toast('Falha ao aprovar.', 'error') } finally{ _approveTarget=null; }
@@ -4451,7 +4451,7 @@ async function renderOrganizerPrivateEventRequests() {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="request-actions">
+                                <div class="request-actions flex flex-col gap-3">
                                     <button class="approve-btn" data-approve="${eventId}" data-user="${req.userId}">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -4472,7 +4472,9 @@ async function renderOrganizerPrivateEventRequests() {
                 
                 // Adiciona event listeners
                 eventCard.querySelectorAll('[data-approve]').forEach(btn => {
-                    btn.addEventListener('click', () => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         const eventId = btn.dataset.approve;
                         const userId = btn.dataset.user;
                         handlePrivateEventRequest(eventId, userId, 'approve');
@@ -4480,7 +4482,9 @@ async function renderOrganizerPrivateEventRequests() {
                 });
                 
                 eventCard.querySelectorAll('[data-reject]').forEach(btn => {
-                    btn.addEventListener('click', () => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         const eventId = btn.dataset.reject;
                         const userId = btn.dataset.user;
                         handlePrivateEventRequest(eventId, userId, 'reject');
@@ -4562,7 +4566,7 @@ async function renderAdminPrivateEventRequests() {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="request-actions">
+                                <div class="request-actions flex flex-col gap-3">
                                     <button class="approve-btn" data-approve="${eventId}" data-user="${req.userId}">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -4583,7 +4587,9 @@ async function renderAdminPrivateEventRequests() {
                 
                 // Adiciona event listeners
                 eventCard.querySelectorAll('[data-approve]').forEach(btn => {
-                    btn.addEventListener('click', () => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         const eventId = btn.dataset.approve;
                         const userId = btn.dataset.user;
                         handlePrivateEventRequest(eventId, userId, 'approve');
@@ -4591,7 +4597,9 @@ async function renderAdminPrivateEventRequests() {
                 });
                 
                 eventCard.querySelectorAll('[data-reject]').forEach(btn => {
-                    btn.addEventListener('click', () => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         const eventId = btn.dataset.reject;
                         const userId = btn.dataset.user;
                         handlePrivateEventRequest(eventId, userId, 'reject');
@@ -4653,7 +4661,11 @@ function renderOrganizerEvents() {
                 </div>
             `;
             
-            eventCard.addEventListener('click', () => openViewModal(event));
+            eventCard.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openViewModal(event);
+            });
             container.appendChild(eventCard);
         });
 }
@@ -4677,11 +4689,15 @@ function showRemoveAccessModal(eventId, userId) {
 }
 
 // Event listeners para o modal de remoção de acesso
-$('#cancel-remove-access-btn').addEventListener('click', () => {
+$('#cancel-remove-access-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     hide($('#remove-access-modal'));
 });
 
-$('#confirm-remove-access-btn').addEventListener('click', async () => {
+$('#confirm-remove-access-btn').addEventListener('click', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     const eventId = $('#remove-access-modal').dataset.eventId;
     const userId = $('#remove-access-modal').dataset.userId;
     
@@ -4689,6 +4705,11 @@ $('#confirm-remove-access-btn').addEventListener('click', async () => {
         await removePrivateEventAccess(eventId, userId);
         hide($('#remove-access-modal'));
     }
+});
+
+// Prevenir propagação de eventos no modal
+$('#remove-access-modal').addEventListener('click', (e) => {
+    e.stopPropagation();
 });
 
 // Função para remover acesso de uma pessoa aprovada
@@ -4709,6 +4730,8 @@ async function removePrivateEventAccess(eventId, userId) {
         } else if (state.isOrganizer) {
             renderOrganizerPrivateEventRequests();
             renderOrganizerPrivateEventApproved();
+            // Recarrega também os eventos do organizador para garantir consistência
+            renderOrganizerEvents();
         }
     } catch (err) {
         console.error('Erro ao remover acesso:', err);
@@ -4801,7 +4824,9 @@ async function renderOrganizerPrivateEventApproved() {
                 
                 // Adiciona event listeners
                 eventCard.querySelectorAll('[data-remove]').forEach(btn => {
-                    btn.addEventListener('click', () => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         const eventId = btn.dataset.remove;
                         const userId = btn.dataset.user;
                         showRemoveAccessModal(eventId, userId);
@@ -4909,7 +4934,9 @@ async function renderAdminPrivateEventApproved() {
                 
                 // Adiciona event listeners
                 eventCard.querySelectorAll('[data-remove]').forEach(btn => {
-                    btn.addEventListener('click', () => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         const eventId = btn.dataset.remove;
                         const userId = btn.dataset.user;
                         showRemoveAccessModal(eventId, userId);

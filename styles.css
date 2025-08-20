@@ -1154,6 +1154,113 @@
     color: #d1d5db;
 }
 
+/* Estilos para botões de ação em cards */
+.approve-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    font-weight: 600;
+    font-size: 0.75rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 80px;
+    justify-content: center;
+}
+
+.approve-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    background: linear-gradient(135deg, #059669, #047857);
+}
+
+.approve-btn:active {
+    transform: translateY(0);
+}
+
+.reject-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    font-weight: 600;
+    font-size: 0.75rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 80px;
+    justify-content: center;
+}
+
+.reject-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+.reject-btn:active {
+    transform: translateY(0);
+}
+
+/* Modo escuro para botões de aprovar/recusar */
+[data-theme="dark"] .approve-btn {
+    background: linear-gradient(135deg, #059669, #047857);
+}
+
+[data-theme="dark"] .approve-btn:hover {
+    background: linear-gradient(135deg, #047857, #065f46);
+}
+
+[data-theme="dark"] .reject-btn {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+[data-theme="dark"] .reject-btn:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+}
+.remove-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    font-weight: 600;
+    font-size: 0.75rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 80px;
+    justify-content: center;
+}
+
+.remove-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+.remove-btn:active {
+    transform: translateY(0);
+}
+
+/* Modo escuro para botões de remover */
+[data-theme="dark"] .remove-btn {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+[data-theme="dark"] .remove-btn:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+}
+
 /* Otimizações gerais para mobile */
 @media (max-width: 768px) {
     /* Reduzir espaçamentos gerais */
