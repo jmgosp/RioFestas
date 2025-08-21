@@ -2,6 +2,69 @@
 
 /* --- Split from inline <style> blocks --- */
 
+/* Estilos para modais de autenticação no mobile */
+@media (max-width: 768px) {
+    /* Container do modal - permite scroll */
+    #auth-register, #auth-login {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 1rem 0;
+    }
+    
+    /* Conteúdo do modal - altura flexível */
+    #auth-register .relative, #auth-login .relative {
+        margin: 0 auto;
+        margin-top: 0;
+        width: calc(100% - 2rem);
+        max-width: 28rem;
+        max-height: none;
+        min-height: auto;
+        overflow: visible;
+        position: relative;
+        z-index: 81;
+    }
+    
+    /* Remove o overflow do conteúdo interno */
+    #auth-register .pop, #auth-login .pop {
+        max-height: none;
+        overflow: visible;
+        margin: 0;
+    }
+    
+    /* Previne scroll da página de fundo quando modal está aberto */
+    body.modal-open {
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+    }
+    
+    /* Remove estilos que causam conflito */
+    #auth-register form, #auth-login form {
+        max-height: none;
+        overflow: visible;
+    }
+    
+    /* Remove position sticky dos botões que causa problemas */
+    #auth-register button[type="submit"], #auth-login button[type="submit"] {
+        position: static;
+        margin-top: 1rem;
+    }
+    
+    /* Garante que o formulário possa expandir */
+    #auth-register .space-y-4, #auth-login .space-y-4 {
+        min-height: auto;
+    }
+}
+
 
     body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
     .shadow-soft{box-shadow:0 12px 26px rgba(17,17,18,.08)}
@@ -1131,41 +1194,6 @@
     transition: max-height 0.3s ease;
 }
 
-/* Modal de cadastro - correção de scroll no mobile */
-#auth-register {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-#auth-register .pop {
-    max-height: 90vh;
-    overflow-y: auto;
-    margin: 2vh auto;
-}
-
-@media (max-width: 768px) {
-    #auth-register {
-        padding: 0;
-        display: block;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    #auth-register .pop {
-        max-height: none;
-        margin: 0;
-        padding: 1rem;
-        width: 100%;
-        max-width: 100%;
-        min-height: 100vh;
-        overflow-y: visible;
-    }
-    
-    #auth-register form {
-        overflow-y: visible;
-    }
-}
-
 /* Modo escuro para seção de notificações */
 [data-theme="dark"] #notifications-toggle {
     color: #f9fafb;
@@ -1186,39 +1214,6 @@
 }
 
 [data-theme="dark"] #notifications-controls {
-    color: #d1d5db;
-}
-
-/* Modo escuro para modal de cadastro */
-[data-theme="dark"] #auth-register .pop {
-    background-color: #1f2937;
-    color: #f9fafb;
-}
-
-[data-theme="dark"] #auth-register input,
-[data-theme="dark"] #auth-register textarea,
-[data-theme="dark"] #auth-register select {
-    background-color: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
-}
-
-[data-theme="dark"] #auth-register input:focus,
-[data-theme="dark"] #auth-register textarea:focus,
-[data-theme="dark"] #auth-register select:focus {
-    border-color: #8b5cf6;
-    ring-color: #8b5cf6;
-}
-
-[data-theme="dark"] #auth-register label {
-    color: #d1d5db;
-}
-
-[data-theme="dark"] #auth-register .text-gray-500 {
-    color: #9ca3af;
-}
-
-[data-theme="dark"] #auth-register .text-gray-600 {
     color: #d1d5db;
 }
 

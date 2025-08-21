@@ -1153,13 +1153,38 @@
       }
     };
 
-    const openLogin = ()=> show($('#auth-login'));
-    const openRegister = ()=> show($('#auth-register'));
-    const closeLogin = ()=> hide($('#auth-login'));
-    const closeRegister = ()=> hide($('#auth-register'));
+         const openLogin = ()=> {
+         show($('#auth-login'));
+         document.body.classList.add('modal-open');
+     };
+     const openRegister = ()=> {
+         show($('#auth-register'));
+         document.body.classList.add('modal-open');
+     };
+     const closeLogin = ()=> {
+         hide($('#auth-login'));
+         document.body.classList.remove('modal-open');
+     };
+     const closeRegister = ()=> {
+         hide($('#auth-register'));
+         document.body.classList.remove('modal-open');
+     };
 
     $('#btn-open-login').addEventListener('click', openLogin);
     $('#btn-open-register').addEventListener('click', openRegister);
+    
+    // Fechar modal quando clicar no backdrop
+    $('#auth-login').addEventListener('click', (e) => {
+        if (e.target.id === 'auth-login') {
+            closeLogin();
+        }
+    });
+    
+    $('#auth-register').addEventListener('click', (e) => {
+        if (e.target.id === 'auth-register') {
+            closeRegister();
+        }
+    });
 
     document.addEventListener('click', (e)=>{
       const el = e.target.closest('[data-close]');
@@ -1176,6 +1201,11 @@
       }
 
       if(modal) hide(modal);
+      
+      // Remove classe modal-open para modais de autenticação
+      if(id === 'auth-login' || id === 'auth-register') {
+        document.body.classList.remove('modal-open');
+      }
 
       if(id === 'event') {
         Object.values(state.eventForm.uploadTasks).forEach(t => t.task.cancel());
@@ -1191,8 +1221,6 @@
       if(id==='delete-notification') { state.deleteNotificationTarget = null; }
       if(id==='reset-ratings') { state.resetRatingsTarget = null; }
     });
-
-
 
     // ===== Login =====
     $('#form-login').addEventListener('submit', async (e)=>{
