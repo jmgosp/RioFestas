@@ -534,7 +534,7 @@
 </section>
 <!-- MODAL: LOGIN -->
 <div class="fixed inset-0 z-[80] hidden" id="auth-login">
-<div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="auth-login"></div>
+<div class="absolute inset-0 fade" data-close="auth-login"></div>
 <div class="relative z-[81] mx-auto mt-20 w-[92%] max-w-md rounded-3xl bg-white p-8 shadow-soft ring-subtle pop">
 <button aria-label="Fechar" class="absolute right-3 top-3 rounded-full p-2 hover:bg-gray-100" data-close="auth-login">✕</button>
 <div class="text-center mb-6">
@@ -555,14 +555,16 @@
 </div>
 <!-- MODAL: REGISTER (com opção de organizador) -->
 <div class="fixed inset-0 z-[80] hidden" id="auth-register">
-<div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="auth-register"></div>
-<div class="relative z-[81] mx-auto mt-20 w-[92%] max-w-xl rounded-3xl bg-white p-8 shadow-soft ring-subtle pop">
-<button aria-label="Fechar" class="absolute right-3 top-3 rounded-full p-2 hover:bg-gray-100" data-close="auth-register">✕</button>
-<div class="text-center mb-6">
-<h3 class="text-2xl font-extrabold">Crie sua Conta</h3>
+<div class="absolute inset-0 fade" data-close="auth-register"></div>
+<div class="relative z-[81] mx-auto mt-8 w-[92%] max-w-xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[88vh] flex flex-col">
+<div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
+<div class="text-center flex-1">
+<h3 class="text-xl font-semibold">Crie sua Conta</h3>
 <p class="text-sm text-gray-500">Leva menos de um minuto.</p>
 </div>
-<form class="space-y-4" id="form-register">
+<button aria-label="Fechar" class="rounded-full p-2 hover:bg-gray-100" data-close="auth-register">✕</button>
+</div>
+<form class="px-6 pb-3 overflow-y-auto space-y-4" id="form-register">
 <div class="grid gap-3 md:grid-cols-2">
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-name" placeholder="Nome completo" required="" type="text"/>
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-username" placeholder="Nome de usuário (@exemplo)" required="" type="text"/>
@@ -582,7 +584,9 @@
 <label class="text-gray-600" for="reg-terms">Eu li e aceito os <a class="text-pink-600 hover:underline" href="https://firebasestorage.googleapis.com/v0/b/riofestas2.firebasestorage.app/o/termos%20de%20uso.html?alt=media&amp;token=f7f7a4f3-b414-4bb8-b631-e2704652eb83" target="_blank">Termos de Uso e a Política de Privacidade</a>.</label>
 </div>
 <div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="err-register"></div>
+<div class="sticky bottom-0 z-10 -mx-6 mt-4 bg-gradient-to-t from-white via-white/95 to-white/0 px-6 pt-3 pb-4 border-t border-gray-100">
 <button class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90" id="submit-register">Registrar</button>
+</div>
 </form>
 </div>
 </div>
@@ -1153,10 +1157,10 @@
       }
     };
 
-    const openLogin = ()=> show($('#auth-login'));
-    const openRegister = ()=> show($('#auth-register'));
-    const closeLogin = ()=> hide($('#auth-login'));
-    const closeRegister = ()=> hide($('#auth-register'));
+    const openLogin = ()=> { show($('#auth-login')); document.body.classList.add('modal-open'); };
+    const openRegister = ()=> { show($('#auth-register')); document.body.classList.add('modal-open'); };
+    const closeLogin = ()=> { hide($('#auth-login')); document.body.classList.remove('modal-open'); };
+    const closeRegister = ()=> { hide($('#auth-register')); document.body.classList.remove('modal-open'); };
 
     $('#btn-open-login').addEventListener('click', openLogin);
     $('#btn-open-register').addEventListener('click', openRegister);
@@ -1175,7 +1179,10 @@
         modal = $(`#${id}-modal`) || $(`#${id}`);
       }
 
-      if(modal) hide(modal);
+      if(modal) {
+        hide(modal);
+        document.body.classList.remove('modal-open');
+      }
 
       if(id === 'event') {
         Object.values(state.eventForm.uploadTasks).forEach(t => t.task.cancel());
@@ -1551,8 +1558,6 @@
     function processAndRenderAllViews() {
         const expandedEvents = [];
         
-        console.log('Processando eventos base:', state.baseEvents.length);
-        
         (state.baseEvents || []).forEach(event => {
             if (event.repeatsWeekly) {
                 const displayCount = event.displayCount || 1; // CORREÇÃO: Padrão para 1
@@ -1590,7 +1595,6 @@
         });
 
         state.events = expandedEvents;
-        console.log('Eventos expandidos:', state.events.length);
         
         // CORREÇÃO: Aplica filtros e renderiza tudo
         applyFiltersAndRender().catch(console.error);
@@ -1610,7 +1614,6 @@
         if (_unsubRecurring) _unsubRecurring();
         _unsubRecurring = onSnapshot(collection(db, RECURRING_EVENTS_PATH), (snap) => {
             state.recurringEvents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            console.log('Eventos recorrentes carregados:', state.recurringEvents);
             renderRecurringEventsAdmin();
             populateRecurringEventsDropdown();
             
@@ -1801,8 +1804,6 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     }
 
     async function eventCard(ev){
-        console.log('Criando card para evento:', ev.name, ev._id);
-        
         const url=ev.imageUrls?.[0]||'';
         const el=document.createElement('article');
         el.className='group w-\[150px\] md:w-[280px] shrink-0 snap-start rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer';
@@ -2004,10 +2005,6 @@ const activeEvents = filteredEvents.filter(isEventActive);
         const container = $('#locations-container');
         container.innerHTML = ''; 
 
-        console.log('Renderizando página de locais...');
-        console.log('Eventos ativos:', state.events.filter(isEventActive).length);
-        console.log('Eventos recorrentes:', state.recurringEvents.length);
-
         const activeEvents = state.events.filter(isEventActive);
 
         const eventsByLocation = activeEvents.reduce((acc, event) => {
@@ -2020,13 +2017,10 @@ const activeEvents = filteredEvents.filter(isEventActive);
             return acc;
         }, {});
 
-        console.log('Eventos por local:', eventsByLocation);
-
         let hasContent = false;
         
         for (const location of state.recurringEvents) {
             const locationEvents = eventsByLocation[location.id];
-            console.log(`Local ${location.name}:`, locationEvents?.length || 0, 'eventos');
 
             if (locationEvents && locationEvents.length > 0) {
                 hasContent = true;

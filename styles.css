@@ -1317,3 +1317,10 @@
         border-radius: 0.75rem !important;
     }
 }
+
+/* Previne rolagem da página de fundo quando modal está aberto */
+body.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+}
