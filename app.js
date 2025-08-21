@@ -53,10 +53,52 @@
 
 
 document.addEventListener('DOMContentLoaded', function(){
+  // Enhanced image optimization
+  const optimizeImages = () => {
+    const images = document.querySelectorAll('img[src]');
+    images.forEach((img, index) => {
+      // Add loading optimization
+      if (index < 6) {
+        img.setAttribute('fetchpriority', 'high');
+      }
+      
+      // Add error handling
+      img.addEventListener('error', function() {
+        if (!this.dataset.fallbackApplied) {
+          this.src = 'https://placehold.co/280x176/f9a8d4/ffffff?text=RioFestas';
+          this.dataset.fallbackApplied = 'true';
+        }
+      });
+      
+      // Add loading animation
+      img.addEventListener('load', function() {
+        this.classList.add('loaded');
+        this.parentElement?.classList.remove('image-container');
+      });
+      
+      // Add intersection observer for lazy loading
+      if (index > 5) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              img.src = img.dataset.src || img.src;
+              observer.unobserve(img);
+            }
+          });
+        }, {
+          rootMargin: '50px 0px',
+          threshold: 0.1
+        });
+        observer.observe(img);
+      }
+    });
+  };
+
   const preloadFirstImages = (root) => {
     try {
       const head = document.head || document.getElementsByTagName('head')[0];
-      const imgs = Array.from((root||document).querySelectorAll('img')).slice(0,2);
+      const imgs = Array.from((root||document).querySelectorAll('img')).slice(0,3);
       imgs.forEach(im => {
         if (!im) return;
         const link = document.createElement('link');
@@ -67,13 +109,27 @@ document.addEventListener('DOMContentLoaded', function(){
       });
     } catch(e){}
   };
-  // preload first images already on DOM
+  
+  // Initial optimization
+  optimizeImages();
   preloadFirstImages(document);
-  // Observe new carousels
+  
+  // Observe new carousels and optimize
   const obs = new MutationObserver((muts)=>{
     muts.forEach(m=>{
       m.addedNodes && m.addedNodes.forEach(n=>{
-        if(n.nodeType===1 && n.id && n.id.startsWith('carousel-')){ preloadFirstImages(n); }
+        if(n.nodeType===1) {
+          if(n.id && n.id.startsWith('carousel-')){ 
+            preloadFirstImages(n); 
+          }
+          // Optimize any new images
+          if(n.querySelectorAll) {
+            const newImages = n.querySelectorAll('img');
+            if(newImages.length > 0) {
+              setTimeout(optimizeImages, 100);
+            }
+          }
+        }
       });
     });
   });

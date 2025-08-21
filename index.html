@@ -21,12 +21,19 @@
 })();
 </script>
 
-
 <!-- Perf: preconnect to common image hosts -->
 <link crossorigin="" href="https://firebasestorage.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://lh3.googleusercontent.com" rel="preconnect"/>
 <link crossorigin="" href="https://images.unsplash.com" rel="preconnect"/>
 <link href="https://placehold.co" rel="preconnect"/>
+
+<!-- Preload critical images -->
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&amp;w=1600&amp;auto=format&amp;fit=crop" fetchpriority="high"/>
+<link rel="preload" as="image" href="https://placehold.co/32x32/f472b6/ffffff?text=U" fetchpriority="high"/>
+
+<!-- DNS prefetch for additional domains -->
+<link rel="dns-prefetch" href="//www.gstatic.com"/>
+<link rel="dns-prefetch" href="//firebaseapp.com"/>
 </head>
 <body class="bg-gray-50 md:bg-white text-gray-900 selection:bg-pink-600/10">
 <!-- HEADER -->
@@ -100,7 +107,7 @@
 </div>
 </div>
 <div class="rounded-3xl overflow-hidden shadow-soft ring-subtle">
-<img alt="Brinde em festa no Rio" class="w-full h-[280px] md:h-[420px] object-cover" src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&amp;w=1600&amp;auto=format&amp;fit=crop"/>
+<img alt="Brinde em festa no Rio" class="w-full h-[280px] md:h-[420px] object-cover" src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&amp;w=1600&amp;auto=format&amp;fit=crop" fetchpriority="high" decoding="async"/>
 </div>
 </div>
 </section>
@@ -331,7 +338,7 @@
 <div>
 <label class="text-sm font-medium text-gray-700">Foto de Perfil</label>
 <div class="mt-1 flex items-center gap-4">
-<img class="h-16 w-16 rounded-full object-cover bg-gray-200 ring-4 ring-white shadow-sm" id="account-photo-preview" src="https://placehold.co/64x64/f472b6/ffffff?text=U"/>
+<img class="h-16 w-16 rounded-full object-cover bg-gray-200" id="account-photo-preview" src="https://placehold.co/64x64/f472b6/ffffff?text=U"/>
 <div class="flex flex-col gap-2">
 <label class="cursor-pointer rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50" for="account-photo-upload">
                     Trocar Foto
@@ -352,7 +359,7 @@
 <label class="relative inline-flex items-center cursor-pointer">
 <input class="sr-only peer" id="account-private" type="checkbox"/>
 <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600"></div>
-</label>
+</div>
 </div>
 <div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="account-error"></div>
 <div class="flex justify-end">
@@ -1833,7 +1840,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
 
         el.innerHTML=`
           <div class="relative h-28 md:h-44 w-full bg-gray-100 overflow-hidden">
-            <img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" onerror="this.src='https://placehold.co/280x176/f9a8d4/ffffff?text=RioFestas'" alt="${ev.name||''}" loading="lazy" />
+            <img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" alt="${ev.name||''}" loading="lazy" decoding="async" />
             ${friendsGoingHTML}
             ${isPrivate && !hasAccess ? `<div class="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-purple-600/90 px-2 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-white backdrop-blur-sm">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z"/></svg>
@@ -1864,22 +1871,43 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             show(wrap); 
         } 
         
+        // Create all cards first for better performance
+        const cards = [];
         for (let idx = 0; idx < list.length; idx++) {
             const ev = list[idx];
             const card = await eventCard(ev);
             const img = card.querySelector && card.querySelector('img');
             if (img) {
                 img.setAttribute('decoding','async');
-                if (idx < 2) { 
+                // Optimize loading strategy
+                if (idx < 3) { 
                     img.setAttribute('loading','eager'); 
                     img.setAttribute('fetchpriority','high'); 
+                    // Preload critical images
+                    if (idx === 0 && ev.imageUrls?.[0]) {
+                        const link = document.createElement('link');
+                        link.rel = 'preload';
+                        link.as = 'image';
+                        link.href = ev.imageUrls[0];
+                        document.head.appendChild(link);
+                    }
                 } else { 
                     img.setAttribute('loading','lazy'); 
                     img.removeAttribute('fetchpriority'); 
                 }
+                // Add error handling with optimized fallback
+                img.onerror = function() {
+                    this.src = 'https://placehold.co/280x176/f9a8d4/ffffff?text=RioFestas';
+                    this.onerror = null; // Prevent infinite loop
+                };
             }
-            wrap.appendChild(card);
+            cards.push(card);
         }
+        
+        // Batch append for better performance
+        const fragment = document.createDocumentFragment();
+        cards.forEach(card => fragment.appendChild(card));
+        wrap.appendChild(fragment);
     }
 
     function buildNext7Menu(){ const menu=$('#weekday-menu'); menu.innerHTML=''; const today=startOfToday(); const labels=[]; for(let i=0;i<7;i++){ const d=new Date(today); d.setDate(today.getDate()+i); labels.push({date:d,label:weekdayLong[d.getDay()]}); } labels.forEach((it,idx)=>{ const b=document.createElement('button'); b.className='flex-shrink-0 rounded-full border px-4 py-2 text-sm '+(idx===state.byDayOffset? 'bg-pink-600 text-white border-pink-600':'bg-white border-gray-200 hover:bg-gray-50'); b.textContent=it.label; b.addEventListener('click', ()=>{ state.byDayOffset=idx; applyFiltersAndRender().catch(console.error); }); menu.appendChild(b); }); }
@@ -1954,7 +1982,24 @@ const activeEvents = filteredEvents.filter(isEventActive);
         const list=filteredEvents.filter(ev=> ([ev.name,ev.style,ev.local,ev.description].filter(Boolean).some(v=>String(v).toLowerCase().includes(q)))); 
         if(!list.length){ show(empty); hide(grid); } 
         else { hide(empty); show(grid); } 
-        list.forEach(ev=>{ const url=ev.imageUrls?.[0]||''; const card=document.createElement('article'); card.className='group rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer'; card.innerHTML=`<div class="relative h-48 w-full bg-gray-100 overflow-hidden"><img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" alt="${ev.name||''}" loading="lazy" /></div><div class="p-5 space-y-2"><h3 class="text-lg font-semibold break-words">${ev.name||''}</h3><div class="text-sm text-gray-600">${fmtDate(ev.date)}</div>${(ev.local || ev.bairroName || ev.address || ev.location || ev.venue) ? `<div class="text-sm text-gray-600 line-clamp-1">${ev.local || ev.bairroName || ev.address || ev.location || ev.venue}</div>` : ''}${(Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : [])).map(s=>`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-pink-600">${s}</div>`).join('')}</div>`; card.addEventListener('click', ()=> openViewModal(ev)); grid.appendChild(card); }); 
+        list.forEach((ev, index) => { 
+            const url = ev.imageUrls?.[0] || ''; 
+            const card = document.createElement('article'); 
+            card.className = 'group rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer'; 
+            card.innerHTML = `<div class="relative h-48 w-full bg-gray-100 overflow-hidden"><img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" alt="${ev.name || ''}" loading="${index < 4 ? 'eager' : 'lazy'}" decoding="async" /></div><div class="p-5 space-y-2"><h3 class="text-lg font-semibold break-words">${ev.name || ''}</h3><div class="text-sm text-gray-600">${fmtDate(ev.date)}</div>${(ev.local || ev.bairroName || ev.address || ev.location || ev.venue) ? `<div class="text-sm text-gray-600 line-clamp-1">${ev.local || ev.bairroName || ev.address || ev.location || ev.venue}</div>` : ''}${(Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : [])).map(s => `<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-pink-600">${s}</div>`).join('')}</div>`; 
+            
+            // Add error handling for images
+            const img = card.querySelector('img');
+            if (img) {
+                img.onerror = function() {
+                    this.src = 'https://placehold.co/280x176/f9a8d4/ffffff?text=RioFestas';
+                    this.onerror = null;
+                };
+            }
+            
+            card.addEventListener('click', () => openViewModal(ev)); 
+            grid.appendChild(card); 
+        }); 
     }
     
     // CORREÇÃO: Função central para aplicar filtros e re-renderizar
@@ -5195,13 +5240,11 @@ function filterRequests(containerId, searchTerm) {
             }
         });
         
-        if (searchTerm === '' || shouldShow) {
-            card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
-        }
+        card.style.display = shouldShow ? 'block' : 'none';
     });
 }
+
+
 
 </script>
 
