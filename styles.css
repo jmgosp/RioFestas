@@ -1341,7 +1341,7 @@ body.modal-open {
         -webkit-overflow-scrolling: touch;
         scrollbar-width: thin;
         scrollbar-color: #cbd5e1 transparent;
-        padding-bottom: 2rem !important; /* Adicionar espaço extra no final */
+        padding-bottom: 3rem !important; /* Aumentar espaço extra no final */
     }
     
     #auth-register .relative.z-\[81\]::-webkit-scrollbar {
@@ -1378,7 +1378,7 @@ body.modal-open {
     /* Reduzir padding do modal no mobile */
     #auth-register .relative.z-\[81\] {
         padding: 1rem !important;
-        padding-bottom: 3rem !important; /* Mais espaço no final para o botão */
+        padding-bottom: 5rem !important; /* Aumentar mais espaço no final para o botão */
     }
     
     /* Ajustar tamanho dos inputs no mobile */
@@ -1441,7 +1441,7 @@ body.modal-open {
     
     /* Ajustar o formulário para ter mais espaço no final */
     #auth-register form {
-        padding-bottom: 2rem !important; /* Mais espaço para o botão */
+        padding-bottom: 3rem !important; /* Aumentar mais espaço para o botão */
     }
     
     /* Garantir que o container do modal tenha altura suficiente */
@@ -1658,7 +1658,7 @@ body.modal-open {
         margin-bottom: 0.25rem !important;
         max-height: calc(100vh - 0.5rem) !important;
         padding: 0.75rem !important;
-        padding-bottom: 4rem !important; /* Mais espaço para o botão */
+        padding-bottom: 6rem !important; /* Aumentar ainda mais espaço para o botão */
         border-radius: 0.75rem !important;
     }
     
@@ -1700,18 +1700,33 @@ body.modal-open {
 
 /* Ajustes específicos para quando o formulário de organizador está ativo */
 #reg-organizer-form:not(.hidden) ~ #submit-register {
-    margin-top: 1.5rem !important;
+    margin-top: 2rem !important; /* Aumentar margem */
 }
 
 /* Garantir que o scroll funcione adequadamente */
 #auth-register .relative.z-\[81\] {
     scroll-behavior: smooth !important;
-    scroll-padding-bottom: 4rem !important; /* Espaço para o botão sticky */
+    scroll-padding-bottom: 6rem !important; /* Aumentar espaço para o botão sticky */
 }
 
 /* Ajustar o espaçamento do formulário quando organizador está ativo */
 #reg-organizer-form:not(.hidden) + .flex.items-start.gap-2 {
-    margin-top: 1rem !important;
+    margin-top: 1.5rem !important; /* Aumentar margem */
+}
+
+/* Espaçamento extra quando organizador está ativo */
+#reg-organizer-form:not(.hidden) {
+    margin-bottom: 1rem !important;
+}
+
+/* Garantir mais espaço quando organizador está ativo */
+#auth-register:has(#reg-organizer-form:not(.hidden)) .relative.z-\[81\] {
+    padding-bottom: 7rem !important;
+}
+
+/* Ajuste específico para o formulário quando organizador está ativo */
+#auth-register:has(#reg-organizer-form:not(.hidden)) form {
+    padding-bottom: 4rem !important;
 }
 
 /* Garantir que o botão seja sempre visível e acessível */
@@ -1837,6 +1852,35 @@ body.modal-open {
     pointer-events: auto !important;
 }
 
+/* Garantir que o botão de registro mantenha a cor rosa */
+#submit-register {
+    background: #ec4899 !important; /* Rosa */
+    color: white !important;
+    border: none !important;
+    transition: all 0.2s ease !important;
+}
+
+#submit-register:hover {
+    background: #db2777 !important; /* Rosa mais escuro no hover */
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3) !important;
+}
+
+#submit-register:active {
+    transform: translateY(0) !important;
+}
+
+/* Modo escuro para o botão de registro */
+[data-theme="dark"] #submit-register {
+    background: #ec4899 !important; /* Manter rosa mesmo no modo escuro */
+    color: white !important;
+}
+
+[data-theme="dark"] #submit-register:hover {
+    background: #db2777 !important;
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4) !important;
+}
+
 /* Correções específicas para mobile */
 @media (max-width: 768px) {
     #auth-login,
@@ -1854,12 +1898,4 @@ body.modal-open {
         opacity: 1 !important;
         pointer-events: auto !important;
     }
-}
-
-/* Correções para modais de autenticação no mobile */
-.modal-open {
-    overflow: hidden !important;
-    height: 100vh !important;
-    position: fixed !important;
-    width: 100% !important;
 }
