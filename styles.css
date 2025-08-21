@@ -57,6 +57,38 @@
         transform: translateZ(0);
     }
     
+    /* Eventos de hoje - destaque especial */
+    .today-event {
+        position: relative;
+    }
+    
+    .today-event::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 1.5rem;
+        background: linear-gradient(45deg, rgba(249, 115, 22, 0.1), rgba(251, 146, 60, 0.05));
+        pointer-events: none;
+        z-index: -1;
+    }
+    
+    .today-event:hover::before {
+        background: linear-gradient(45deg, rgba(249, 115, 22, 0.15), rgba(251, 146, 60, 0.1));
+    }
+    
+    /* Animação sutil para eventos de hoje */
+    @keyframes today-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+    }
+    
+    .today-event .today-badge {
+        animation: today-pulse 2s ease-in-out infinite;
+    }
+    
     /* Swipe to delete styles */
     .notification-item {
         position: relative;

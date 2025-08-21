@@ -151,6 +151,31 @@
 </div>
 </div>
 </section>
+
+<!-- DESTAQUES DE HOJE (aparece apenas se houver eventos hoje) -->
+<section class="hidden" id="today-highlights-section">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">
+  <span class="flex items-center gap-2">
+    <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    Destaques de Hoje
+  </span>
+</h2>
+</div>
+<div class="mt-4 flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-today-highlights"></div>
+<div class="hidden mt-6 text-center text-gray-500" id="empty-today-highlights">
+  <div class="flex flex-col items-center gap-2">
+    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    <p>Nenhum evento hoje.</p>
+    <p class="text-sm text-gray-400">Confira os destaques da semana abaixo!</p>
+  </div>
+</div>
+</section>
+
 <section>
 <div class="flex items-center justify-between">
 <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Destaques da Semana</h2>
@@ -1135,6 +1160,15 @@
     
     function startOfToday(){ const x=new Date(); x.setHours(0,0,0,0); return x; }
     function next7End(){ const x=startOfToday(); x.setDate(x.getDate()+6); x.setHours(23,59,59,999); return x; }
+    function isEventToday(ev) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        const eventDate = ev.date?.toDate ? ev.date.toDate() : new Date(ev.date);
+        return eventDate >= today && eventDate < tomorrow;
+    }
 
     // ===== Sessão & roles =====
     const state = { baseEvents: [], events:[], pending:[], users:{}, recurringEvents: [], settings: {}, eventExceptions: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, deleteNotificationTarget: null, removeFollowerTarget: null, resetRatingsTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, photoRemovalFlag: false, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} }, adminEventsView: 'active', selectedBairros: new Set(), selectedGeneros: new Set() };
@@ -1814,7 +1848,8 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     async function eventCard(ev){
         const url=ev.imageUrls?.[0]||'';
         const el=document.createElement('article');
-        el.className='group w-\[150px\] md:w-[280px] shrink-0 snap-start rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer';
+        const isToday = isEventToday(ev);
+        el.className=`group w-[150px] md:w-[280px] shrink-0 snap-start rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer ${isToday ? 'ring-2 ring-orange-500/30 today-event' : ''}`;
         
         const friendsGoingCount = state.friendsGoingMap.get(ev._original_id || ev._id)?.size || 0;
         const friendsGoingHTML = friendsGoingCount > 0 
@@ -1845,6 +1880,10 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             ${isPrivate && !hasAccess ? `<div class="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-purple-600/90 px-2 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-white backdrop-blur-sm">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z"/></svg>
                 Privado
+            </div>` : ''}
+            ${isEventToday(ev) ? `<div class="absolute top-3 left-3 flex items-center gap-1 rounded-full bg-orange-500/90 px-2 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-white backdrop-blur-sm today-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Hoje
             </div>` : ''}
           </div>
           <div class="p-3 md:p-5 space-y-1.5">
@@ -1918,7 +1957,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       try {
         const qEl = document.getElementById('search-input');
         const q = (qEl && qEl.value ? qEl.value : '').trim();
-        const secIds = ['carousel-week-top','carousel-popular','carousel-byday','carousel-others'];
+        const secIds = ['carousel-today-highlights','carousel-week-top','carousel-popular','carousel-byday','carousel-others'];
         const secs = secIds.map(id => document.getElementById(id)?.closest('section')).filter(Boolean);
         const resultsSection = document.getElementById('search-results-section');
         if (q) {
@@ -1933,7 +1972,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       try {
         const qEl = document.getElementById('search-input');
         const q = (qEl && qEl.value ? qEl.value : '').trim();
-        const secIds = ['carousel-week-top','carousel-popular','carousel-byday','carousel-others'];
+        const secIds = ['carousel-today-highlights','carousel-week-top','carousel-popular','carousel-byday','carousel-others'];
         const secs = secIds.map(id => document.getElementById(id)?.closest('section')).filter(Boolean);
         const resultsSection = document.getElementById('search-results-section');
         if (q) {
@@ -1945,9 +1984,23 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
           secs.forEach(sec => sec && sec.classList.remove('hidden'));
         }
       } catch(e) {}
-const activeEvents = filteredEvents.filter(isEventActive);
+      
+      const activeEvents = filteredEvents.filter(isEventActive);
       const evs=[...activeEvents].sort((a,b)=>(b.importance||0)-(a.importance||0));
       const start=startOfToday(); const end=next7End();
+      
+      // Eventos de hoje (apenas o dia atual)
+      const todayEvents = evs.filter(isEventToday);
+      
+      // Mostrar seção "Destaques de Hoje" apenas se houver eventos hoje
+      const todaySection = document.getElementById('today-highlights-section');
+      if (todayEvents.length > 0) {
+        todaySection.classList.remove('hidden');
+        await renderCarousel('carousel-today-highlights', todayEvents, 'empty-today-highlights');
+      } else {
+        todaySection.classList.add('hidden');
+      }
+      
       const inNext7 = evs.filter(ev=>{ const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); return d>=start && d<=end; });
       const others=evs.filter(ev=>{ const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); return !(d>=start && d<=end); });
       // CORREÇÃO: Filtra populares por goingCount > 0
