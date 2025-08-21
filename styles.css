@@ -89,6 +89,25 @@
         animation: today-pulse 2s ease-in-out infinite;
     }
     
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+        /* Remove preload for hero image on mobile */
+        .hero-image-preload {
+            display: none !important;
+        }
+        
+        /* Improve hero section spacing on mobile */
+        #hero-section {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        
+        /* Center content better on mobile */
+        #hero-section .text-center {
+            max-width: 100%;
+        }
+    }
+    
     /* Swipe to delete styles */
     .notification-item {
         position: relative;

@@ -28,7 +28,7 @@
 <link href="https://placehold.co" rel="preconnect"/>
 
 <!-- Preload critical images -->
-<link rel="preload" as="image" href="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&amp;w=1600&amp;auto=format&amp;fit=crop" fetchpriority="high"/>
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&amp;w=1600&amp;auto=format&amp;fit=crop" fetchpriority="high" class="hero-image-preload"/>
 <link rel="preload" as="image" href="https://placehold.co/32x32/f472b6/ffffff?text=U" fetchpriority="high"/>
 
 <!-- DNS prefetch for additional domains -->
@@ -85,7 +85,7 @@
 <!-- HERO -->
 <section class="relative bg-white" id="hero-section">
 <div class="max-w-6xl mx-auto px-4 py-8 md:py-14 grid items-center gap-8 md:grid-cols-[1.2fr_.8fr]">
-<div class="text-center md:text-left">
+<div class="text-center md:text-left md:col-span-1">
 <!-- TÍTULO ELEGANTE ADICIONADO AQUI -->
 <a class="text-4xl md:text-5xl font-black tracking-tighter mb-4 inline-block" href="#/">
 <span class="bg-gradient-to-r from-pink-500 via-fuchsia-500 to-purple-600 bg-clip-text text-transparent">RioFestas</span>
@@ -106,7 +106,7 @@
             </button>
 </div>
 </div>
-<div class="rounded-3xl overflow-hidden shadow-soft ring-subtle">
+<div class="rounded-3xl overflow-hidden shadow-soft ring-subtle hidden md:block md:col-span-1">
 <img alt="Brinde em festa no Rio" class="w-full h-[280px] md:h-[420px] object-cover" src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&amp;w=1600&amp;auto=format&amp;fit=crop" fetchpriority="high" decoding="async"/>
 </div>
 </div>
