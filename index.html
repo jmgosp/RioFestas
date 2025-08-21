@@ -1841,9 +1841,10 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             </div>` : ''}
           </div>
           <div class="p-3 md:p-5 space-y-1.5">
-            <h3 class="text-sm md:text-lg font-semibold line-clamp-1">${ev.name||''}</h3>
+            <h3 class="text-sm md:text-lg font-semibold break-words">${ev.name||''}</h3>
             ${isPrivate && !hasAccess ? `<div class="text-[11px] md:text-sm text-gray-500">Evento privado</div>` : 
-            `<div class="text-[11px] md:text-sm text-gray-600">${fmtDate(ev.date)} • ${ev.local||''}</div>
+            `<div class="text-[11px] md:text-sm text-gray-600">${fmtDate(ev.date)}</div>
+            ${(ev.local || ev.bairroName || ev.address || ev.location || ev.venue) ? `<div class="text-[11px] md:text-sm text-gray-600 line-clamp-1">${ev.local || ev.bairroName || ev.address || ev.location || ev.venue}</div>` : ''}
             ${(Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : [])).map(s=>`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-pink-600">${s}</div>`).join('')}`}
           </div>`;
         el.addEventListener('click',()=>openViewModal(ev));
@@ -1953,7 +1954,7 @@ const activeEvents = filteredEvents.filter(isEventActive);
         const list=filteredEvents.filter(ev=> ([ev.name,ev.style,ev.local,ev.description].filter(Boolean).some(v=>String(v).toLowerCase().includes(q)))); 
         if(!list.length){ show(empty); hide(grid); } 
         else { hide(empty); show(grid); } 
-        list.forEach(ev=>{ const url=ev.imageUrls?.[0]||''; const card=document.createElement('article'); card.className='group rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer'; card.innerHTML=`<div class="relative h-48 w-full bg-gray-100 overflow-hidden"><img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" alt="${ev.name||''}" loading="lazy" /></div><div class="p-5 space-y-2"><h3 class="text-lg font-semibold line-clamp-1">${ev.name||''}</h3><div class="text-sm text-gray-600">${fmtDate(ev.date)} • ${ev.local||''}</div>${(Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : [])).map(s=>`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-pink-600">${s}</div>`).join('')}</div>`; card.addEventListener('click', ()=> openViewModal(ev)); grid.appendChild(card); }); 
+        list.forEach(ev=>{ const url=ev.imageUrls?.[0]||''; const card=document.createElement('article'); card.className='group rounded-3xl overflow-hidden bg-white shadow-soft ring-subtle hover:shadow-xl transition cursor-pointer'; card.innerHTML=`<div class="relative h-48 w-full bg-gray-100 overflow-hidden"><img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" alt="${ev.name||''}" loading="lazy" /></div><div class="p-5 space-y-2"><h3 class="text-lg font-semibold break-words">${ev.name||''}</h3><div class="text-sm text-gray-600">${fmtDate(ev.date)}</div>${(ev.local || ev.bairroName || ev.address || ev.location || ev.venue) ? `<div class="text-sm text-gray-600 line-clamp-1">${ev.local || ev.bairroName || ev.address || ev.location || ev.venue}</div>` : ''}${(Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : [])).map(s=>`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-pink-600">${s}</div>`).join('')}</div>`; card.addEventListener('click', ()=> openViewModal(ev)); grid.appendChild(card); }); 
     }
     
     // CORREÇÃO: Função central para aplicar filtros e re-renderizar
