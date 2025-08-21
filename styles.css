@@ -89,6 +89,20 @@
         animation: today-pulse 2s ease-in-out infinite;
     }
     
+    /* Badge positioning improvements */
+    .friends-going-badge {
+        z-index: 10;
+    }
+    
+    .today-badge {
+        z-index: 10;
+    }
+    
+    /* When both badges are present, add some spacing */
+    .friends-going-badge + .today-badge {
+        margin-left: 8px;
+    }
+    
     /* Mobile optimizations */
     @media (max-width: 768px) {
         /* Remove preload for hero image on mobile */
