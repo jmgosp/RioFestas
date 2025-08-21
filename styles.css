@@ -108,6 +108,34 @@
         }
     }
     
+    /* Footer styles */
+    footer {
+        position: relative;
+        z-index: 10;
+    }
+    
+    footer .bg-yellow-50 {
+        background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+    }
+    
+    footer .bg-yellow-50:hover {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        transition: background 0.3s ease;
+    }
+    
+    #footer-whatsapp-link:hover {
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+    
+    #footer-whatsapp-link svg {
+        transition: transform 0.2s ease;
+    }
+    
+    #footer-whatsapp-link:hover svg {
+        transform: scale(1.1);
+    }
+    
     /* Swipe to delete styles */
     .notification-item {
         position: relative;
