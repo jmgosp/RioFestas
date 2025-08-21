@@ -27,13 +27,26 @@
         transition: width 0.2s ease-out;
     }
     
-    /* Image optimization styles */
+    /* Ultra-optimized image loading with extreme performance */
     .image-container {
         position: relative;
         overflow: hidden;
         background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
+        background-color: #f3f4f6;
+        will-change: transform;
+        transform: translateZ(0);
+        contain: layout style paint;
+        isolation: isolate;
+    }
+    
+    /* Dark theme shimmer effect */
+    [data-theme="dark"] .image-container {
+        background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        background-color: #1f2937;
     }
     
     @keyframes shimmer {
@@ -43,11 +56,24 @@
     
     .image-container img {
         opacity: 0;
-        transition: opacity 0.3s ease-in-out;
+        transition: opacity 0.1s ease-in-out;
+        will-change: opacity, transform;
+        backface-visibility: hidden;
+        transform: translateZ(0);
+        contain: layout style paint;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+        isolation: isolate;
     }
     
     .image-container img.loaded {
         opacity: 1;
+        animation: ultraFadeIn 0.1s ease-out;
+    }
+    
+    @keyframes ultraFadeIn {
+        from { opacity: 0; transform: scale(0.995); }
+        to { opacity: 1; transform: scale(1); }
     }
     
     /* Optimized image loading */
@@ -55,39 +81,97 @@
         will-change: opacity;
         backface-visibility: hidden;
         transform: translateZ(0);
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+        contain: layout style paint;
+        isolation: isolate;
+    }
+    
+    /* Ultra-fast progressive image loading */
+    img[loading="eager"] {
+        opacity: 0;
+        transition: opacity 0.05s ease-in;
+    }
+    
+    img[loading="eager"].loaded {
+        opacity: 1;
+    }
+    
+    img[loading="lazy"] {
+        opacity: 0;
+        transition: opacity 0.1s ease-in;
+    }
+    
+    img[loading="lazy"].loaded {
+        opacity: 1;
+    }
+    
+    /* Performance optimizations */
+    .carousel-container {
+        contain: layout style;
+        will-change: scroll-position;
+        isolation: isolate;
+    }
+    
+    .carousel-container > * {
+        contain: layout style paint;
+        will-change: transform;
+        isolation: isolate;
+    }
+    
+    /* Ultra-fast avatar optimization */
+    #user-avatar-img {
+        will-change: opacity;
+        backface-visibility: hidden;
+        transform: translateZ(0);
+        contain: layout style paint;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+    
+    /* Today badge icon - always orange */
+    .today-badge svg {
+        color: #fed7aa !important; /* orange-100 */
+        stroke: #fed7aa !important;
+    }
+    
+    /* Dark theme adjustments for today badge */
+    [data-theme="dark"] .today-badge svg {
+        color: #fed7aa !important; /* Keep orange in dark mode */
+        stroke: #fed7aa !important;
     }
     
     /* Eventos de hoje - destaque especial */
     .today-event {
         position: relative;
-        margin: 4px; /* Aumentar margem para a borda */
-        border: 3px solid rgba(249, 115, 22, 0.4); /* Borda mais espessa e visível */
+        margin: 3px; /* Reduzir margem para borda mais fina */
+        border: 1.5px solid rgba(249, 115, 22, 0.3); /* Borda mais fina e elegante */
         border-radius: 1.5rem;
-        box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.2); /* Sombra adicional */
+        box-shadow: 0 0 0 0.5px rgba(249, 115, 22, 0.15); /* Sombra mais sutil */
     }
     
     .today-event::before {
         content: '';
         position: absolute;
-        top: -4px;
-        left: -4px;
-        right: -4px;
-        bottom: -4px;
+        top: -3px;
+        left: -3px;
+        right: -3px;
+        bottom: -3px;
         border-radius: 1.5rem;
-        background: linear-gradient(45deg, rgba(249, 115, 22, 0.1), rgba(251, 146, 60, 0.05));
+        background: linear-gradient(45deg, rgba(249, 115, 22, 0.08), rgba(251, 146, 60, 0.03));
         pointer-events: none;
         z-index: -1;
     }
     
     .today-event:hover {
-        border-color: rgba(249, 115, 22, 0.6);
+        border-color: rgba(249, 115, 22, 0.5);
         transform: translateY(-1px);
         transition: all 0.2s ease;
-        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+        box-shadow: 0 2px 8px rgba(249, 115, 22, 0.2);
     }
     
     .today-event:hover::before {
-        background: linear-gradient(45deg, rgba(249, 115, 22, 0.15), rgba(251, 146, 60, 0.1));
+        background: linear-gradient(45deg, rgba(249, 115, 22, 0.12), rgba(251, 146, 60, 0.06));
     }
     
     /* Animação sutil para eventos de hoje */
@@ -1578,6 +1662,27 @@ body.modal-open {
 .image-container {
     position: relative;
     z-index: 1;
+    background-color: #f3f4f6; /* Light gray for light theme */
+}
+
+/* Dark theme adjustments for image containers */
+[data-theme="dark"] .image-container {
+    background-color: #1f2937; /* Dark gray for dark theme */
+}
+
+/* Dark theme adjustments for event cards */
+[data-theme="dark"] .bg-gray-100 {
+    background-color: #1f2937 !important; /* Dark gray for dark theme */
+}
+
+/* Fallback for images that haven't loaded yet */
+.image-container img:not([src]),
+.image-container img[src=""] {
+    opacity: 0;
+}
+
+.image-container img {
+    background-color: transparent; /* Remove any background from img itself */
 }
 
 /* Ensure badges are above the image container */
