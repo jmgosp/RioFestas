@@ -1922,7 +1922,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         }
 
         el.innerHTML=`
-          <div class="relative h-28 md:h-44 w-full bg-gray-100 overflow-visible">
+          <div class="relative h-28 md:h-44 w-full bg-gray-100 overflow-visible image-container">
             <img class="h-full w-full object-cover group-hover:scale-[1.02] transition" src="${url}" alt="${ev.name||''}" loading="lazy" decoding="async" />
             ${friendsGoingHTML}
             ${todayBadgeHTML}

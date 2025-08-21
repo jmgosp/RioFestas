@@ -60,18 +60,19 @@
     /* Eventos de hoje - destaque especial */
     .today-event {
         position: relative;
-        margin: 3px; /* Aumentar margem para a borda */
-        border: 2px solid rgba(249, 115, 22, 0.3); /* Borda sólida mais visível */
+        margin: 4px; /* Aumentar margem para a borda */
+        border: 3px solid rgba(249, 115, 22, 0.4); /* Borda mais espessa e visível */
         border-radius: 1.5rem;
+        box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.2); /* Sombra adicional */
     }
     
     .today-event::before {
         content: '';
         position: absolute;
-        top: -3px;
-        left: -3px;
-        right: -3px;
-        bottom: -3px;
+        top: -4px;
+        left: -4px;
+        right: -4px;
+        bottom: -4px;
         border-radius: 1.5rem;
         background: linear-gradient(45deg, rgba(249, 115, 22, 0.1), rgba(251, 146, 60, 0.05));
         pointer-events: none;
@@ -79,9 +80,10 @@
     }
     
     .today-event:hover {
-        border-color: rgba(249, 115, 22, 0.5);
+        border-color: rgba(249, 115, 22, 0.6);
         transform: translateY(-1px);
         transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
     }
     
     .today-event:hover::before {
@@ -128,7 +130,34 @@
     
     /* Carousel adjustments for today-event margins */
     .carousel-container {
-        padding: 3px;
+        padding: 8px; /* Aumentar padding para acomodar a borda */
+        overflow-x: auto;
+        overflow-y: visible; /* Permitir que elementos sejam exibidos verticalmente */
+    }
+    
+    /* Ensure carousel items have proper spacing */
+    .carousel-container > * {
+        margin: 0 4px;
+        flex-shrink: 0; /* Evitar que os cards sejam comprimidos */
+    }
+    
+    /* Mobile specific adjustments */
+    @media (max-width: 768px) {
+        .carousel-container {
+            padding: 8px; /* Mais padding em mobile */
+            margin: -4px; /* Compensar o padding extra */
+        }
+        
+        .today-event {
+            margin: 4px; /* Mais margem em mobile */
+        }
+        
+        .today-event::before {
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+        }
     }
     
     /* Ensure carousel items have proper spacing */
@@ -1543,4 +1572,16 @@ body.modal-open {
         line-height: 1.3;
         margin-top: 0.125rem;
     }
+}
+
+/* Image container adjustments */
+.image-container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure badges are above the image container */
+.friends-going-badge,
+.today-badge {
+    z-index: 20;
 }
