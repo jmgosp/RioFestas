@@ -1135,63 +1135,34 @@
 #auth-register {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 1rem;
 }
 
 #auth-register .pop {
     max-height: 90vh;
     overflow-y: auto;
     margin: 2vh auto;
-    display: flex;
-    flex-direction: column;
-}
-
-#auth-register form {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 768px) {
     #auth-register {
-        padding: 0.5rem;
-        align-items: flex-start;
-        justify-content: flex-start;
-        padding-top: 2vh;
+        padding: 0;
+        display: block;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
     
     #auth-register .pop {
-        max-height: 96vh;
+        max-height: none;
         margin: 0;
         padding: 1rem;
         width: 100%;
-        max-width: calc(100vw - 1rem);
-    }
-    
-    #auth-register .text-center {
-        flex-shrink: 0;
+        max-width: 100%;
+        min-height: 100vh;
+        overflow-y: visible;
     }
     
     #auth-register form {
-        flex: 1;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        max-height: calc(96vh - 160px);
-        padding-right: 0.25rem;
-    }
-    
-    /* Melhora o scroll no webkit */
-    #auth-register form::-webkit-scrollbar {
-        width: 4px;
-    }
-    
-    #auth-register form::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    
-    #auth-register form::-webkit-scrollbar-thumb {
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 2px;
+        overflow-y: visible;
     }
 }
 

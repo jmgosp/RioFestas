@@ -1153,26 +1153,10 @@
       }
     };
 
-    const openLogin = ()=> {
-        show($('#auth-login'));
-        // Previne scroll da página de fundo no mobile
-        document.body.style.overflow = 'hidden';
-    };
-    const openRegister = ()=> {
-        show($('#auth-register'));
-        // Previne scroll da página de fundo no mobile
-        document.body.style.overflow = 'hidden';
-    };
-    const closeLogin = ()=> {
-        hide($('#auth-login'));
-        // Restaura scroll da página
-        document.body.style.overflow = '';
-    };
-    const closeRegister = ()=> {
-        hide($('#auth-register'));
-        // Restaura scroll da página
-        document.body.style.overflow = '';
-    };
+    const openLogin = ()=> show($('#auth-login'));
+    const openRegister = ()=> show($('#auth-register'));
+    const closeLogin = ()=> hide($('#auth-login'));
+    const closeRegister = ()=> hide($('#auth-register'));
 
     $('#btn-open-login').addEventListener('click', openLogin);
     $('#btn-open-register').addEventListener('click', openRegister);
@@ -1193,9 +1177,6 @@
 
       if(modal) hide(modal);
 
-      // Restaura scroll da página quando fecha qualquer modal
-      document.body.style.overflow = '';
-
       if(id === 'event') {
         Object.values(state.eventForm.uploadTasks).forEach(t => t.task.cancel());
         state.eventForm.uploadTasks = {};
@@ -1211,23 +1192,7 @@
       if(id==='reset-ratings') { state.resetRatingsTarget = null; }
     });
 
-    // Previne scroll da página de fundo quando modal está aberto
-    document.addEventListener('touchmove', (e) => {
-      const authRegister = $('#auth-register');
-      const authLogin = $('#auth-login');
-      
-      if (!authRegister.classList.contains('hidden') || !authLogin.classList.contains('hidden')) {
-        // Se o modal está aberto, só permite scroll dentro do formulário do modal
-        const target = e.target;
-        const formElement = target.closest('#auth-register form') || target.closest('#auth-login form');
-        const modalElement = target.closest('#auth-register .pop') || target.closest('#auth-login .pop');
-        
-        // Permite scroll apenas se está dentro do formulário ou do conteúdo do modal
-        if (!formElement && !modalElement) {
-          e.preventDefault();
-        }
-      }
-    }, { passive: false });
+
 
     // ===== Login =====
     $('#form-login').addEventListener('submit', async (e)=>{
