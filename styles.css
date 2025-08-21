@@ -1131,6 +1131,35 @@
     transition: max-height 0.3s ease;
 }
 
+/* Modal de cadastro - correção de scroll no mobile */
+#auth-register {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#auth-register .pop {
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: 2vh auto;
+}
+
+@media (max-width: 768px) {
+    #auth-register {
+        padding: 1rem;
+    }
+    
+    #auth-register .pop {
+        max-height: 95vh;
+        margin: 1vh auto;
+        padding: 1.5rem;
+    }
+    
+    #auth-register form {
+        max-height: calc(95vh - 120px);
+        overflow-y: auto;
+    }
+}
+
 /* Modo escuro para seção de notificações */
 [data-theme="dark"] #notifications-toggle {
     color: #f9fafb;
@@ -1151,6 +1180,39 @@
 }
 
 [data-theme="dark"] #notifications-controls {
+    color: #d1d5db;
+}
+
+/* Modo escuro para modal de cadastro */
+[data-theme="dark"] #auth-register .pop {
+    background-color: #1f2937;
+    color: #f9fafb;
+}
+
+[data-theme="dark"] #auth-register input,
+[data-theme="dark"] #auth-register textarea,
+[data-theme="dark"] #auth-register select {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+}
+
+[data-theme="dark"] #auth-register input:focus,
+[data-theme="dark"] #auth-register textarea:focus,
+[data-theme="dark"] #auth-register select:focus {
+    border-color: #8b5cf6;
+    ring-color: #8b5cf6;
+}
+
+[data-theme="dark"] #auth-register label {
+    color: #d1d5db;
+}
+
+[data-theme="dark"] #auth-register .text-gray-500 {
+    color: #9ca3af;
+}
+
+[data-theme="dark"] #auth-register .text-gray-600 {
     color: #d1d5db;
 }
 

@@ -1153,10 +1153,26 @@
       }
     };
 
-    const openLogin = ()=> show($('#auth-login'));
-    const openRegister = ()=> show($('#auth-register'));
-    const closeLogin = ()=> hide($('#auth-login'));
-    const closeRegister = ()=> hide($('#auth-register'));
+    const openLogin = ()=> {
+        show($('#auth-login'));
+        // Previne scroll da página de fundo no mobile
+        document.body.style.overflow = 'hidden';
+    };
+    const openRegister = ()=> {
+        show($('#auth-register'));
+        // Previne scroll da página de fundo no mobile
+        document.body.style.overflow = 'hidden';
+    };
+    const closeLogin = ()=> {
+        hide($('#auth-login'));
+        // Restaura scroll da página
+        document.body.style.overflow = '';
+    };
+    const closeRegister = ()=> {
+        hide($('#auth-register'));
+        // Restaura scroll da página
+        document.body.style.overflow = '';
+    };
 
     $('#btn-open-login').addEventListener('click', openLogin);
     $('#btn-open-register').addEventListener('click', openRegister);
@@ -1177,6 +1193,9 @@
 
       if(modal) hide(modal);
 
+      // Restaura scroll da página quando fecha qualquer modal
+      document.body.style.overflow = '';
+
       if(id === 'event') {
         Object.values(state.eventForm.uploadTasks).forEach(t => t.task.cancel());
         state.eventForm.uploadTasks = {};
@@ -1191,6 +1210,22 @@
       if(id==='delete-notification') { state.deleteNotificationTarget = null; }
       if(id==='reset-ratings') { state.resetRatingsTarget = null; }
     });
+
+    // Previne scroll da página de fundo quando modal está aberto
+    document.addEventListener('touchmove', (e) => {
+      const authRegister = $('#auth-register');
+      const authLogin = $('#auth-login');
+      
+      if (!authRegister.classList.contains('hidden') || !authLogin.classList.contains('hidden')) {
+        // Se o modal está aberto, só permite scroll dentro do modal
+        const target = e.target;
+        const modal = target.closest('#auth-register') || target.closest('#auth-login');
+        
+        if (!modal) {
+          e.preventDefault();
+        }
+      }
+    }, { passive: false });
 
     // ===== Login =====
     $('#form-login').addEventListener('submit', async (e)=>{
