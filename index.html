@@ -1217,11 +1217,13 @@
       const authLogin = $('#auth-login');
       
       if (!authRegister.classList.contains('hidden') || !authLogin.classList.contains('hidden')) {
-        // Se o modal está aberto, só permite scroll dentro do modal
+        // Se o modal está aberto, só permite scroll dentro do formulário do modal
         const target = e.target;
-        const modal = target.closest('#auth-register') || target.closest('#auth-login');
+        const formElement = target.closest('#auth-register form') || target.closest('#auth-login form');
+        const modalElement = target.closest('#auth-register .pop') || target.closest('#auth-login .pop');
         
-        if (!modal) {
+        // Permite scroll apenas se está dentro do formulário ou do conteúdo do modal
+        if (!formElement && !modalElement) {
           e.preventDefault();
         }
       }
