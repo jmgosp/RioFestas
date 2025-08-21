@@ -1885,31 +1885,25 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         let friendsGoingHTML = '';
         let todayBadgeHTML = '';
         
-        // Detectar se é mobile usando CSS media query
-        const isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+
         
         if (friendsGoingCount > 0) {
-            const mobileClass = isMobile && isToday ? 'top-3' : 'top-3';
-            friendsGoingHTML = `<div class="absolute ${mobileClass} left-3 flex items-center gap-1.5 rounded-full bg-black/50 px-2 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-white backdrop-blur-sm friends-going-badge">
+            // Posicionar o badge de amigos no canto superior direito se há evento de hoje
+            const position = isToday ? 'top-2 right-2' : 'top-2 left-2';
+            friendsGoingHTML = `<div class="absolute ${position} flex items-center gap-1.5 rounded-full bg-black/50 px-2 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-white backdrop-blur-sm friends-going-badge">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 <span>${friendsGoingCount} amigo${friendsGoingCount > 1 ? 's' : ''} ${friendsGoingCount > 1 ? 'vão' : 'vai'}</span>
                 </div>`;
         }
         
         if (isToday) {
-            // Em mobile, se há amigos indo, posiciona o badge "Hoje" embaixo
-            let position;
-            if (isMobile && friendsGoingCount > 0) {
-                position = 'top-12 left-3'; // Embaixo do badge de amigos
-            } else if (friendsGoingCount > 0) {
-                position = 'top-3 right-3'; // Desktop: à direita
-            } else {
-                position = 'top-3 left-3'; // Posição normal
-            }
+            // Sempre posicionar o ícone no canto superior esquerdo
+            const position = 'top-2 left-2';
             
-            todayBadgeHTML = `<div class="absolute ${position} flex items-center gap-1 rounded-full bg-orange-500/90 px-2 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-white backdrop-blur-sm today-badge">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                Hoje
+            todayBadgeHTML = `<div class="absolute ${position} flex items-center justify-center w-6 h-6 rounded-full bg-orange-500/90 backdrop-blur-sm today-badge" title="Evento de hoje">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-white">
+                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
             </div>`;
         }
 

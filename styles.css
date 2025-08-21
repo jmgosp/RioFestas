@@ -105,11 +105,25 @@
     
     .today-badge {
         z-index: 10;
+        box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+        transition: all 0.2s ease;
     }
     
-    /* When both badges are present, add some spacing */
-    .friends-going-badge + .today-badge {
-        margin-left: 8px;
+    .today-badge:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+    }
+    
+    /* Mobile badge positioning */
+    @media (max-width: 768px) {
+        /* Ensure badges don't overlap on mobile */
+        .friends-going-badge {
+            z-index: 15;
+        }
+        
+        .today-badge {
+            z-index: 15;
+        }
     }
     
     /* Carousel adjustments for today-event margins */
@@ -120,28 +134,6 @@
     /* Ensure carousel items have proper spacing */
     .carousel-container > * {
         margin: 0 3px;
-    }
-    
-    /* Mobile badge positioning */
-    @media (max-width: 768px) {
-        /* Remove horizontal spacing on mobile */
-        .friends-going-badge + .today-badge {
-            margin-left: 0;
-        }
-        
-        /* Ensure badges don't overlap on mobile */
-        .friends-going-badge {
-            z-index: 15;
-        }
-        
-        .today-badge {
-            z-index: 15;
-        }
-        
-        /* Add some vertical spacing between stacked badges */
-        .friends-going-badge ~ .today-badge {
-            margin-top: 4px;
-        }
     }
     
     /* Mobile optimizations */
