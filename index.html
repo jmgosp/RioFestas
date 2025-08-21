@@ -1182,6 +1182,11 @@ const openRegister = ()=> {
     hide($('#auth-login'));
     show($('#auth-register'));
     document.body.classList.add('modal-open');
+    
+    // Garantir que o botão seja acessível após um pequeno delay
+    setTimeout(() => {
+        ensureRegisterButtonAccessible();
+    }, 100);
 };
      const closeLogin = ()=> {
          hide($('#auth-login'));
@@ -1271,9 +1276,10 @@ const openRegister = ()=> {
         setTimeout(() => {
           const modalContainer = document.querySelector('#auth-register .relative.z-\\[81\\]');
           if (modalContainer) {
-            modalContainer.scrollTop = 0;
+            // Rolar para o final para mostrar o botão
+            modalContainer.scrollTop = modalContainer.scrollHeight;
           }
-        }, 100);
+        }, 300);
       }
     });
 
@@ -5202,6 +5208,23 @@ function ensureAuthModalsClosed() {
     }
     
     document.body.classList.remove('modal-open');
+}
+
+// Função para garantir que o botão de registro seja sempre acessível
+function ensureRegisterButtonAccessible() {
+    const modalContainer = document.querySelector('#auth-register .relative.z-\\[81\\]');
+    const submitButton = document.querySelector('#submit-register');
+    
+    if (modalContainer && submitButton) {
+        // Garantir que há espaço suficiente para o botão
+        const containerHeight = modalContainer.clientHeight;
+        const scrollHeight = modalContainer.scrollHeight;
+        
+        if (scrollHeight > containerHeight) {
+            // Se o conteúdo é maior que o container, garantir que o botão seja visível
+            modalContainer.style.paddingBottom = '4rem';
+        }
+    }
 }
 
 // Adicionar listener para o evento load da janela

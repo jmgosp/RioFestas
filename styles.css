@@ -1341,6 +1341,7 @@ body.modal-open {
         -webkit-overflow-scrolling: touch;
         scrollbar-width: thin;
         scrollbar-color: #cbd5e1 transparent;
+        padding-bottom: 2rem !important; /* Adicionar espaço extra no final */
     }
     
     #auth-register .relative.z-\[81\]::-webkit-scrollbar {
@@ -1377,6 +1378,7 @@ body.modal-open {
     /* Reduzir padding do modal no mobile */
     #auth-register .relative.z-\[81\] {
         padding: 1rem !important;
+        padding-bottom: 3rem !important; /* Mais espaço no final para o botão */
     }
     
     /* Ajustar tamanho dos inputs no mobile */
@@ -1417,6 +1419,7 @@ body.modal-open {
         border: none !important;
         cursor: pointer !important;
         transition: all 0.2s ease !important;
+        z-index: 5 !important; /* Garantir que fique acima do conteúdo */
     }
     
     #submit-register:hover {
@@ -1435,189 +1438,31 @@ body.modal-open {
         background: #db2777 !important;
         box-shadow: 0 -4px 12px rgba(236, 72, 153, 0.4) !important;
     }
-}
-
-/* Otimizações gerais para mobile */
-@media (max-width: 768px) {
-    /* Reduzir espaçamentos gerais */
-    .space-y-4 > * + * {
-        margin-top: 0.75rem !important;
+    
+    /* Ajustar o formulário para ter mais espaço no final */
+    #auth-register form {
+        padding-bottom: 2rem !important; /* Mais espaço para o botão */
     }
     
-    .space-y-6 > * + * {
+    /* Garantir que o container do modal tenha altura suficiente */
+    #auth-register .relative.z-\[81\] {
+        max-height: calc(100vh - 1rem) !important;
+        min-height: auto !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    /* Ajustar quando o formulário de organizador está ativo */
+    #reg-organizer-form:not(.hidden) + div {
         margin-top: 1rem !important;
     }
     
-    /* Reduzir padding em containers */
-    .p-4 {
-        padding: 0.75rem !important;
-    }
-    
-    .p-6 {
-        padding: 1rem !important;
-    }
-    
-    /* Reduzir margens */
-    .mb-4 {
-        margin-bottom: 0.75rem !important;
-    }
-    
-    .mb-6 {
-        margin-bottom: 1rem !important;
-    }
-    
-    /* Ajustar tamanhos de fonte */
-    .text-lg {
-        font-size: 1rem !important;
-    }
-    
-    .text-xl {
-        font-size: 1.125rem !important;
-    }
-    
-    /* Ajustar gaps em flexbox */
-    .gap-3 {
-        gap: 0.5rem !important;
-    }
-    
-    .gap-4 {
-        gap: 0.75rem !important;
-    }
-    
-    /* Ajustar border-radius */
-    .rounded-3xl {
-        border-radius: 1rem !important;
-    }
-    
-    .rounded-2xl {
-        border-radius: 0.75rem !important;
-    }
-    
-    /* Melhorias específicas para o modal de registro no mobile */
-    #auth-register {
-        display: flex !important;
-        align-items: flex-start !important;
-        justify-content: center !important;
-        padding: 0.5rem !important;
-    }
-    
-    #auth-register .relative.z-\[81\] {
-        margin-top: 0.5rem !important;
-        margin-bottom: 0.5rem !important;
-        max-height: calc(100vh - 1rem) !important;
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        width: 100% !important;
-        max-width: none !important;
-        border-radius: 1rem !important;
-        padding: 1rem !important;
-        position: relative !important;
-    }
-    
-    /* Melhorar a aparência da scrollbar no modal */
-    #auth-register .relative.z-\[81\]::-webkit-scrollbar {
-        width: 4px !important;
-    }
-    
-    #auth-register .relative.z-\[81\]::-webkit-scrollbar-track {
-        background: transparent !important;
-    }
-    
-    #auth-register .relative.z-\[81\]::-webkit-scrollbar-thumb {
-        background-color: rgba(203, 213, 225, 0.5) !important;
-        border-radius: 2px !important;
-    }
-    
-    #auth-register .relative.z-\[81\]::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(203, 213, 225, 0.8) !important;
-    }
-    
-    /* Ajustar o formulário dentro do modal */
-    #auth-register form {
-        padding-bottom: 1rem !important;
-    }
-    
-    /* Ajustar o checkbox de organizador */
-    #reg-organizer-check {
-        margin-right: 0.5rem !important;
-    }
-    
-    /* Ajustar o label do checkbox de organizador */
-    #auth-register label[for="reg-organizer-check"] {
-        font-size: 0.875rem !important;
-        line-height: 1.25rem !important;
-    }
-    
-    /* Ajustar o formulário de organizador */
-    #reg-organizer-form {
-        margin-top: 0.75rem !important;
-        padding: 0.75rem !important;
-        background: rgba(249, 250, 251, 0.5) !important;
-        border-radius: 0.75rem !important;
-        border: 1px solid rgba(229, 231, 235, 0.5) !important;
-    }
-    
-    /* Ajustar o textarea do organizador */
-    #reg-organizer-form textarea {
-        min-height: 3rem !important;
-        resize: vertical !important;
-    }
-    
-    /* Ajustar o checkbox de termos */
-    #reg-terms {
-        margin-top: 0.125rem !important;
-    }
-    
-    /* Ajustar o label dos termos */
-    #auth-register label[for="reg-terms"] {
-        font-size: 0.75rem !important;
-        line-height: 1.125rem !important;
-    }
-    
-    /* Ajustar o link dos termos */
-    #auth-register label[for="reg-terms"] a {
-        font-size: 0.75rem !important;
-        text-decoration: underline !important;
-    }
-    
-    /* Garantir que o botão de fechar seja sempre visível */
-    #auth-register button[data-close="auth-register"] {
-        position: sticky !important;
-        top: 0.5rem !important;
-        right: 0.5rem !important;
-        z-index: 10 !important;
-        background: rgba(255, 255, 255, 0.9) !important;
-        backdrop-filter: blur(4px) !important;
-        border-radius: 50% !important;
-        width: 2rem !important;
-        height: 2rem !important;
+    /* Garantir que o botão seja sempre clicável */
+    #submit-register {
+        min-height: 3rem !important; /* Altura mínima para facilitar o toque */
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        font-size: 0.875rem !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-    }
-    
-    /* Modo escuro para o botão de fechar */
-    [data-theme="dark"] #auth-register button[data-close="auth-register"] {
-        background: rgba(31, 41, 55, 0.9) !important;
-        color: #f9fafb !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-    }
-    
-    /* Modo escuro para o formulário de organizador */
-    [data-theme="dark"] #reg-organizer-form {
-        background: rgba(31, 41, 55, 0.5) !important;
-        border-color: rgba(55, 65, 81, 0.5) !important;
-    }
-    
-    /* Modo escuro para a scrollbar */
-    [data-theme="dark"] #auth-register .relative.z-\[81\]::-webkit-scrollbar-thumb {
-        background-color: rgba(75, 85, 99, 0.5) !important;
-    }
-    
-    [data-theme="dark"] #auth-register .relative.z-\[81\]::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(75, 85, 99, 0.8) !important;
     }
 }
 
@@ -1813,6 +1658,7 @@ body.modal-open {
         margin-bottom: 0.25rem !important;
         max-height: calc(100vh - 0.5rem) !important;
         padding: 0.75rem !important;
+        padding-bottom: 4rem !important; /* Mais espaço para o botão */
         border-radius: 0.75rem !important;
     }
     
@@ -1839,6 +1685,7 @@ body.modal-open {
     #submit-register {
         padding: 0.625rem !important;
         font-size: 0.875rem !important;
+        min-height: 2.5rem !important;
     }
     
     /* Ajustar botão de fechar para telas muito pequenas */
@@ -1849,6 +1696,63 @@ body.modal-open {
         height: 1.75rem !important;
         font-size: 0.75rem !important;
     }
+}
+
+/* Ajustes específicos para quando o formulário de organizador está ativo */
+#reg-organizer-form:not(.hidden) ~ #submit-register {
+    margin-top: 1.5rem !important;
+}
+
+/* Garantir que o scroll funcione adequadamente */
+#auth-register .relative.z-\[81\] {
+    scroll-behavior: smooth !important;
+    scroll-padding-bottom: 4rem !important; /* Espaço para o botão sticky */
+}
+
+/* Ajustar o espaçamento do formulário quando organizador está ativo */
+#reg-organizer-form:not(.hidden) + .flex.items-start.gap-2 {
+    margin-top: 1rem !important;
+}
+
+/* Garantir que o botão seja sempre visível e acessível */
+#submit-register {
+    position: sticky !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 10 !important;
+    background: #ec4899 !important;
+    color: white !important;
+    font-weight: 600 !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1) !important;
+    min-height: 3rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0.75rem 1rem !important;
+    border-radius: 0.75rem !important;
+}
+
+/* Hover do botão */
+#submit-register:hover {
+    background: #db2777 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 -4px 12px rgba(236, 72, 153, 0.3) !important;
+}
+
+/* Modo escuro para o botão */
+[data-theme="dark"] #submit-register {
+    background: #ec4899 !important;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] #submit-register:hover {
+    background: #db2777 !important;
+    box-shadow: 0 -4px 12px rgba(236, 72, 153, 0.4) !important;
 }
 
 /* Animações suaves para o formulário de organizador */
