@@ -3293,7 +3293,16 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     function renderNotifications(notifications) {
         const listEl = $('#notifications-list');
         const emptyEl = $('#empty-notifications');
+        const badgeEl = $('#notifications-badge');
         listEl.innerHTML = '';
+
+        // Mostrar/esconder badge baseado em notificações não lidas
+        const hasUnreadNotifications = notifications.some(notif => !notif.read);
+        if (hasUnreadNotifications) {
+            show(badgeEl);
+        } else {
+            hide(badgeEl);
+        }
 
         if (notifications.length === 0) {
             show(emptyEl);
@@ -5075,6 +5084,9 @@ function toggleNotifications() {
         arrow.style.transform = 'rotate(180deg)';
         controls.style.opacity = '1';
         controls.style.pointerEvents = 'auto';
+        
+        // Marcar notificações como lidas quando expandir
+        markNotificationsAsRead();
     } else {
         // Recolher
         content.style.maxHeight = '0px';
@@ -5100,6 +5112,37 @@ function initializeNotificationsCollapse() {
         arrow.style.transform = 'rotate(0deg)'; // Setinha apontando para baixo (expandir)
         controls.style.opacity = '0.5';
         controls.style.pointerEvents = 'none';
+    }
+}
+
+// Função para marcar notificações como lidas
+async function markNotificationsAsRead() {
+    if (!auth.currentUser || auth.currentUser.isAnonymous) return;
+    
+    try {
+        const notificationsRef = collection(db, `artifacts/${appId}/users/${auth.currentUser.uid}/notifications`);
+        const unreadNotifications = state.notifications.filter(notif => !notif.read);
+        
+        if (unreadNotifications.length > 0) {
+            const batch = writeBatch(db);
+            
+            unreadNotifications.forEach(notif => {
+                const notifRef = doc(db, `artifacts/${appId}/users/${auth.currentUser.uid}/notifications`, notif.id);
+                batch.update(notifRef, { read: true });
+            });
+            
+            await batch.commit();
+            
+            // Atualizar estado local
+            state.notifications.forEach(notif => {
+                if (!notif.read) notif.read = true;
+            });
+            
+            // Esconder o badge
+            hide($('#notifications-badge'));
+        }
+    } catch (error) {
+        console.error('Erro ao marcar notificações como lidas:', error);
     }
 }
 
