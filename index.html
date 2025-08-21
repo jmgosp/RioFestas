@@ -1057,26 +1057,8 @@
     // ===== Utils (ÚNICOS) =====
     const $  = (s)=>document.querySelector(s);
     const $$ = (s)=>document.querySelectorAll(s);
-    const show = (el)=> {
-    if (el) {
-        el.classList.remove('hidden');
-        // Garantir que o modal seja exibido corretamente
-        el.style.display = 'flex';
-        el.style.visibility = 'visible';
-        el.style.opacity = '1';
-        el.style.pointerEvents = 'auto';
-    }
-};
-const hide = (el)=> {
-    if (el) {
-        el.classList.add('hidden');
-        // Garantir que o modal seja ocultado corretamente
-        el.style.display = 'none';
-        el.style.visibility = 'hidden';
-        el.style.opacity = '0';
-        el.style.pointerEvents = 'none';
-    }
-};
+    const show = (el)=> el?.classList.remove('hidden');
+    const hide = (el)=> el?.classList.add('hidden');
     
     // Sistema de Toast com Ação
     const toast = (message, type = 'success', options = {}) => {
@@ -1171,47 +1153,13 @@ const hide = (el)=> {
       }
     };
 
-         const openLogin = ()=> {
-    // Garantir que o modal de registro esteja fechado
-    hide($('#auth-register'));
-    show($('#auth-login'));
-    document.body.classList.add('modal-open');
-};
-const openRegister = ()=> {
-    // Garantir que o modal de login esteja fechado
-    hide($('#auth-login'));
-    show($('#auth-register'));
-    document.body.classList.add('modal-open');
-    
-    // Garantir que o botão seja acessível após um pequeno delay
-    setTimeout(() => {
-        ensureRegisterButtonAccessible();
-    }, 100);
-};
-     const closeLogin = ()=> {
-         hide($('#auth-login'));
-         document.body.classList.remove('modal-open');
-     };
-     const closeRegister = ()=> {
-         hide($('#auth-register'));
-         document.body.classList.remove('modal-open');
-     };
+    const openLogin = ()=> show($('#auth-login'));
+    const openRegister = ()=> show($('#auth-register'));
+    const closeLogin = ()=> hide($('#auth-login'));
+    const closeRegister = ()=> hide($('#auth-register'));
 
     $('#btn-open-login').addEventListener('click', openLogin);
     $('#btn-open-register').addEventListener('click', openRegister);
-    
-    // Fechar modal quando clicar no backdrop
-    $('#auth-login').addEventListener('click', (e) => {
-        if (e.target.id === 'auth-login') {
-            closeLogin();
-        }
-    });
-    
-    $('#auth-register').addEventListener('click', (e) => {
-        if (e.target.id === 'auth-register') {
-            closeRegister();
-        }
-    });
 
     document.addEventListener('click', (e)=>{
       const el = e.target.closest('[data-close]');
@@ -1228,11 +1176,6 @@ const openRegister = ()=> {
       }
 
       if(modal) hide(modal);
-      
-      // Remove classe modal-open para modais de autenticação
-      if(id === 'auth-login' || id === 'auth-register') {
-        document.body.classList.remove('modal-open');
-      }
 
       if(id === 'event') {
         Object.values(state.eventForm.uploadTasks).forEach(t => t.task.cancel());
@@ -1269,19 +1212,7 @@ const openRegister = ()=> {
       catch(err){ const b=$('#err-login'); b.textContent=mapAuthErr(err); b.classList.remove('hidden'); }
     });
 
-    $('#reg-organizer-check').addEventListener('change', (e)=> {
-      $('#reg-organizer-form').classList.toggle('hidden', !e.target.checked);
-      // Ajustar scroll do modal no mobile quando organizador é ativado
-      if (window.innerWidth <= 768 && e.target.checked) {
-        setTimeout(() => {
-          const modalContainer = document.querySelector('#auth-register .relative.z-\\[81\\]');
-          if (modalContainer) {
-            // Rolar para o final para mostrar o botão
-            modalContainer.scrollTop = modalContainer.scrollHeight;
-          }
-        }, 300);
-      }
-    });
+    $('#reg-organizer-check').addEventListener('change', (e)=> $('#reg-organizer-form').classList.toggle('hidden', !e.target.checked) );
 
     // Registro
     $('#form-register').addEventListener('submit', async (e)=>{
@@ -1892,7 +1823,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             </div>` : ''}
           </div>
           <div class="p-3 md:p-5 space-y-1.5">
-            <h3 class="text-sm md:text-lg font-semibold break-words">${ev.name||''}</h3>
+            <h3 class="text-sm md:text-lg font-semibold line-clamp-1">${ev.name||''}</h3>
             ${isPrivate && !hasAccess ? `<div class="text-[11px] md:text-sm text-gray-500">Evento privado</div>` : 
             `<div class="text-[11px] md:text-sm text-gray-600">${fmtDate(ev.date)} • ${ev.local||''}</div>
             ${(Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : [])).map(s=>`<div class="inline-flex items-center rounded-full border border-pink-600/30 bg-pink-600/5 px-3 py-0.5 text-[10px] md:py-1 md:text-xs font-medium text-pink-600">${s}</div>`).join('')}`}
@@ -5125,39 +5056,6 @@ function toggleNotifications() {
 // Inicializar notificações como recolhidas
 document.addEventListener('DOMContentLoaded', () => {
     initializeNotificationsCollapse();
-    
-    // Garantir que os modais de autenticação estejam fechados no carregamento
-    const authLogin = document.getElementById('auth-login');
-    const authRegister = document.getElementById('auth-register');
-    
-    if (authLogin) {
-        authLogin.classList.add('hidden');
-        authLogin.style.display = 'none';
-        authLogin.style.visibility = 'hidden';
-        authLogin.style.opacity = '0';
-        authLogin.style.pointerEvents = 'none';
-    }
-    if (authRegister) {
-        authRegister.classList.add('hidden');
-        authRegister.style.display = 'none';
-        authRegister.style.visibility = 'hidden';
-        authRegister.style.opacity = '0';
-        authRegister.style.pointerEvents = 'none';
-    }
-    
-    // Remover classe modal-open do body se estiver presente
-    document.body.classList.remove('modal-open');
-    
-    // Verificação adicional após um pequeno delay
-    setTimeout(() => {
-        if (authLogin && !authLogin.classList.contains('hidden')) {
-            hide(authLogin);
-        }
-        if (authRegister && !authRegister.classList.contains('hidden')) {
-            hide(authRegister);
-        }
-        document.body.classList.remove('modal-open');
-    }, 100);
 });
 
 // Função para inicializar o colapso das notificações
@@ -5194,69 +5092,6 @@ function expandNotificationsIfNew() {
 function isMobileDevice() {
     return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
-
-// Função para garantir que os modais de autenticação estejam fechados
-function ensureAuthModalsClosed() {
-    const authLogin = document.getElementById('auth-login');
-    const authRegister = document.getElementById('auth-register');
-    
-    if (authLogin) {
-        hide(authLogin);
-    }
-    if (authRegister) {
-        hide(authRegister);
-    }
-    
-    document.body.classList.remove('modal-open');
-}
-
-// Função para garantir que o botão de registro seja sempre acessível
-function ensureRegisterButtonAccessible() {
-    const modalContainer = document.querySelector('#auth-register .relative.z-\\[81\\]');
-    const submitButton = document.querySelector('#submit-register');
-    
-    if (modalContainer && submitButton) {
-        // Garantir que há espaço suficiente para o botão
-        const containerHeight = modalContainer.clientHeight;
-        const scrollHeight = modalContainer.scrollHeight;
-        
-        if (scrollHeight > containerHeight) {
-            // Se o conteúdo é maior que o container, garantir que o botão seja visível
-            modalContainer.style.paddingBottom = '6rem';
-        }
-        
-        // Garantir que o formulário tenha espaço extra
-        const form = modalContainer.querySelector('form');
-        if (form) {
-            form.style.paddingBottom = '3rem';
-        }
-    }
-}
-
-// Adicionar listener para o evento load da janela
-window.addEventListener('load', () => {
-    ensureAuthModalsClosed();
-    
-    // Verificação adicional para dispositivos móveis
-    if (isMobileDevice()) {
-        setTimeout(ensureAuthModalsClosed, 500);
-        setTimeout(ensureAuthModalsClosed, 1000);
-    }
-});
-
-// Verificação adicional quando a página fica visível
-document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-        ensureAuthModalsClosed();
-    }
-});
-
-// Verificação quando a janela é redimensionada
-window.addEventListener('resize', () => {
-    if (isMobileDevice()) {
-        ensureAuthModalsClosed();
-    }
-});
 
 // Função para mostrar notificação baseada no dispositivo
 function showNotification(message, type = 'info') {
