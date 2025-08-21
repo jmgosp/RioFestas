@@ -1324,3 +1324,21 @@ body.modal-open {
     position: fixed;
     width: 100%;
 }
+
+/* Melhorias para modais em dispositivos móveis */
+@media (max-width: 768px) {
+    /* Ajusta altura máxima para evitar problemas com barra de pesquisa em iPhones */
+    #user-profile-modal .max-h-\[95vh\] {
+        max-height: 85vh;
+    }
+    
+    /* Aumenta margem superior para evitar sobreposição com barra de status */
+    #user-profile-modal .mt-4 {
+        margin-top: 2rem;
+    }
+    
+    /* Melhora o padding do conteúdo para melhor espaçamento */
+    #profile-content {
+        padding-bottom: 2rem;
+    }
+}

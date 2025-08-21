@@ -222,6 +222,7 @@
 <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
 <div class="flex items-center gap-3 cursor-pointer" id="notifications-toggle">
 <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Notificações</h2>
+<div class="hidden w-2 h-2 bg-red-500 rounded-full animate-pulse" id="notifications-badge"></div>
 <button class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-all duration-200 group" id="notifications-toggle-btn">
 <svg class="w-4 h-4 text-gray-600 transition-transform duration-200 group-hover:text-gray-800" id="notifications-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -881,13 +882,13 @@
 </div>
 <!-- MODAL DE PERFIL DE USUÁRIO -->
 <div class="fixed inset-0 z-[70] hidden" id="user-profile-modal">
-<div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="user-profile"></div>
-<div class="relative z-[71] mx-auto mt-8 w-[96%] max-w-2xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[92vh] overflow-hidden flex flex-col">
+<div class="absolute inset-0 fade" data-close="user-profile"></div>
+<div class="relative z-[71] mx-auto mt-4 w-[96%] max-w-2xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[95vh] overflow-hidden flex flex-col">
 <div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
 <h3 class="text-xl font-semibold" id="profile-title">Perfil de Usuário</h3>
 <button aria-label="Fechar" class="rounded-full p-2 hover:bg-gray-100" data-close="user-profile">✕</button>
 </div>
-<div class="p-6 overflow-y-auto" id="profile-content"></div>
+<div class="px-6 py-4 overflow-y-auto flex-1" id="profile-content"></div>
 </div>
 </div>
 <!-- MODAL: LISTA DE AMIGOS -->
@@ -2921,6 +2922,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         const contentEl = $('#profile-content');
         contentEl.innerHTML = '<div class="text-center py-8">Carregando...</div>';
         show($('#user-profile-modal'));
+        document.body.classList.add('modal-open');
 
         const isFollowing = state.userFollowing.has(userId);
         const isFollower = state.userFollowers.has(userId);
@@ -3057,6 +3059,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             const eventData = state.events.find(ev => (ev._original_id || ev._id) === eventId);
             if (eventData) {
                 hide($('#user-profile-modal'));
+                document.body.classList.remove('modal-open');
                 openViewModal(eventData);
             }
         }
