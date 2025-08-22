@@ -1732,3 +1732,64 @@ body.modal-open {
 .today-badge {
     z-index: 20;
 }
+
+/* ===== MELHORIAS PARA MODAL DE EVENTO NO MOBILE ===== */
+@media (max-width: 768px) {
+    /* Aumentar margem superior do modal */
+    #event-view .mt-8 {
+        margin-top: 1rem !important;
+    }
+    
+    /* Melhorar altura máxima e rolagem */
+    #event-view .max-h-\[92vh\] {
+        max-height: 95vh !important;
+        height: 95vh !important;
+    }
+    
+    /* Garantir que o conteúdo role corretamente */
+    #event-view .overflow-y-auto {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        scroll-behavior: smooth;
+    }
+    
+    /* Melhorar espaçamento interno */
+    #event-view .p-6 {
+        padding: 1rem !important;
+    }
+    
+    /* Ajustar grid para mobile */
+    #event-view .grid.md\:grid-cols-\[1\.2fr_\.8fr\] {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+    
+    /* Melhorar botões no mobile */
+    #event-view button,
+    #event-view a[role="button"] {
+        min-height: 48px;
+        touch-action: manipulation;
+    }
+    
+    /* Prevenir scroll da página de fundo */
+    #event-view {
+        overscroll-behavior: contain;
+    }
+    
+    /* Melhorar área de toque para fechar */
+    #event-view [data-close="view"] {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+/* Prevenir scroll da página de fundo quando modal está aberto */
+#event-view:not(.hidden) ~ * {
+    pointer-events: none;
+}
+
+/* Melhorar performance de scroll no modal */
+#event-view .overflow-y-auto {
+    will-change: scroll-position;
+    transform: translateZ(0);
+}

@@ -955,7 +955,8 @@ Excluir Conta
 <h3 class="text-xl font-semibold" id="view-title">Evento</h3>
 <button aria-label="Fechar" class="rounded-full p-2 hover:bg-gray-100" data-close="view">✕</button>
 </div>
-<div class="grid md:grid-cols-[1.2fr_.8fr] gap-6 p-6 overflow-y-auto">
+<div class="flex-1 overflow-y-auto">
+<div class="grid md:grid-cols-[1.2fr_.8fr] gap-6 p-6">
 <div>
 <div class="grid grid-cols-1 md:gap-3" id="view-gallery"></div>
 </div>
@@ -1228,8 +1229,20 @@ Excluir Conta
     // ===== Utils (ÚNICOS) =====
     const $  = (s)=>document.querySelector(s);
     const $$ = (s)=>document.querySelectorAll(s);
-    const show = (el)=> el?.classList.remove('hidden');
-    const hide = (el)=> el?.classList.add('hidden');
+    const show = (el)=> {
+  el?.classList.remove('hidden');
+  // Adicionar classe modal-open para prevenir scroll da página de fundo
+  if (el?.id === 'event-view') {
+    document.body.classList.add('modal-open');
+  }
+};
+    const hide = (el)=> {
+  el?.classList.add('hidden');
+  // Remover classe modal-open quando fechar modal
+  if (el?.id === 'event-view') {
+    document.body.classList.remove('modal-open');
+  }
+};
     
     // Sistema de Toast com Ação
     const toast = (message, type = 'success', options = {}) => {
@@ -3010,6 +3023,17 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       await renderFriendsGoing(ev._original_id || ev._id);
       await renderRatingSection(ev.recurringEventId);
       show($('#event-view'));
+      
+      // Melhorar experiência de rolagem no mobile
+      const modal = $('#event-view');
+      const scrollContainer = modal.querySelector('.overflow-y-auto');
+      if (scrollContainer) {
+        // Reset scroll position
+        scrollContainer.scrollTop = 0;
+        // Melhorar performance de scroll
+        scrollContainer.style.webkitOverflowScrolling = 'touch';
+        scrollContainer.style.overscrollBehavior = 'contain';
+      }
     }
 
     // ===== Social: "Vou nesse" =====
