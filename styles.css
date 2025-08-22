@@ -141,6 +141,8 @@
         stroke: #fed7aa !important;
     }
     
+    /* Footer and warning hidden via JavaScript in admin page */
+    
     /* Eventos de hoje - destaque especial */
     .today-event {
         position: relative;

@@ -408,10 +408,7 @@
 <h3 class="text-lg font-semibold">Próximos eventos confirmados</h3>
 <div class="mt-3 space-y-2 text-xs" id="my-upcoming-events"></div>
 </div>
-<div class="mt-6 rounded-3xl bg-white p-6 shadow-soft ring-subtle">
-<h3 class="text-lg font-semibold">Eventos que já fui</h3>
-<div class="mt-3 space-y-2 text-xs" id="my-past-events"></div>
-</div>
+
 </section>
 <!-- ADMIN -->
 <section class="hidden max-w-6xl mx-auto px-4 pb-28" id="view-admin">
@@ -546,17 +543,14 @@
 <div class="mt-6 rounded-3xl md:bg-white md:shadow-soft md:ring-subtle md:overflow-hidden">
 <div class="p-4 flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-gray-100">
 <h3 class="text-lg font-semibold">Gerenciar Eventos</h3>
-<div class="flex-shrink-0 flex rounded-full bg-gray-100 p-1">
-<button class="px-4 py-1.5 text-sm font-semibold rounded-full bg-white shadow" id="admin-tab-active">Ativos</button>
-<button class="px-4 py-1.5 text-sm font-semibold rounded-full text-gray-600" id="admin-tab-past">Passados</button>
-</div>
+  <div class="flex-shrink-0 flex rounded-full bg-gray-100 p-1">
+  <button class="px-4 py-1.5 text-sm font-semibold rounded-full bg-white shadow" id="admin-tab-active">Ativos</button>
+  </div>
 </div>
 <div class="px-4 pt-4 hidden" id="active-events-search-container">
 <input class="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5" id="active-events-search" placeholder="Buscar eventos ativos por nome, local ou gênero."/>
 </div>
-<div class="px-4 pt-4 hidden" id="past-events-search-container">
-<input class="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5" id="past-events-search" placeholder="Buscar eventos passados por nome..."/>
-</div>
+
 <div class="admin-table-container max-h-[60vh] md:overflow-auto p-4 md:p-0">
 <table class="min-w-full">
 <thead class="bg-gray-50/60" id="admin-events-thead">
@@ -1172,8 +1166,37 @@
         tomorrow.setDate(tomorrow.getDate() + 1);
         
         const eventDate = ev.date?.toDate ? ev.date.toDate() : new Date(ev.date);
-        return eventDate >= today && eventDate < tomorrow;
+        
+        // Se o evento é de hoje, incluir
+        if (eventDate >= today && eventDate < tomorrow) {
+            return true;
+        }
+        
+        // Se o evento é de dias anteriores mas ainda está ativo (tem timeEnd e não expirou), incluir
+        if (eventDate < today && ev.timeEnd) {
+            const now = new Date();
+            const endDatePart = ev.endDate?.toDate ? ev.endDate.toDate() : eventDate;
+            const [endHours, endMinutes] = ev.timeEnd.split(':').map(Number);
+            
+            const exactEndDate = new Date(endDatePart);
+            exactEndDate.setHours(endHours, endMinutes, 0, 0);
+            
+            // Se o horário de término é menor que 6h da manhã, provavelmente termina no dia seguinte
+            if (endHours < 6) {
+                exactEndDate.setDate(exactEndDate.getDate() + 1);
+            }
+            
+            // Se ainda não expirou, incluir na aba "Hoje"
+            if (now <= exactEndDate) {
+                console.log(`Evento de dias anteriores ainda ativo: ${ev.name}, incluído na aba "Hoje"`);
+                return true;
+            }
+        }
+        
+        return false;
     }
+    
+
 
     // ===== Sessão & roles =====
     const state = { baseEvents: [], events:[], pending:[], users:{}, recurringEvents: [], settings: {}, eventExceptions: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, deleteNotificationTarget: null, removeFollowerTarget: null, resetRatingsTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, photoRemovalFlag: false, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} }, adminEventsView: 'active', selectedBairros: new Set(), selectedGeneros: new Set() };
@@ -1435,7 +1458,12 @@
       window.scrollTo(0, 0);
       updateHeaderStyles(viewId); 
     }
-    $('#btn-home-header').addEventListener('click', () => showView('#home-view'));
+          $('#btn-home-header').addEventListener('click', () => {
+        showView('#home-view');
+        // Mostrar aviso apenas na home
+        const warning = document.getElementById('development-warning');
+        if (warning) warning.style.display = 'block';
+      });
     $('#btn-about-header').addEventListener('click', () => showView('#view-about'));
     $('#btn-locations-view').addEventListener('click', () => showView('#view-locations'));
     $('#btn-social-header').addEventListener('click', () => {
@@ -1456,6 +1484,9 @@
         if(!ensureAdmin()) return; 
         showView('#view-admin'); 
         refreshAllAdminViews(); 
+        // Esconder aviso na página admin
+        const warning = document.getElementById('development-warning');
+        if (warning) warning.style.display = 'none';
     });
     
     $('#go-organizer').addEventListener('click', ()=>{ 
@@ -1465,6 +1496,33 @@
         refreshOrganizerViews(); 
     });
     
+    // Esconder aviso em todas as páginas admin
+    function hideDevelopmentWarning() {
+        const warning = document.getElementById('development-warning');
+        if (warning) warning.style.display = 'none';
+    }
+    
+    // Aplicar em todas as funções admin
+    const originalShowView = showView;
+    showView = function(viewId) {
+        originalShowView(viewId);
+        if (viewId === '#view-admin') {
+            hideDevelopmentWarning();
+            // Esconder também o rodapé
+            const footer = document.querySelector('footer');
+            if (footer) footer.style.display = 'none';
+        } else {
+            // Mostrar novamente em outras páginas
+            const footer = document.querySelector('footer');
+            if (footer) footer.style.display = 'block';
+            // Mostrar aviso apenas na home
+            if (viewId === '#home-view') {
+                const warning = document.getElementById('development-warning');
+                if (warning) warning.style.display = 'block';
+            }
+        }
+    };
+    
     function openSocialView() {
         if (!state.currentUserData) return;
         $('#account-notify-check').checked = state.currentUserData.settings?.notifyOnFriendGoing ?? true;
@@ -1472,19 +1530,16 @@
         renderSocialFeeds();
     }
     
-    // ===== Meu Perfil: Eventos confirmados (próximos e passados) =====
+    // ===== Meu Perfil: Eventos confirmados (próximos) =====
     async function renderMyProfileEventSections() {
       const upcomingEl = $('#my-upcoming-events');
-      const pastEl = $('#my-past-events');
-      if (!upcomingEl || !pastEl) return;
+      if (!upcomingEl) return;
       const user = auth.currentUser;
       if (!user) {
         upcomingEl.innerHTML = '<p class="text-xs text-gray-500">Entre para ver seus eventos.</p>';
-        pastEl.innerHTML = '';
         return;
       }
       upcomingEl.innerHTML = '<div class="text-gray-500 text-xs">Carregando...</div>';
-      pastEl.innerHTML = '';
 
       let confirmedIds = null;
       if (state.userGoingTo && state.userGoingTo.size >= 0) {
@@ -1498,13 +1553,11 @@
       }
 
       const list = (state.events || []).filter(ev => {
-        const baseId = ev._original_id || ev._id;
-        return confirmedIds.has(baseId);
+        return confirmedIds.has(ev._id);
       });
 
       const getDate = (ev) => (ev.date?.toDate ? ev.date.toDate() : new Date(ev.date || Date.now()));
       const upcoming = list.filter(isEventActive).sort((a,b) => getDate(a) - getDate(b));
-      const past = list.filter(ev => !isEventActive(ev)).sort((a,b) => getDate(b) - getDate(a));
 
       const renderItem = (ev) => {
         const url = ev.imageUrls?.[0] || '';
@@ -1519,9 +1572,8 @@
       };
 
       upcomingEl.innerHTML = upcoming.length ? upcoming.map(renderItem).join('') : '<p class="text-xs text-gray-500">Você ainda não confirmou nenhum evento futuro.</p>';
-      pastEl.innerHTML = past.length ? past.map(renderItem).join('') : '<p class="text-xs text-gray-500">Nada por aqui ainda.</p>';
 
-      $$('#my-upcoming-events [data-open-event], #my-past-events [data-open-event]').forEach(el => {
+      $$('#my-upcoming-events [data-open-event]').forEach(el => {
         const id = el.getAttribute('data-open-event');
         el.addEventListener('click', () => {
           const ev = (state.events || []).find(e => e._id === id);
@@ -1579,26 +1631,52 @@
     }
     subEventExceptions();
 
-    function getFirstUpcomingDate(startDate) {
+    function getFirstUpcomingDate(event) {
         const now = new Date();
-        now.setHours(0, 0, 0, 0); 
-        const eventDate = startDate.toDate();
-        eventDate.setHours(0, 0, 0, 0);
-
+        const eventDate = event.date.toDate();
+        
+        // Se o evento é de hoje ou futuro, verificar se ainda está ativo
         if (eventDate >= now) {
             return eventDate;
         }
+        
+        // Para eventos de dias anteriores, verificar se ainda estão ativos baseado no timeEnd
+        if (eventDate < now) {
+            // Se tem timeEnd, verificar se ainda não expirou
+            if (event.timeEnd) {
+                const [endHours, endMinutes] = event.timeEnd.split(':').map(Number);
+                const exactEndDate = new Date(eventDate);
+                exactEndDate.setHours(endHours, endMinutes, 0, 0);
+                
+                // Se o horário de término é menor que 6h da manhã, provavelmente termina no dia seguinte
+                if (endHours < 6) {
+                    exactEndDate.setDate(exactEndDate.getDate() + 1);
+                }
+                
+                // Se ainda não expirou, retornar a data original (evento ainda ativo)
+                if (now <= exactEndDate) {
+                    console.log(`Evento recorrente ainda ativo: ${event.name}, retornando data original`);
+                    return eventDate;
+                }
+            }
+        }
 
-        const eventDayOfWeek = eventDate.getDay();
-        const todayDayOfWeek = now.getDay();
+        // Calcular próxima ocorrência
+        const nowStart = new Date(now);
+        nowStart.setHours(0, 0, 0, 0);
+        const eventDateStart = new Date(eventDate);
+        eventDateStart.setHours(0, 0, 0, 0);
+
+        const eventDayOfWeek = eventDateStart.getDay();
+        const todayDayOfWeek = nowStart.getDay();
         
         let daysToAdd = eventDayOfWeek - todayDayOfWeek;
         if (daysToAdd < 0) {
             daysToAdd += 7; 
         }
 
-        const nextOccurrence = new Date(now);
-        nextOccurrence.setDate(now.getDate() + daysToAdd);
+        const nextOccurrence = new Date(nowStart);
+        nextOccurrence.setDate(nowStart.getDate() + daysToAdd);
         return nextOccurrence;
     }
 
@@ -1611,7 +1689,8 @@
                 const baseStartDate = event.date;
                 if (!baseStartDate) return;
 
-                const firstUpcoming = getFirstUpcomingDate(baseStartDate);
+                const firstUpcoming = getFirstUpcomingDate(event);
+                console.log(`Evento recorrente: ${event.name}, primeira data: ${firstUpcoming.toLocaleString()}`);
                 const exceptions = state.eventExceptions[event._id] || [];
                 
                 let generatedCount = 0;
@@ -1855,28 +1934,46 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     });
 
     // ===== Render helpers =====
-    function isEventActive(ev){ 
-      try {
-        const now = new Date();
-        const startDate = ev.date?.toDate ? ev.date.toDate() : new Date();
-        
-        if (!ev.timeEnd) {
-          const endDateForLogic = ev.endDate?.toDate ? ev.endDate.toDate() : startDate;
-          endDateForLogic.setHours(23, 59, 59, 999);
-          return now <= endDateForLogic;
-        }
-
-        const endDatePart = ev.endDate?.toDate ? ev.endDate.toDate() : startDate;
-        const [endHours, endMinutes] = ev.timeEnd.split(':').map(Number);
-        
-        const exactEndDate = new Date(endDatePart);
-        exactEndDate.setHours(endHours, endMinutes, 0, 0);
-
-        return now <= exactEndDate;
-      } catch {
-        return true; 
-      }
-    }
+         function isEventActive(ev){ 
+       try {
+         const now = new Date();
+         const startDate = ev.date?.toDate ? ev.date.toDate() : new Date(ev.date);
+         
+         // Debug geral para todos os eventos
+         console.log(`Verificando evento: ${ev.name}, Data: ${startDate.toLocaleString()}, TimeEnd: ${ev.timeEnd || 'N/A'}`);
+         
+         if (!ev.timeEnd) {
+           // Se não tem horário de término, usar até o final do dia
+           const endDateForLogic = ev.endDate?.toDate ? ev.endDate.toDate() : startDate;
+           const endOfDay = new Date(endDateForLogic);
+           endOfDay.setHours(23, 59, 59, 999);
+           const isActive = now <= endOfDay;
+           console.log(`Evento sem timeEnd: ${ev.name}, Ativo: ${isActive}`);
+           return isActive;
+         }
+ 
+         // Se tem horário de término, usar o horário exato
+         const endDatePart = ev.endDate?.toDate ? ev.endDate.toDate() : startDate;
+         const [endHours, endMinutes] = ev.timeEnd.split(':').map(Number);
+         
+         const exactEndDate = new Date(endDatePart);
+         exactEndDate.setHours(endHours, endMinutes, 0, 0);
+ 
+         // Se o horário de término é menor que 6h da manhã, provavelmente termina no dia seguinte
+         if (endHours < 6) {
+           exactEndDate.setDate(exactEndDate.getDate() + 1);
+           console.log(`Evento com timeEnd < 6h: ${ev.name}, Data ajustada para: ${exactEndDate.toLocaleString()}`);
+         }
+ 
+         const isActive = now <= exactEndDate;
+         console.log(`Evento com timeEnd: ${ev.name}, Agora: ${now.toLocaleString()}, Fim: ${exactEndDate.toLocaleString()}, Ativo: ${isActive}`);
+ 
+         return isActive;
+       } catch (error) {
+         console.warn('Erro ao verificar se evento está ativo:', error, ev);
+         return true; 
+       }
+     }
 
     async function eventCard(ev){
         const url=ev.imageUrls?.[0]||'';
@@ -2076,8 +2173,12 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       const evs=[...activeEvents].sort((a,b)=>(b.importance||0)-(a.importance||0));
       const start=startOfToday(); const end=next7End();
       
-      // Eventos de hoje (apenas o dia atual)
-      const todayEvents = evs.filter(isEventToday);
+      // Eventos de hoje (apenas o dia atual) - ordenados por data
+      const todayEvents = evs.filter(isEventToday).sort((a, b) => {
+        const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+        const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+        return dateA - dateB; // Ordem crescente por data
+      });
       
       // Mostrar seção "Destaques de Hoje" apenas se houver eventos hoje
       const todaySection = document.getElementById('today-highlights-section');
@@ -2124,6 +2225,16 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         if (!q) { hide(section); return; } 
         show(section); 
         const list=filteredEvents.filter(ev=> ([ev.name,ev.style,ev.local,ev.description].filter(Boolean).some(v=>String(v).toLowerCase().includes(q)))); 
+        
+        // Ordenar por data quando há pesquisa
+        if (q && list.length > 0) {
+            list.sort((a, b) => {
+                const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+                const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+                return dateA - dateB; // Ordem crescente por data
+            });
+        }
+        
         if(!list.length){ show(empty); hide(grid); } 
         else { hide(empty); show(grid); } 
         list.forEach((ev, index) => { 
@@ -2254,11 +2365,8 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         }
     }
 
-    // ===== Admin: Gerenciamento de Eventos Unificado =====
+    // ===== Admin: Gerenciamento de Eventos =====
     const adminTabActive = $('#admin-tab-active');
-    const adminTabPast = $('#admin-tab-past');
-    const pastSearchContainer = $('#past-events-search-container');
-    const pastSearchInput = $('#past-events-search');
     const adminThead = $('#admin-events-thead');
     const adminTbody = $('#admin-events-tbody');
     const adminPlaceholder = $('#admin-events-placeholder');
@@ -2274,34 +2382,10 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             <th class="px-4 py-3 font-semibold">Ações</th>
         </tr>`;
 
-    const pastTheadHTML = `
-        <tr class="text-left text-sm text-gray-600">
-            <th class="px-4 py-3 font-semibold">Evento</th>
-            <th class="px-4 py-3 font-semibold">Local</th>
-            <th class="px-4 py-3 font-semibold">Data</th>
-            <th class="px-4 py-3 font-semibold">Ações</th>
-        </tr>`;
+
 
     adminTabActive.addEventListener('click', () => {
-        state.adminEventsView = 'active';
-        adminTabActive.classList.add('bg-white', 'shadow');
-        adminTabActive.classList.remove('text-gray-600');
-        adminTabPast.classList.remove('bg-white', 'shadow');
-        adminTabPast.classList.add('text-gray-600');
         renderAdminEventsView();
-    });
-
-    adminTabPast.addEventListener('click', () => {
-        state.adminEventsView = 'past';
-        adminTabPast.classList.add('bg-white', 'shadow');
-        adminTabPast.classList.remove('text-gray-600');
-        adminTabActive.classList.remove('bg-white', 'shadow');
-        adminTabActive.classList.add('text-gray-600');
-        renderAdminEventsView();
-    });
-
-    pastSearchInput.addEventListener('input', (e) => {
-        renderAdminPastEventsResults(e.target.value);
     });
     
     
@@ -2336,109 +2420,29 @@ async function deleteRecurringInstance(eventInstance) {
     function renderAdminEventsView() {
         adminTbody.innerHTML = '';
         hide(adminPlaceholder);
-
-        if (state.adminEventsView === 'active') {
-            show(activeSearchContainer);
-            hide(pastSearchContainer);
-            hide(pastSearchContainer);
-            adminThead.innerHTML = activeTheadHTML;
-            
-            let activeEvents = state.events.filter(isEventActive);
-            const _q = (activeSearchInput && activeSearchInput.value ? activeSearchInput.value : '').trim().toLowerCase();
-            if (_q) {
-                activeEvents = activeEvents.filter(ev => {
-                    const name = (ev.name||'').toLowerCase();
-                    const local = (ev.local||'').toLowerCase();
-                    const stylesArr = Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : []);
-                    const inStyle = stylesArr.some(s => (s||'').toLowerCase().includes(_q));
-                    return name.includes(_q) || local.includes(_q) || inStyle;
-                });
-            }
-            if (activeEvents.length === 0) {
-                const hasQuery = !!_q;
-                adminPlaceholder.textContent = hasQuery ? 'Nenhum evento encontrado para essa busca.' : 'Nenhum evento ativo no momento.';
-                adminPlaceholder.textContent = 'Nenhum evento ativo no momento.';
-                show(adminPlaceholder);
-                return;
-            }
-
-            activeEvents.forEach(ev => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                  <td class="event-cell" data-label="Evento">
-                      <div class="flex items-center gap-3">
-                          <img src="${ev.imageUrls?.[0]||''}" onerror="this.src='https://placehold.co/64x48/f9a8d4/ffffff?text=RioFestas'" class="h-12 w-16 rounded-lg object-cover ring-subtle" />
-                          <div>
-                              <div class="font-medium">${ev.name||''}</div>
-                              <div class="text-xs text-gray-500">${Array.isArray(ev.styles) ? ev.styles.join(', ') : (ev.style||'')}</div>
-                          </div>
-                      </div>
-                  </td>
-                  <td data-label="Local" class="text-sm text-gray-700">${ev.local||''}</td>
-                  <td data-label="Data" class="text-sm text-gray-700">${fmtDate(ev.date)}</td>
-                  <td data-label="Importância" class="text-sm">${Number(ev.importance||0)}</td>
-                  <td class="actions-cell">
-                      <div class="flex gap-2 justify-end">
-                          <button class="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-gray-50" data-act="edit">Editar</button>
-                          <button class="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100" data-act="del">Excluir</button>
-                      </div>
-                  </td>`;
-                tr.querySelector('[data-act="edit"]').addEventListener('click', () => {
-                    if (!ensureAdmin()) return;
-                    const baseEvent = state.baseEvents.find(base => base._id === (ev._original_id || ev._id));
-                    if (baseEvent) {
-                        openEventModal('edit', baseEvent);
-                    } else {
-                        toast('Evento original não encontrado para edição.', 'error');
-                    }
-                });
-                tr.querySelector('[data-act="del"]').addEventListener('click', () => {
-                    if (!ensureAdmin()) return;
-                    if (ev.isGenerated) {
-                        deleteRecurringInstance(ev);
-                    } else {
-                        state.deleteTarget = { path: ev._path, name: ev.name };
-                        $('#delete-event-name').textContent = ev.name || 'este evento';
-                        show($('#delete-modal'));
-                    }
-                });
-                adminTbody.appendChild(tr);
+        show(activeSearchContainer);
+        adminThead.innerHTML = activeTheadHTML;
+        
+        let activeEvents = state.events.filter(isEventActive);
+        const _q = (activeSearchInput && activeSearchInput.value ? activeSearchInput.value : '').trim().toLowerCase();
+        if (_q) {
+            activeEvents = activeEvents.filter(ev => {
+                const name = (ev.name||'').toLowerCase();
+                const local = (ev.local||'').toLowerCase();
+                const stylesArr = Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : []);
+                const inStyle = stylesArr.some(s => (s||'').toLowerCase().includes(_q));
+                return name.includes(_q) || local.includes(_q) || inStyle;
             });
-        } else { // 'past' view
-            hide(activeSearchContainer);
-            show(pastSearchContainer);
-            pastSearchInput.value = '';
-            adminThead.innerHTML = pastTheadHTML;
-            adminPlaceholder.textContent = 'Digite na busca para encontrar eventos passados (últimos 7 dias).';
-            show(adminPlaceholder);
         }
-    }
-
-    function renderAdminPastEventsResults(searchTerm = '') {
-        adminTbody.innerHTML = '';
-        hide(adminPlaceholder);
-
-        if (!searchTerm.trim()) {
-            adminPlaceholder.textContent = 'Digite na busca para encontrar eventos passados (últimos 7 dias).';
+        
+        if (activeEvents.length === 0) {
+            const hasQuery = !!_q;
+            adminPlaceholder.textContent = hasQuery ? 'Nenhum evento encontrado para essa busca.' : 'Nenhum evento ativo no momento.';
             show(adminPlaceholder);
             return;
         }
 
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-        const pastEvents = state.events
-            .filter(ev => !isEventActive(ev))
-            .filter(ev => (ev.endDate?.toDate() || ev.date?.toDate()) >= sevenDaysAgo)
-            .filter(ev => ev.name.toLowerCase().includes(searchTerm.toLowerCase()));
-
-        if (pastEvents.length === 0) {
-            adminPlaceholder.textContent = 'Nenhum evento passado encontrado com esse nome.';
-            show(adminPlaceholder);
-            return;
-        }
-
-        pastEvents.forEach(ev => {
+        activeEvents.forEach(ev => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td class="event-cell" data-label="Evento">
@@ -2452,23 +2456,37 @@ async function deleteRecurringInstance(eventInstance) {
               </td>
               <td data-label="Local" class="text-sm text-gray-700">${ev.local||''}</td>
               <td data-label="Data" class="text-sm text-gray-700">${fmtDate(ev.date)}</td>
+              <td data-label="Importância" class="text-sm">${Number(ev.importance||0)}</td>
               <td class="actions-cell">
                   <div class="flex gap-2 justify-end">
                       <button class="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-gray-50" data-act="edit">Editar</button>
+                      <button class="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100" data-act="del">Excluir</button>
                   </div>
               </td>`;
             tr.querySelector('[data-act="edit"]').addEventListener('click', () => {
-              if (!ensureAdmin()) return;
-              const baseEvent = state.baseEvents.find(base => base._id === (ev._original_id || ev._id));
+                if (!ensureAdmin()) return;
+                const baseEvent = state.baseEvents.find(base => base._id === (ev._original_id || ev._id));
                 if (baseEvent) {
                     openEventModal('edit', baseEvent);
                 } else {
                     toast('Evento original não encontrado para edição.', 'error');
                 }
             });
+            tr.querySelector('[data-act="del"]').addEventListener('click', () => {
+                if (!ensureAdmin()) return;
+                if (ev.isGenerated) {
+                    deleteRecurringInstance(ev);
+                } else {
+                    state.deleteTarget = { path: ev._path, name: ev.name };
+                    $('#delete-event-name').textContent = ev.name || 'este evento';
+                    show($('#delete-modal'));
+                }
+            });
             adminTbody.appendChild(tr);
         });
     }
+
+
 
     $('#delete-confirm-btn').addEventListener('click', async (e)=>{
         if (!state.deleteTarget) return;
@@ -2789,7 +2807,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     // ===== Social: "Vou nesse" =====
     function updateGoingButtonUI() {
       if (!state.currentViewEvent) return;
-      const evId = state.currentViewEvent._original_id || state.currentViewEvent._id;
+      const evId = state.currentViewEvent._id;
       const isGoing = state.userGoingTo.has(evId);
       const btn = $('#btn-going');
       const btnText = $('#btn-going-text');
@@ -2811,7 +2829,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       if (!auth.currentUser || auth.currentUser.isAnonymous) return openLogin();
       if (!state.currentViewEvent) return;
 
-      const evId = state.currentViewEvent._original_id || state.currentViewEvent._id;
+      const evId = state.currentViewEvent._id;
       const eventPath = state.currentViewEvent._path;
       const userId = auth.currentUser.uid;
       const isCurrentlyGoing = state.userGoingTo.has(evId);
@@ -3157,26 +3175,18 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         if (canViewDetails) {
             const goingToSnap = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/goingTo`));
             const eventIds = goingToSnap.docs.map(d => d.id);
-            const upcomingEvents = [], pastEvents = [];
+            const upcomingEvents = [];
             
             for (const eventId of eventIds) {
                 const eventData = state.baseEvents.find(e => e._id === eventId);
-                if (eventData) {
-                    if (isEventActive(eventData)) {
-                        upcomingEvents.push(eventData);
-                    } else {
-                        pastEvents.push(eventData);
-                    }
+                if (eventData && isEventActive(eventData)) {
+                    upcomingEvents.push(eventData);
                 }
             }
             detailsHTML = `
                 <div class="mt-8">
                     <h5 class="font-semibold">Próximos Eventos</h5>
                     <div id="upcoming-list" class="mt-2 space-y-2">${renderProfileEventList(upcomingEvents)}</div>
-                </div>
-                <div class="mt-6">
-                    <h5 class="font-semibold">Eventos Anteriores</h5>
-                    <div id="past-list" class="mt-2 space-y-2">${renderProfileEventList(pastEvents)}</div>
                 </div>`;
         } else {
             detailsHTML = `
@@ -5397,7 +5407,7 @@ function filterRequests(containerId, searchTerm) {
   <div class="max-w-6xl mx-auto px-4 py-8">
     <div class="text-center space-y-4">
       <!-- Mensagem de desenvolvimento -->
-      <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 max-w-2xl mx-auto">
+      <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 max-w-2xl mx-auto" id="development-warning">
         <div class="flex items-center justify-center gap-2 mb-2">
           <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
