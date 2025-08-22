@@ -65,25 +65,26 @@
         transition: width 0.2s ease-out;
     }
     
-    /* Ultra-optimized image loading with extreme performance */
+    /* Sistema avançado de carregamento de imagens otimizado para mobile */
     .image-container {
         position: relative;
         overflow: hidden;
         background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
         background-size: 200% 100%;
-        animation: shimmer 1.5s infinite;
+        animation: shimmer 1.2s infinite;
         background-color: #f3f4f6;
         will-change: transform;
         transform: translateZ(0);
         contain: layout style paint;
         isolation: isolate;
+        border-radius: inherit;
     }
     
     /* Dark theme shimmer effect */
     [data-theme="dark"] .image-container {
         background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);
         background-size: 200% 100%;
-        animation: shimmer 1.5s infinite;
+        animation: shimmer 1.2s infinite;
         background-color: #1f2937;
     }
     
@@ -94,7 +95,7 @@
     
     .image-container img {
         opacity: 0;
-        transition: opacity 0.1s ease-in-out;
+        transition: opacity 0.15s ease-in-out;
         will-change: opacity, transform;
         backface-visibility: hidden;
         transform: translateZ(0);
@@ -102,19 +103,54 @@
         image-rendering: -webkit-optimize-contrast;
         image-rendering: crisp-edges;
         isolation: isolate;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
     
     .image-container img.loaded {
         opacity: 1;
-        animation: ultraFadeIn 0.1s ease-out;
+        animation: smoothFadeIn 0.2s ease-out;
     }
     
-    @keyframes ultraFadeIn {
-        from { opacity: 0; transform: scale(0.995); }
-        to { opacity: 1; transform: scale(1); }
+    @keyframes smoothFadeIn {
+        from { 
+            opacity: 0; 
+            transform: scale(0.98); 
+        }
+        to { 
+            opacity: 1; 
+            transform: scale(1); 
+        }
     }
     
-    /* Optimized image loading */
+    /* Indicador de carregamento para imagens que falharam */
+    .image-container img[data-fallback="true"] {
+        opacity: 0.8;
+        filter: grayscale(20%);
+    }
+    
+    /* Otimizações específicas para mobile */
+    @media (max-width: 768px) {
+        .image-container {
+            animation: shimmer 0.8s infinite; /* Shimmer mais rápido no mobile */
+        }
+        
+        .image-container img {
+            transition: opacity 0.1s ease-in-out; /* Transição mais rápida */
+        }
+        
+        .image-container img.loaded {
+            animation: mobileFadeIn 0.15s ease-out;
+        }
+        
+        @keyframes mobileFadeIn {
+            from { opacity: 0; transform: scale(0.99); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    }
+    
+    /* Sistema de carregamento de imagens otimizado */
     img {
         will-change: opacity;
         backface-visibility: hidden;
@@ -123,12 +159,14 @@
         image-rendering: crisp-edges;
         contain: layout style paint;
         isolation: isolate;
+        max-width: 100%;
+        height: auto;
     }
     
-    /* Ultra-fast progressive image loading */
+    /* Carregamento progressivo otimizado */
     img[loading="eager"] {
         opacity: 0;
-        transition: opacity 0.05s ease-in;
+        transition: opacity 0.1s ease-in;
     }
     
     img[loading="eager"].loaded {
@@ -137,24 +175,86 @@
     
     img[loading="lazy"] {
         opacity: 0;
-        transition: opacity 0.1s ease-in;
+        transition: opacity 0.15s ease-in;
     }
     
     img[loading="lazy"].loaded {
         opacity: 1;
     }
     
-    /* Performance optimizations */
+    /* Otimizações específicas para mobile */
+    @media (max-width: 768px) {
+        img[loading="eager"] {
+            transition: opacity 0.08s ease-in;
+        }
+        
+        img[loading="lazy"] {
+            transition: opacity 0.12s ease-in;
+        }
+        
+        /* Reduzir qualidade de imagem em conexões lentas */
+        img[data-connection="slow"] {
+            image-rendering: pixelated;
+        }
+        
+        /* Otimizações para conexões 2G/3G */
+        img[data-connection="2g"],
+        img[data-connection="3g"] {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+    }
+    
+    /* Otimizações para conexões lentas */
+    @media (prefers-reduced-data: reduce) {
+        .image-container {
+            animation: none;
+        }
+        
+        img {
+            transition: none;
+        }
+        
+        img[loading="lazy"] {
+            loading: eager;
+        }
+    }
+    
+    /* Otimizações de performance para carrosséis */
     .carousel-container {
         contain: layout style;
         will-change: scroll-position;
         isolation: isolate;
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
     }
     
     .carousel-container > * {
         contain: layout style paint;
         will-change: transform;
         isolation: isolate;
+        flex-shrink: 0;
+    }
+    
+    /* Otimizações específicas para mobile em carrosséis */
+    @media (max-width: 768px) {
+        .carousel-container {
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .carousel-container > * {
+            scroll-snap-align: start;
+        }
+        
+        /* Preload de imagens próximas no carrossel */
+        .carousel-container img {
+            loading: lazy;
+        }
+        
+        .carousel-container img:nth-child(-n+3) {
+            loading: eager;
+        }
     }
     
     /* Ultra-fast avatar optimization */
@@ -2081,7 +2181,7 @@ body.modal-open {
 
 /* Melhorar o container do modal para manter legibilidade */
 #event-view > div:last-child {
-    background: rgba(248, 250, 252, 0.98) !important; /* Fundo ligeiramente mais escuro (slate-50) */
+    background: rgba(203, 213, 225, 0.98) !important; /* Bem mais escuro (slate-300) */
     backdrop-filter: blur(10px) !important; /* Blur forte no container */
     border: 1px solid rgba(255, 255, 255, 0.2) !important; /* Borda sutil */
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important; /* Sombra elegante */
@@ -2096,7 +2196,7 @@ body.modal-open {
 /* Em mobile, manter o container sólido */
 @media (max-width: 768px) {
     #event-view > div:last-child {
-        background: rgba(248, 250, 252, 0.98) !important; /* Ligeiramente mais escuro em mobile */
+        background: rgba(203, 213, 225, 0.98) !important; /* Bem mais escuro (slate-300) */
         backdrop-filter: blur(15px) !important; /* Blur mais forte */
     }
     

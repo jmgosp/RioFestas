@@ -53,23 +53,49 @@
 
 
 document.addEventListener('DOMContentLoaded', function(){
-  // Ultra-aggressive image optimization with extreme initial loading
+  // Sistema avançado de otimização de imagens com foco em mobile
   const imageCache = new Map();
   const loadingQueue = [];
-  const preloadQueue = [];
+  const failedImages = new Set();
   let isProcessingQueue = false;
-  let isPreloading = false;
-  let initialLoadComplete = false;
+  let connectionType = 'unknown';
+  let isMobile = window.innerWidth <= 768;
   
-  // Extreme preload for critical images
-  const extremePreload = () => {
+  // Detectar tipo de conexão
+  const detectConnection = () => {
+    if (navigator.connection) {
+      connectionType = navigator.connection.effectiveType || 'unknown';
+    } else if (navigator.connection && navigator.connection.type) {
+      connectionType = navigator.connection.type;
+    }
+    
+    // Detectar se é mobile
+    isMobile = window.innerWidth <= 768;
+    
+    console.log('Connection type:', connectionType, 'Mobile:', isMobile);
+  };
+  
+  // Configurações baseadas na conexão
+  const getConnectionConfig = () => {
+    const configs = {
+      '4g': { maxConcurrent: 8, timeout: 3000, retryCount: 2 },
+      '3g': { maxConcurrent: 4, timeout: 5000, retryCount: 3 },
+      '2g': { maxConcurrent: 2, timeout: 8000, retryCount: 4 },
+      'slow-2g': { maxConcurrent: 1, timeout: 10000, retryCount: 5 },
+      'unknown': { maxConcurrent: 6, timeout: 4000, retryCount: 2 }
+    };
+    
+    return configs[connectionType] || configs['unknown'];
+  };
+  
+  // Preload crítico para imagens essenciais
+  const preloadCriticalImages = () => {
     const criticalImages = [
       'https://placehold.co/128x128/f472b6/ffffff?text=U',
-      'https://placehold.co/280x176/f9a8d4/ffffff?text=RioFestas',
-      'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=1600&auto=format&fit=crop'
+      'https://placehold.co/280x176/f9a8d4/ffffff?text=RioFestas'
     ];
     
-    // Create all preload links immediately
+    // Criar preload links
     criticalImages.forEach((src, index) => {
       const link = document.createElement('link');
       link.rel = 'preload';
@@ -79,180 +105,260 @@ document.addEventListener('DOMContentLoaded', function(){
       document.head.appendChild(link);
     });
     
-    // Preload images in memory
+    // Pré-carregar em cache
     criticalImages.forEach(src => {
       const img = new Image();
+      img.onload = () => imageCache.set(src, src);
       img.src = src;
-      imageCache.set(src, src);
     });
   };
   
-  // Ultra-parallel image loading with connection optimization
+  // Carregamento de imagem com retry e fallback
+  const loadImageWithRetry = async (src, retryCount = 0) => {
+    const config = getConnectionConfig();
+    
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      
+      img.onload = () => {
+        imageCache.set(src, src);
+        resolve(src);
+      };
+      
+      img.onerror = () => {
+        if (retryCount < config.retryCount) {
+          console.log(`Retrying image load: ${src} (attempt ${retryCount + 1})`);
+          setTimeout(() => {
+            loadImageWithRetry(src, retryCount + 1)
+              .then(resolve)
+              .catch(reject);
+          }, 1000 * (retryCount + 1)); // Backoff exponencial
+        } else {
+          failedImages.add(src);
+          reject(new Error(`Failed to load image after ${config.retryCount} attempts`));
+        }
+      };
+      
+      img.src = src;
+      
+      // Timeout baseado na conexão
+      setTimeout(() => {
+        if (!img.complete) {
+          img.onerror();
+        }
+      }, config.timeout);
+    });
+  };
+  
+  // Processamento da fila de carregamento
   const processImageQueue = async () => {
     if (isProcessingQueue || loadingQueue.length === 0) return;
     isProcessingQueue = true;
     
-    // Extreme parallel loading based on connection
-    const maxConcurrent = navigator.connection ? 
-      Math.min(navigator.connection.effectiveType === '4g' ? 12 : 6, loadingQueue.length) : 
-      8;
-    
-    const batch = loadingQueue.splice(0, maxConcurrent);
+    const config = getConnectionConfig();
+    const batch = loadingQueue.splice(0, config.maxConcurrent);
     
     const promises = batch.map(async ({ img, src, priority }) => {
       try {
-        // Check cache first
+        // Verificar cache primeiro
         if (imageCache.has(src)) {
           img.src = imageCache.get(src);
           img.classList.add('loaded');
           return;
         }
         
-        // Ultra-fast loading with minimal timeout
-        const loadPromise = new Promise((resolve, reject) => {
-          const tempImg = new Image();
-          tempImg.onload = () => resolve(tempImg.src);
-          tempImg.onerror = reject;
-          tempImg.src = src;
-          
-          // Ultra-short timeout for instant fallback
-          setTimeout(() => reject(new Error('Timeout')), priority ? 1500 : 1000);
-        });
+        // Verificar se já falhou
+        if (failedImages.has(src)) {
+          throw new Error('Image previously failed');
+        }
         
-        const loadedSrc = await loadPromise;
-        imageCache.set(src, loadedSrc);
+        // Carregar imagem com retry
+        const loadedSrc = await loadImageWithRetry(src);
         img.src = loadedSrc;
         img.classList.add('loaded');
         
       } catch (error) {
         console.warn('Failed to load image:', src, error);
-        img.src = 'https://placehold.co/280x176/f9a8d4/ffffff?text=RioFestas';
+        
+        // Fallback inteligente baseado no contexto
+        let fallbackSrc = 'https://placehold.co/280x176/f9a8d4/ffffff?text=RioFestas';
+        
+        // Fallbacks específicos baseados no tipo de imagem
+        if (src.includes('avatar') || src.includes('user')) {
+          fallbackSrc = 'https://placehold.co/128x128/f472b6/ffffff?text=U';
+        } else if (src.includes('event') || src.includes('party')) {
+          fallbackSrc = 'https://placehold.co/280x176/f9a8d4/ffffff?text=Evento';
+        }
+        
+        img.src = fallbackSrc;
         img.classList.add('loaded');
+        img.setAttribute('data-fallback', 'true');
       }
     });
     
     await Promise.all(promises);
     isProcessingQueue = false;
     
-    // Process next batch immediately with no delay
+    // Processar próximo lote imediatamente
     if (loadingQueue.length > 0) {
-      processImageQueue();
+      setTimeout(processImageQueue, 50); // Pequeno delay para não sobrecarregar
     }
   };
   
+  // Otimização de imagens com priorização inteligente
   const optimizeImages = () => {
     const images = document.querySelectorAll('img[src]:not([data-optimized])');
+    
     images.forEach((img, index) => {
       img.setAttribute('data-optimized', 'true');
       
       const src = img.src;
-      const isHighPriority = index < 20; // Increase priority images significantly
       
-      // Set loading attributes
-      if (isHighPriority) {
-        img.setAttribute('fetchpriority', 'high');
-        img.setAttribute('loading', 'eager');
-      } else {
-        img.setAttribute('loading', 'lazy');
+      // Determinar prioridade baseada na posição e contexto
+      let priority = false;
+      let loadingType = 'lazy';
+      
+      // Imagens de alta prioridade
+      if (index < 10 || // Primeiras 10 imagens
+          img.closest('.hero-section') || // Seção hero
+          img.closest('.carousel-container') && index < 5 || // Primeiras 5 do carrossel
+          img.hasAttribute('data-critical') || // Marcada como crítica
+          src.includes('avatar') || // Avatares de usuário
+          img.width > 300 || img.height > 200) { // Imagens grandes
+        
+        priority = true;
+        loadingType = 'eager';
       }
       
+      // Configurar atributos de carregamento
+      img.setAttribute('loading', loadingType);
       img.setAttribute('decoding', 'async');
       
-      // Add to loading queue with priority
+      if (priority) {
+        img.setAttribute('fetchpriority', 'high');
+      }
+      
+      // Adicionar container de loading se não existir
+      if (!img.parentElement.classList.contains('image-container')) {
+        const container = document.createElement('div');
+        container.className = 'image-container';
+        img.parentNode.insertBefore(container, img);
+        container.appendChild(img);
+      }
+      
+      // Adicionar à fila de carregamento
       loadingQueue.push({
         img,
         src,
-        priority: isHighPriority
+        priority
       });
-      
-      // Process queue if not already processing
-      if (!isProcessingQueue) {
-        processImageQueue();
-      }
     });
-  };
-
-  const preloadCriticalImages = (root) => {
-    try {
-      const head = document.head || document.getElementsByTagName('head')[0];
-      const imgs = Array.from((root||document).querySelectorAll('img')).slice(0, 12); // Increase preload count significantly
-      
-      imgs.forEach((img, index) => {
-        if (!img || !img.src) return;
-        
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'image';
-        link.href = img.src;
-        link.setAttribute('fetchpriority', index < 6 ? 'high' : 'auto');
-        head.appendChild(link);
-      });
-    } catch(e) {
-      console.warn('Preload failed:', e);
+    
+    // Processar fila se não estiver processando
+    if (!isProcessingQueue) {
+      processImageQueue();
     }
   };
   
-  // Immediate extreme optimizations
-  extremePreload();
-  
-  // Initial optimization with minimal delay
-  setTimeout(() => {
-    optimizeImages();
-    preloadCriticalImages(document);
-    initialLoadComplete = true;
-  }, 10); // Ultra-fast initial load
-  
-  // Ultra-fast debounced optimization
-  let optimizationTimeout;
-  const debouncedOptimize = () => {
-    clearTimeout(optimizationTimeout);
-    optimizationTimeout = setTimeout(() => {
+  // Otimização para novos elementos
+  const optimizeNewImages = (root) => {
+    const newImages = root.querySelectorAll('img[src]:not([data-optimized])');
+    if (newImages.length > 0) {
       optimizeImages();
-    }, 10); // Ultra-fast debouncing
+    }
   };
   
-  const obs = new MutationObserver((muts) => {
-    let shouldOptimize = false;
+  // Observer para novos elementos
+  const observer = new MutationObserver((mutations) => {
+    let hasNewImages = false;
     
-    muts.forEach(m => {
-      m.addedNodes && m.addedNodes.forEach(n => {
-        if (n.nodeType === 1) {
-          if (n.id && n.id.startsWith('carousel-')) {
-            preloadCriticalImages(n);
-            shouldOptimize = true;
-          }
-          if (n.querySelectorAll && n.querySelectorAll('img').length > 0) {
-            shouldOptimize = true;
+    mutations.forEach(mutation => {
+      mutation.addedNodes.forEach(node => {
+        if (node.nodeType === 1) { // Element node
+          if (node.tagName === 'IMG' && node.src) {
+            hasNewImages = true;
+          } else if (node.querySelectorAll) {
+            const images = node.querySelectorAll('img[src]');
+            if (images.length > 0) {
+              hasNewImages = true;
+            }
           }
         }
       });
     });
     
-    if (shouldOptimize) {
-      debouncedOptimize();
+    if (hasNewImages) {
+      setTimeout(optimizeImages, 100);
     }
   });
   
-  obs.observe(document.body, { childList: true, subtree: true });
-  
-  // Optimize on scroll with passive listener
-  let scrollTimeout;
-  document.addEventListener('scroll', () => {
-    clearTimeout(scrollTimeout);
-    scrollTimeout = setTimeout(optimizeImages, 10);
-  }, { passive: true });
-  
-  // Optimize on visibility change
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
+  // Inicialização
+  const initImageOptimization = () => {
+    detectConnection();
+    preloadCriticalImages();
+    
+    // Otimização inicial
+    setTimeout(() => {
       optimizeImages();
-    }
-  });
+    }, 50);
+    
+    // Observer para mudanças no DOM
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+    
+    // Otimização no scroll (throttled)
+    let scrollTimeout;
+    document.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(optimizeImages, 200);
+    }, { passive: true });
+    
+    // Otimização quando a página volta a ficar visível
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        optimizeImages();
+      }
+    });
+    
+    // Re-detecta conexão quando a janela é redimensionada
+    window.addEventListener('resize', () => {
+      detectConnection();
+    });
+    
+    // Otimização periódica para garantir que todas as imagens sejam processadas
+    setInterval(() => {
+      if (document.querySelectorAll('img[src]:not([data-optimized])').length > 0) {
+        optimizeImages();
+      }
+    }, 5000);
+  };
   
-  // Optimize on window focus
-  window.addEventListener('focus', () => {
-    if (initialLoadComplete) {
-      optimizeImages();
-    }
-  });
+  // Iniciar otimização
+  initImageOptimization();
+  
+  // Registrar Service Worker com otimizações
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then((registration) => {
+          console.log('Service Worker registrado com sucesso:', registration.scope);
+          
+          // Verificar atualizações do Service Worker
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // Nova versão disponível
+                console.log('Nova versão do Service Worker disponível');
+              }
+            });
+          });
+        })
+        .catch((error) => {
+          console.warn('Falha ao registrar Service Worker:', error);
+        });
+    });
+  }
 });
