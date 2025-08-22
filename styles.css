@@ -2,6 +2,46 @@
 
 /* --- Split from inline <style> blocks --- */
 
+/* ===== PWA STYLES ===== */
+/* Status bar para iPhone */
+@supports (padding: max(0px)) {
+  body {
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+}
+
+/* Esconder elementos quando em modo standalone */
+@media all and (display-mode: standalone) {
+  #pwa-install-prompt {
+    display: none !important;
+  }
+  
+  /* Melhorar espaçamento para PWA */
+  body {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Melhorar experiência touch */
+@media (hover: none) and (pointer: coarse) {
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Prevenir zoom em inputs no iOS */
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
 
     body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
     .shadow-soft{box-shadow:0 12px 26px rgba(17,17,18,.08)}

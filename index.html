@@ -3,8 +3,45 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>RioFestas • Guia de Festas do Rio</title><link href="styles.css" rel="stylesheet"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<title>RioFestas • Guia de Festas do Rio</title>
+
+<!-- PWA Meta Tags -->
+<meta name="application-name" content="RioFestas">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="RioFestas">
+<meta name="description" content="Descubra e reserve as melhores festas do Rio de Janeiro">
+<meta name="format-detection" content="telephone=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="msapplication-config" content="/browserconfig.xml">
+<meta name="msapplication-TileColor" content="#ec4899">
+<meta name="msapplication-tap-highlight" content="no">
+<meta name="theme-color" content="#ec4899">
+
+<!-- Apple Touch Icons -->
+<link rel="apple-touch-icon" href="https://placehold.co/180x180/ec4899/ffffff?text=RF">
+<link rel="apple-touch-icon" sizes="152x152" href="https://placehold.co/152x152/ec4899/ffffff?text=RF">
+<link rel="apple-touch-icon" sizes="167x167" href="https://placehold.co/167x167/ec4899/ffffff?text=RF">
+<link rel="apple-touch-icon" sizes="180x180" href="https://placehold.co/180x180/ec4899/ffffff?text=RF">
+
+<!-- Splash Screens para iPhone -->
+<link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" href="https://placehold.co/1290x2796/ec4899/ffffff?text=RioFestas">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)" href="https://placehold.co/1179x2556/ec4899/ffffff?text=RioFestas">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)" href="https://placehold.co/1284x2778/ec4899/ffffff?text=RioFestas">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" href="https://placehold.co/1170x2532/ec4899/ffffff?text=RioFestas">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" href="https://placehold.co/1125x2436/ec4899/ffffff?text=RioFestas">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" href="https://placehold.co/828x1792/ec4899/ffffff?text=RioFestas">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)" href="https://placehold.co/1242x2688/ec4899/ffffff?text=RioFestas">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" href="https://placehold.co/1125x2436/ec4899/ffffff?text=RioFestas">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)" href="https://placehold.co/1242x2208/ec4899/ffffff?text=RioFestas">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="https://placehold.co/750x1334/ec4899/ffffff?text=RioFestas">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)" href="https://placehold.co/640x1136/ec4899/ffffff?text=RioFestas">
+
+<!-- Manifest -->
+<link rel="manifest" href="/manifest.json">
+
+<link href="styles.css" rel="stylesheet"/>
 <!-- Tailwind + Inter -->
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -391,7 +428,13 @@
 </div>
 </div>
 <div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="account-error"></div>
-<div class="flex justify-end">
+<div class="flex justify-between items-center">
+<button class="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-100" type="button" id="btn-delete-account">
+<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+</svg>
+Excluir Conta
+</button>
 <button class="inline-flex items-center rounded-full bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90" type="submit">Salvar Perfil</button>
 </div>
 </form>
@@ -1065,6 +1108,36 @@
 
 <!-- Modal de solicitação removido - agora usando confirm() padrão do navegador -->
 
+<!-- Modal de Confirmação para Excluir Conta -->
+<div class="fixed inset-0 z-[70] hidden" id="delete-account-modal">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm" data-close="delete-account"></div>
+<div class="relative z-[71] mx-auto mt-40 w-[92%] max-w-md rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
+<div class="text-center">
+<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+<svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+</svg>
+</div>
+<h4 class="text-xl font-bold text-gray-900">Excluir Conta</h4>
+<p class="mt-2 text-sm text-gray-600">Você tem certeza que deseja excluir sua conta permanentemente?</p>
+<div class="mt-3 p-3 bg-red-50 rounded-xl border border-red-200">
+<p class="text-xs text-red-700 font-medium">⚠️ Esta ação irá:</p>
+<ul class="text-xs text-red-600 mt-1 space-y-1">
+<li>• Excluir todos os seus dados do perfil</li>
+<li>• Remover todos os seus eventos criados</li>
+<li>• Cancelar todas as suas presenças confirmadas</li>
+<li>• Deletar todas as suas avaliações</li>
+<li>• Esta ação <strong>NÃO PODE</strong> ser desfeita</li>
+</ul>
+</div>
+</div>
+<div class="mt-6 flex justify-end gap-3">
+<button class="rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50" data-close="delete-account">Cancelar</button>
+<button class="rounded-full bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90" id="confirm-delete-account-btn">Excluir Conta</button>
+</div>
+</div>
+</div>
+
 <!-- Modal de Confirmação para Remover Acesso a Evento Privado -->
 <div class="fixed inset-0 z-[70] hidden" id="remove-access-modal">
 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
@@ -1086,6 +1159,26 @@
 </div>
 <!-- Toast Container -->
 <div class="pointer-events-none fixed inset-x-0 bottom-5 z-[90] flex flex-col items-center gap-2" id="toast-container"></div>
+
+<!-- PWA Install Prompt -->
+<div class="fixed bottom-4 left-4 right-4 z-[95] hidden" id="pwa-install-prompt">
+<div class="bg-white rounded-2xl shadow-xl border border-gray-200 p-4">
+<div class="flex items-center gap-3">
+<div class="flex-shrink-0">
+<img src="https://placehold.co/48x48/ec4899/ffffff?text=RF" alt="RioFestas" class="w-12 h-12 rounded-xl">
+</div>
+<div class="flex-1">
+<h3 class="font-semibold text-gray-900">Instalar RioFestas</h3>
+<p class="text-sm text-gray-600">Adicione à tela inicial para uma experiência melhor</p>
+</div>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800" id="pwa-dismiss">Agora não</button>
+<button class="px-3 py-1.5 text-sm font-medium bg-pink-600 text-white rounded-lg hover:bg-pink-700" id="pwa-install">Instalar</button>
+</div>
+</div>
+</div>
+</div>
+
 <!-- Firebase (ESM) -->
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
@@ -3513,6 +3606,101 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         }
     });
 
+    // ===== Exclusão de Conta =====
+    $('#btn-delete-account').addEventListener('click', () => {
+        show($('#delete-account-modal'));
+    });
+
+    $('#confirm-delete-account-btn').addEventListener('click', async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const btn = $('#confirm-delete-account-btn');
+        const originalText = btn.textContent;
+        btn.textContent = 'Excluindo...';
+        btn.disabled = true;
+
+        try {
+            // 1. Excluir dados do usuário do Firestore
+            await deleteDoc(doc(db, USERS_PATH, user.uid));
+            
+            // 2. Excluir username do registro
+            if (state.currentUserData?.username) {
+                await deleteDoc(doc(db, USERNAMES_PATH, state.currentUserData.username));
+            }
+
+            // 3. Excluir dados de organizador se existir
+            const orgQuery = query(collection(db, ORG_PATH), where('uid', '==', user.uid));
+            const orgDocs = await getDocs(orgQuery);
+            const deleteOrgPromises = orgDocs.docs.map(doc => deleteDoc(doc.ref));
+            await Promise.all(deleteOrgPromises);
+
+            // 4. Excluir eventos criados pelo usuário
+            const userEventsQuery = query(collection(db, EVENTS_PATH), where('createdBy', '==', user.uid));
+            const userEventsDocs = await getDocs(userEventsQuery);
+            const deleteEventPromises = userEventsDocs.docs.map(doc => deleteDoc(doc.ref));
+            await Promise.all(deleteEventPromises);
+
+            // 5. Excluir presenças confirmadas do usuário
+            const allEventsQuery = query(collection(db, EVENTS_PATH));
+            const allEventsDocs = await getDocs(allEventsQuery);
+            const deleteAttendancePromises = allEventsDocs.docs.map(eventDoc => 
+                deleteDoc(doc(db, `${EVENTS_PATH}/${eventDoc.id}/attendees`, user.uid))
+            );
+            await Promise.all(deleteAttendancePromises);
+
+            // 6. Excluir avaliações do usuário
+            const allEventsForRatings = await getDocs(collection(db, EVENTS_PATH));
+            const deleteRatingPromises = allEventsForRatings.docs.map(eventDoc => 
+                deleteDoc(doc(db, `${EVENTS_PATH}/${eventDoc.id}/ratings`, user.uid))
+            );
+            await Promise.all(deleteRatingPromises);
+
+            // 7. Excluir relacionamentos de seguidores/seguindo
+            const followersQuery = query(collection(db, USERS_PATH), where('following', 'array-contains', user.uid));
+            const followersDocs = await getDocs(followersQuery);
+            const updateFollowersPromises = followersDocs.docs.map(doc => 
+                updateDoc(doc.ref, { following: increment(-1) })
+            );
+            await Promise.all(updateFollowersPromises);
+
+            // 8. Excluir solicitações de amizade
+            const requestsQuery = query(collection(db, USERS_PATH), where('incomingRequests', 'array-contains', user.uid));
+            const requestsDocs = await getDocs(requestsQuery);
+            const updateRequestsPromises = requestsDocs.docs.map(doc => 
+                updateDoc(doc.ref, { incomingRequests: increment(-1) })
+            );
+            await Promise.all(updateRequestsPromises);
+
+            // 9. Excluir conta do Firebase Auth
+            await user.delete();
+
+            // 10. Fazer logout
+            await signOut(auth);
+
+            // 11. Fechar modal e mostrar mensagem
+            hide($('#delete-account-modal'));
+            toast('Conta excluída com sucesso. Obrigado por usar o RioFestas!', 'info');
+
+            // 12. Redirecionar para home
+            setTimeout(() => {
+                show($('#home-section'));
+                hide($('#view-profile'));
+            }, 2000);
+
+        } catch (error) {
+            console.error('Erro ao excluir conta:', error);
+            btn.textContent = originalText;
+            btn.disabled = false;
+            
+            if (error.code === 'auth/requires-recent-login') {
+                toast('Para excluir sua conta, você precisa fazer login novamente por segurança.', 'error');
+            } else {
+                toast('Erro ao excluir conta. Tente novamente.', 'error');
+            }
+        }
+    });
+
     $('#clear-all-notifs-btn').addEventListener('click', async () => {
         const user = auth.currentUser;
         if (!user) return;
@@ -4257,6 +4445,54 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         }
     });
 
+
+    // ===== PWA Service Worker =====
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registrado: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW falhou: ', registrationError);
+          });
+      });
+    }
+
+    // ===== PWA Install Prompt =====
+    let deferredPrompt;
+    const pwaInstallPrompt = $('#pwa-install-prompt');
+    const pwaInstallBtn = $('#pwa-install');
+    const pwaDismissBtn = $('#pwa-dismiss');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // Mostrar prompt personalizado após 3 segundos
+      setTimeout(() => {
+        if (deferredPrompt && !localStorage.getItem('pwa-dismissed')) {
+          show(pwaInstallPrompt);
+        }
+      }, 3000);
+    });
+
+    pwaInstallBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          console.log('Usuário aceitou instalar PWA');
+        }
+        deferredPrompt = null;
+        hide(pwaInstallPrompt);
+      }
+    });
+
+    pwaDismissBtn.addEventListener('click', () => {
+      hide(pwaInstallPrompt);
+      localStorage.setItem('pwa-dismissed', 'true');
+    });
 
     // ===== Aux =====
     function mapAuthErr(err){ 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<browserconfig>
+    <msapplication>
+        <tile>
+            <square150x150logo src="https://placehold.co/150x150/ec4899/ffffff?text=RF"/>
+            <TileColor>#ec4899</TileColor>
+        </tile>
+    </msapplication>
+</browserconfig>
