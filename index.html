@@ -57,28 +57,24 @@
 })();
 </script>
 
-<!-- Otimizações de performance para carregamento de imagens -->
+<!-- Perf: preconnect to common image hosts -->
 <link crossorigin="" href="https://firebasestorage.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://lh3.googleusercontent.com" rel="preconnect"/>
 <link crossorigin="" href="https://images.unsplash.com" rel="preconnect"/>
 <link href="https://placehold.co" rel="preconnect"/>
 
-<!-- Preload de imagens críticas com prioridade otimizada -->
+<!-- Preload critical images -->
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&amp;w=1600&amp;auto=format&amp;fit=crop" fetchpriority="high" class="hero-image-preload"/>
 <link rel="preload" as="image" href="https://placehold.co/128x128/f472b6/ffffff?text=U" fetchpriority="high"/>
 <link rel="preload" as="image" href="https://placehold.co/280x176/f9a8d4/ffffff?text=RioFestas" fetchpriority="high"/>
 
-<!-- DNS prefetch para domínios adicionais -->
+<!-- DNS prefetch for additional domains -->
 <link rel="dns-prefetch" href="//www.gstatic.com"/>
 <link rel="dns-prefetch" href="//firebaseapp.com"/>
 <link rel="dns-prefetch" href="//firebasestorage.googleapis.com"/>
 <link rel="dns-prefetch" href="//placehold.co"/>
 <link rel="preconnect" href="https://firebasestorage.googleapis.com"/>
 <link rel="preconnect" href="https://placehold.co"/>
-
-<!-- Otimizações específicas para mobile -->
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 </head>
 <body class="bg-gray-50 md:bg-white text-gray-900 selection:bg-pink-600/10">
 <!-- HEADER -->
