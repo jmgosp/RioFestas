@@ -5,6 +5,8 @@ const urlsToCache = [
   '/styles.css',
   '/app.js',
   '/splash-screen.jpg',
+  '/icon-192.png',
+  '/icon-512.png',
   'https://cdn.tailwindcss.com',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
   'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js',
@@ -82,8 +84,8 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', (event) => {
   const options = {
     body: event.data ? event.data.text() : 'Nova festa disponível no RioFestas!',
-    icon: 'https://placehold.co/192x192/ec4899/ffffff?text=RF',
-    badge: 'https://placehold.co/96x96/ec4899/ffffff?text=RF',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),

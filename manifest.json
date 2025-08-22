@@ -12,37 +12,37 @@
   "categories": ["entertainment", "lifestyle", "social"],
   "icons": [
     {
-      "src": "https://placehold.co/192x192/ec4899/ffffff?text=RF",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://placehold.co/512x512/ec4899/ffffff?text=RF",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://placehold.co/180x180/ec4899/ffffff?text=RF",
+      "src": "/icon-192.png",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://placehold.co/167x167/ec4899/ffffff?text=RF",
+      "src": "/icon-192.png",
       "sizes": "167x167",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://placehold.co/152x152/ec4899/ffffff?text=RF",
+      "src": "/icon-192.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://placehold.co/120x120/ec4899/ffffff?text=RF",
+      "src": "/icon-192.png",
       "sizes": "120x120",
       "type": "image/png",
       "purpose": "any"
@@ -56,7 +56,7 @@
       "url": "/?action=search",
       "icons": [
         {
-          "src": "https://placehold.co/96x96/ec4899/ffffff?text=🔍",
+          "src": "/icon-192.png",
           "sizes": "96x96"
         }
       ]
@@ -68,7 +68,7 @@
       "url": "/?action=profile",
       "icons": [
         {
-          "src": "https://placehold.co/96x96/ec4899/ffffff?text=👤",
+          "src": "/icon-192.png",
           "sizes": "96x96"
         }
       ]
