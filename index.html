@@ -1241,9 +1241,28 @@ Excluir Conta
   // Remover classe modal-open quando fechar modal
   if (el?.id === 'event-view') {
     document.body.classList.remove('modal-open');
+    // Restaurar posição de scroll se foi salva
+    if (state.savedScrollPosition !== undefined) {
+      window.scrollTo(0, state.savedScrollPosition);
+      state.savedScrollPosition = undefined;
+    }
   }
 };
     
+    // Listener para o botão de voltar do navegador
+    window.addEventListener('popstate', (event) => {
+      // Se o modal estiver aberto, fechá-lo e restaurar posição
+      const eventView = $('#event-view');
+      if (eventView && !eventView.classList.contains('hidden')) {
+        hide(eventView);
+        // Restaurar posição de scroll se foi salva
+        if (state.savedScrollPosition !== undefined) {
+          window.scrollTo(0, state.savedScrollPosition);
+          state.savedScrollPosition = undefined;
+        }
+      }
+    });
+
     // Sistema de Toast com Ação
     const toast = (message, type = 'success', options = {}) => {
         const container = $('#toast-container');
@@ -1385,7 +1404,18 @@ Excluir Conta
 
     document.addEventListener('click', (e)=>{
       const el = e.target.closest('[data-close]');
-      if(!el) return;
+      if(!el) {
+        // Fechar modal clicando fora dele (apenas para event-view)
+        if (e.target.id === 'event-view' || e.target.classList.contains('fade')) {
+          const eventView = $('#event-view');
+          if (eventView && !eventView.classList.contains('hidden')) {
+            hide(eventView);
+            state.currentViewEvent = null;
+          }
+        }
+        return;
+      }
+      
       const id = el.dataset.close;
       
       let modal;
@@ -2988,6 +3018,9 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
 
     // ===== Visualização =====
     async function openViewModal(ev){
+      // Preservar posição de scroll atual
+      const currentScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+      
       // Verifica se é evento privado e se o usuário não está logado
       const isPrivate = ev.isPrivate || false;
       const isLoggedIn = auth.currentUser && !auth.currentUser.isAnonymous;
@@ -3034,6 +3067,9 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         scrollContainer.style.webkitOverflowScrolling = 'touch';
         scrollContainer.style.overscrollBehavior = 'contain';
       }
+      
+      // Armazenar posição de scroll para restaurar quando fechar
+      state.savedScrollPosition = currentScrollPosition;
     }
 
     // ===== Social: "Vou nesse" =====

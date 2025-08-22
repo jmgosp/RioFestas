@@ -1997,4 +1997,136 @@ body.modal-open {
     #event-view .text-sm {
         line-height: 1.3;
     }
+    
+    /* Ajustes específicos para mobile - manter alguma cobertura para legibilidade */
+    #event-view .fade {
+        background: transparent !important; /* Remover completamente a cobertura escura */
+        backdrop-filter: none !important; /* Remover blur */
+    }
+    
+    /* Garantir que o modal seja sempre visível */
+    #event-view {
+        /* Evitar que o modal afete o scroll da página principal */
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        /* Usar transform para melhor performance */
+        transform: translateZ(0) !important;
+        /* Garantir que não cause mudanças no layout */
+        will-change: transform;
+    }
+}
+
+/* Previne rolagem da página de fundo quando modal está aberto */
+body.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+}
+
+/* Melhorias para preservar posição de scroll */
+body.modal-open {
+    /* Preservar posição de scroll em dispositivos móveis */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* Evitar que o scroll seja resetado */
+    -webkit-overflow-scrolling: auto;
+}
+
+/* Garantir que o modal não afete o scroll da página principal */
+#event-view {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    /* Evitar que o modal cause mudanças no scroll da página */
+    transform: translateZ(0);
+}
+
+/* Remover cobertura do fundo para permitir visibilidade do conteúdo */
+#event-view .fade {
+    background: transparent !important; /* Remover completamente a cobertura escura */
+    backdrop-filter: none !important; /* Remover blur */
+}
+
+/* Em telas maiores, manter transparente */
+@media (min-width: 768px) {
+    #event-view .fade {
+        background: transparent !important; /* Totalmente transparente */
+        backdrop-filter: none !important; /* Sem blur */
+    }
+}
+
+/* Em telas muito grandes, manter transparente */
+@media (min-width: 1024px) {
+    #event-view .fade {
+        background: transparent !important; /* Totalmente transparente */
+        backdrop-filter: none !important; /* Sem blur */
+    }
+}
+
+/* Em telas muito grandes, manter transparente */
+@media (min-width: 1024px) {
+    #event-view .fade {
+        background: transparent !important; /* Totalmente transparente */
+        backdrop-filter: none !important; /* Sem blur */
+    }
+}
+
+/* Melhorar o container do modal para manter legibilidade */
+#event-view > div:last-child {
+    background: rgba(248, 250, 252, 0.98) !important; /* Fundo ligeiramente mais escuro (slate-50) */
+    backdrop-filter: blur(10px) !important; /* Blur forte no container */
+    border: 1px solid rgba(255, 255, 255, 0.2) !important; /* Borda sutil */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important; /* Sombra elegante */
+}
+
+/* Em modo escuro, ajustar o fundo do container */
+[data-theme="dark"] #event-view > div:last-child {
+    background: rgba(17, 24, 39, 0.98) !important; /* Fundo escuro sólido */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important; /* Borda sutil em modo escuro */
+}
+
+/* Em mobile, manter o container sólido */
+@media (max-width: 768px) {
+    #event-view > div:last-child {
+        background: rgba(248, 250, 252, 0.98) !important; /* Ligeiramente mais escuro em mobile */
+        backdrop-filter: blur(15px) !important; /* Blur mais forte */
+    }
+    
+    [data-theme="dark"] #event-view > div:last-child {
+        background: rgba(17, 24, 39, 0.98) !important; /* Sólido em mobile */
+    }
+    
+    /* Alinhar a foto do evento com as informações */
+    #event-view .grid {
+        gap: 1.5rem !important; /* Reduzir gap entre foto e informações */
+    }
+    
+    #event-view .grid > div:first-child {
+        margin-bottom: 0 !important; /* Remover margem inferior da foto */
+    }
+    
+    #event-view aside {
+        margin-top: 0 !important; /* Remover margem superior das informações */
+    }
+}
+
+/* Alinhar a foto do evento com as informações em todas as telas */
+#event-view .grid {
+    gap: 1.5rem !important; /* Gap consistente entre foto e informações */
+}
+
+#event-view .grid > div:first-child {
+    margin-bottom: 0 !important; /* Remover margem inferior da foto */
+}
+
+#event-view aside {
+    margin-top: 0 !important; /* Remover margem superior das informações */
 }
