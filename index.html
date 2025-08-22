@@ -14,8 +14,7 @@
 (function(){
   try{
     var ls = localStorage.getItem('rf_theme');
-    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    var initTheme = ls || (prefersDark ? 'dark' : 'light');
+    var initTheme = ls || 'light';
     document.documentElement.setAttribute('data-theme', initTheme);
   } catch(e){}
 })();
