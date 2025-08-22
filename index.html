@@ -2089,7 +2089,11 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       }
       
       const inNext7 = evs.filter(ev=>{ const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); return d>=start && d<=end; });
-      const others=evs.filter(ev=>{ const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); return !(d>=start && d<=end); });
+      const others=evs.filter(ev=>{ const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); return !(d>=start && d<=end); }).sort((a, b) => {
+        const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+        const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+        return dateA - dateB; // Ordem crescente por data
+      });
       // CORREÇÃO: Filtra populares por goingCount > 0
       const popular = [...activeEvents].filter(ev => ev.goingCount > 0).sort((a, b) => (b.goingCount || 0) - (a.goingCount || 0)).slice(0, 10);
       
