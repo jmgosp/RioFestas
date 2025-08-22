@@ -1627,6 +1627,36 @@
     .rounded-2xl {
         border-radius: 0.75rem !important;
     }
+    
+    /* Aumentar padding-bottom para evitar que a interface do Safari cubra o conteúdo */
+    .pb-28 {
+        padding-bottom: 8rem !important; /* Aumentar de 7rem para 8rem em mobile */
+    }
+    
+    /* Aumentar padding-bottom nos carrosséis para melhor espaçamento */
+    .carousel-container {
+        padding-bottom: 2rem !important; /* Aumentar de 1rem para 2rem */
+    }
+    
+    /* Adicionar padding-bottom extra para a página principal de eventos */
+    main {
+        padding-bottom: 2rem !important;
+    }
+    
+    /* Garantir que a última seção tenha espaço suficiente */
+    section:last-child {
+        margin-bottom: 2rem !important;
+    }
+    
+    /* Ajustar elementos sticky para não interferir com a interface do Safari */
+    .sticky.bottom-0 {
+        bottom: 1rem !important; /* Adicionar margem do bottom para evitar sobreposição */
+    }
+    
+    /* Garantir que botões de ação tenham espaço suficiente */
+    .sticky.bottom-0 button {
+        margin-bottom: 0.5rem !important;
+    }
 }
 
 /* Previne rolagem da página de fundo quando modal está aberto */
@@ -1634,6 +1664,25 @@ body.modal-open {
     overflow: hidden;
     position: fixed;
     width: 100%;
+}
+
+/* Ajustes específicos para mobile e Safari */
+@media (max-width: 768px) {
+    /* Garantir que o viewport seja adequado para dispositivos móveis */
+    body {
+        min-height: 100vh;
+        min-height: -webkit-fill-available; /* Para Safari */
+    }
+    
+    /* Ajustar altura mínima para evitar problemas com interface do Safari */
+    html {
+        height: -webkit-fill-available;
+    }
+    
+    /* Garantir que o conteúdo principal tenha espaço suficiente */
+    #view-home {
+        padding-bottom: 3rem !important;
+    }
 }
 
 /* Melhorias para modais em dispositivos móveis */
@@ -1737,13 +1786,18 @@ body.modal-open {
 @media (max-width: 768px) {
     /* Aumentar margem superior do modal */
     #event-view .mt-8 {
-        margin-top: 1rem !important;
+        margin-top: 0.25rem !important;
+    }
+    
+    /* Reduzir ainda mais a margem no mobile */
+    #event-view .mt-4 {
+        margin-top: 0.25rem !important;
     }
     
     /* Melhorar altura máxima e rolagem */
     #event-view .max-h-\[92vh\] {
-        max-height: 95vh !important;
-        height: 95vh !important;
+        max-height: 98vh !important;
+        height: 98vh !important;
     }
     
     /* Garantir que o conteúdo role corretamente */
