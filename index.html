@@ -17,7 +17,7 @@
 <meta name="msapplication-config" content="/browserconfig.xml">
 <meta name="msapplication-TileColor" content="#ec4899">
 <meta name="msapplication-tap-highlight" content="no">
-<meta name="theme-color" content="#ec4899">
+<meta name="theme-color" content="#ffffff" id="theme-color-meta">
 
 <!-- Apple Touch Icons -->
 <link rel="apple-touch-icon" href="https://placehold.co/180x180/ec4899/ffffff?text=RF">
@@ -4792,6 +4792,13 @@ const THEME_KEY = 'rf_theme';
 function applyTheme(theme){
   const t = (theme === 'dark') ? 'dark' : 'light';
   document.documentElement.setAttribute('data-theme', t);
+  
+  // Atualizar cor da barra de status do mobile
+  const themeColorMeta = document.getElementById('theme-color-meta');
+  if (themeColorMeta) {
+    themeColorMeta.setAttribute('content', t === 'dark' ? '#1f2937' : '#ffffff');
+  }
+  
   const sun = document.getElementById('icon-sun');
   const moon = document.getElementById('icon-moon');
   if (sun && moon) {
@@ -5762,7 +5769,12 @@ function filterRequests(containerId, searchTerm) {
     });
 }
 
-
+// Inicializar cor da barra de status baseada no tema atual
+const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+const themeColorMeta = document.getElementById('theme-color-meta');
+if (themeColorMeta) {
+  themeColorMeta.setAttribute('content', currentTheme === 'dark' ? '#1f2937' : '#ffffff');
+}
 
 </script>
 
