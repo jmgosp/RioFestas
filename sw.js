@@ -4,6 +4,7 @@ const urlsToCache = [
   '/index.html',
   '/styles.css',
   '/app.js',
+  '/splash-screen.jpg',
   'https://cdn.tailwindcss.com',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
   'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js',
