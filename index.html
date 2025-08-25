@@ -997,7 +997,7 @@ Excluir Conta
 </div>
 </div>
 <!-- MODAL DE PERFIL DE USUÁRIO -->
-<div class="fixed inset-0 z-[70] hidden" id="user-profile-modal">
+<div class="fixed inset-0 z-[80] hidden" id="user-profile-modal">
 <div class="absolute inset-0 fade" data-close="user-profile"></div>
 <div class="relative z-[71] mx-auto mt-4 w-[96%] max-w-2xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[95vh] overflow-hidden flex flex-col">
 <div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
@@ -1230,6 +1230,7 @@ Excluir Conta
     const $  = (s)=>document.querySelector(s);
     const $$ = (s)=>document.querySelectorAll(s);
     const show = (el)=> {
+  console.log('Mostrando elemento:', el?.id, el);
   el?.classList.remove('hidden');
   // Adicionar classe modal-open para prevenir scroll da página de fundo
   if (el?.id === 'event-view') {
@@ -1237,6 +1238,7 @@ Excluir Conta
   }
 };
     const hide = (el)=> {
+  console.log('Escondendo elemento:', el?.id, el);
   el?.classList.add('hidden');
   // Remover classe modal-open quando fechar modal
   if (el?.id === 'event-view') {
@@ -1255,6 +1257,12 @@ Excluir Conta
       const eventView = $('#event-view');
       if (eventView && !eventView.classList.contains('hidden')) {
         hide(eventView);
+        state.currentViewEvent = null;
+        // Restaurar visibilidade do rodapé
+        const footer = document.querySelector('footer');
+        if (footer) {
+          footer.style.display = 'block';
+        }
         // Restaurar posição de scroll se foi salva
         if (state.savedScrollPosition !== undefined) {
           window.scrollTo(0, state.savedScrollPosition);
@@ -1411,6 +1419,11 @@ Excluir Conta
           if (eventView && !eventView.classList.contains('hidden')) {
             hide(eventView);
             state.currentViewEvent = null;
+            // Restaurar visibilidade do rodapé
+            const footer = document.querySelector('footer');
+            if (footer) {
+              footer.style.display = 'block';
+            }
           }
         }
         return;
@@ -1440,7 +1453,14 @@ Excluir Conta
         Object.values(state.orgEventForm.uploadTasks).forEach(t => t.task.cancel());
         state.orgEventForm.uploadTasks = {};
       }
-      if(id==='view') { state.currentViewEvent = null; }
+      if(id==='view') { 
+        state.currentViewEvent = null; 
+        // Restaurar visibilidade do rodapé
+        const footer = document.querySelector('footer');
+        if (footer) {
+          footer.style.display = 'block';
+        }
+      }
       if(id==='delete') { state.deleteTarget = null; }
       if(id==='remove-follower') { state.removeFollowerTarget = null; }
       if(id==='delete-notification') { state.deleteNotificationTarget = null; }
@@ -3050,6 +3070,12 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         }
       }
       
+      // Esconder o rodapé quando abrir o modal
+      const footer = document.querySelector('footer');
+      if (footer) {
+        footer.style.display = 'none';
+      }
+      
       state.currentViewEvent = ev;
       $('#view-title').textContent=ev.name||'Evento'; const d=ev.date?.toDate?ev.date.toDate():new Date(ev.date); const dateStr = `${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})} (${weekdayLabels[d.getDay()]})`; $('#view-date').textContent = dateStr + (ev.timeStart?` • ${ev.timeStart}${ev.timeEnd?`–${ev.timeEnd}`:''}`:''); $('#view-local').textContent=ev.local||'—'; $('#view-style').textContent = (Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : [])).join(' e ') || '—'; $('#view-desc').textContent=ev.description||'—'; const buy=$('#view-buy'); if(ev.buyLink){ buy.href=ev.buyLink; buy.classList.remove('pointer-events-none','opacity-50'); } else { buy.href='#'; buy.classList.add('pointer-events-none','opacity-50'); } $('#view-coupon').textContent=ev.coupon||'—'; const g=$('#view-gallery'); g.innerHTML=''; (ev.imageUrls||[]).forEach((u,i)=> g.insertAdjacentHTML('beforeend', `<img src="${u}" alt="${ev.name||''} - foto ${i+1}" class="w-full aspect-[16/10] object-cover rounded-2xl ring-subtle"/>`) );
       updateGoingButtonUI();
@@ -3386,19 +3412,48 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         `;
         const followBtn = userCard.querySelector(`[data-follow-id]`);
         followBtn.addEventListener('click', () => toggleFollow(user.id, followBtn));
-        userCard.querySelectorAll(`[data-profile-id]`).forEach(el => el.addEventListener('click', () => openUserProfileModal(user.id)));
+        userCard.querySelectorAll(`[data-profile-id]`).forEach(el => el.addEventListener('click', (e) => {
+            console.log('Clique no perfil da busca:', user.id);
+            e.stopPropagation();
+            e.preventDefault();
+            openUserProfileModal(user.id);
+        }));
         resultsEl.appendChild(userCard);
       });
     });
 
     async function openUserProfileModal(userId) {
+        console.log('Abrindo perfil do usuário:', userId);
         const user = state.users[userId];
         if (!user) return toast('Usuário não encontrado.', 'error');
 
         const contentEl = $('#profile-content');
-        contentEl.innerHTML = '<div class="text-center py-8">Carregando...</div>';
-        show($('#user-profile-modal'));
+        const modalEl = $('#user-profile-modal');
+        console.log('Modal encontrado:', modalEl);
+        
+        // Garantir que o modal esteja no topo e no final do body
+        try {
+            if (modalEl && modalEl.parentNode !== document.body) {
+                document.body.appendChild(modalEl);
+            }
+            if (modalEl) {
+                modalEl.style.zIndex = '9999';
+                modalEl.classList.remove('hidden');
+            }
+        } catch (e) { /* noop */ }
+        
+        // Mostrar o modal imediatamente
+        show(modalEl);
         document.body.classList.add('modal-open');
+        
+        // Mostrar loading e forçar reflow para pintar o modal já aberto
+        contentEl.innerHTML = '<div class="text-center py-8">Carregando...</div>';
+        try {
+            // Forçar layout para garantir pintura imediata do modal
+            void modalEl.offsetHeight;
+        } catch (e) { /* noop */ }
+        // Agendar continuação sem bloquear a pintura
+        await new Promise(resolve => queueMicrotask(resolve));
 
         const isFollowing = state.userFollowing.has(userId);
         const isFollower = state.userFollowers.has(userId);
@@ -3407,6 +3462,16 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         const isOwnProfile = auth.currentUser?.uid === userId;
         
         const canViewDetails = !user.isPrivate || isFollowing || isOwnProfile;
+        
+        // Garantir que fechar outras sobreposições não interfira
+        try {
+            const eventView = $('#event-view');
+            if (eventView && !eventView.classList.contains('hidden')) {
+                // Não esconder o event-view aqui; apenas garantir z-order do perfil
+                modalEl.style.zIndex = '9999';
+                eventView.style.zIndex = '9998';
+            }
+        } catch (e) { /* noop */ }
 
         let actionButtonsHTML = '';
         if (!isOwnProfile) {
@@ -3641,8 +3706,10 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
                             <div class="text-xs text-gray-500">@${friendData.username}</div>
                         </div>
                     `;
-                    userCard.addEventListener('click', () => {
-                        hide($('#event-view'));
+                    userCard.addEventListener('click', (e) => {
+                        console.log('Clique no perfil do amigo:', friendId);
+                        e.stopPropagation();
+                        e.preventDefault();
                         hide($('#friends-list-modal'));
                         openUserProfileModal(friendId);
                     });
@@ -3953,7 +4020,11 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             const followBtn = el.querySelector(`[data-follow-id]`);
             if(followBtn) followBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFollow(notif.fromUserId, followBtn); });
             
-            el.querySelectorAll(`[data-profile-id]`).forEach(p => p.addEventListener('click', (e) => { e.stopPropagation(); openUserProfileModal(notif.fromUserId); }));
+            el.querySelectorAll(`[data-profile-id]`).forEach(p => p.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                e.preventDefault();
+                openUserProfileModal(notif.fromUserId);
+            }));
             
             const eventLink = el.querySelector(`[data-event-id]`);
             if (eventLink) eventLink.addEventListener('click', (e) => {
@@ -4129,7 +4200,12 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             ${buttonHTML}
         `;
 
-        el.querySelector('[data-profile-id]').addEventListener('click', () => openUserProfileModal(userData.id));
+        el.querySelector('[data-profile-id]').addEventListener('click', (e) => {
+            console.log('Clique no perfil privado:', userData.id);
+            e.stopPropagation();
+            e.preventDefault();
+            openUserProfileModal(userData.id);
+        });
         const removeBtn = el.querySelector('[data-remove-follower-id]');
         if (removeBtn) removeBtn.addEventListener('click', () => promptRemoveFollower(userData.id));
         
@@ -4213,7 +4289,10 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             ${buttonHTML}
         `;
 
-        el.querySelector('[data-profile-id]').addEventListener('click', () => {
+        el.querySelector('[data-profile-id]').addEventListener('click', (e) => {
+            console.log('Clique no perfil da lista:', userData.id);
+            e.stopPropagation();
+            e.preventDefault();
             hide($('#follow-list-modal'));
             openUserProfileModal(userData.id);
         });
