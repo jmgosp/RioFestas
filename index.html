@@ -1685,6 +1685,53 @@ Excluir Conta
     const appleProvider = new OAuthProvider('apple.com');
     appleProvider.addScope('email');
     appleProvider.addScope('name');
+    appleProvider.setCustomParameters({ response_type: 'code id_token' });
+
+    async function ensureAppleUserDocument(user, fallbackName=null) {
+      const userRef = doc(db, USERS_PATH, user.uid);
+      const snap = await getDoc(userRef);
+      if (!snap.exists()) {
+        let name = user.displayName || fallbackName || 'Usuário';
+        let email = user.email || null;
+        // Gerar username a partir do email ou nome
+        let baseUsername = (email?.split('@')[0] || name || 'user').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'user';
+        let username = baseUsername;
+        let c = 1;
+        while (true) {
+          const uref = doc(db, USERNAMES_PATH, username);
+          const udoc = await getDoc(uref);
+          if (!udoc.exists()) break;
+          username = `${baseUsername}${c++}`;
+        }
+        await setDoc(userRef, {
+          admin:false, organizer:false,
+          name, username, email,
+          photoUrl: user.photoURL || null,
+          createdAt: serverTimestamp(),
+          bio:'', followersCount:0, followingCount:0, isPrivate:false,
+          settings:{ notifyOnFriendGoing:true }
+        });
+        await setDoc(doc(db, USERNAMES_PATH, username), { uid: user.uid });
+      } else {
+        // Completar nome se estiver vazio
+        if (!user.displayName && fallbackName) {
+          try { await updateProfile(user, { displayName: fallbackName }); } catch {}
+        }
+      }
+    }
+
+    function extractAppleNameFromResult(result){
+      try {
+        const tr = result?._tokenResponse || {};
+        // Firebase retorna fullName na primeira vez
+        const fullName = tr?.fullName || tr?.name || null;
+        if (typeof fullName === 'string') return fullName;
+        if (fullName?.givenName || fullName?.familyName) {
+          return `${fullName.givenName||''} ${fullName.familyName||''}`.trim();
+        }
+      } catch {}
+      return null;
+    }
 
     const signInWithApple = async (isRegistration = false) => {
       try {
@@ -1704,14 +1751,17 @@ Excluir Conta
           try {
             const cred = await signInWithPopup(auth, appleProvider);
             if (cred?.user) {
-              // onAuthStateChanged cuidará do restante
+              const derivedName = extractAppleNameFromResult(cred);
+              await ensureAppleUserDocument(cred.user, derivedName);
+              toast('Login realizado!');
+              closeLogin();
+              closeRegister();
               return;
             }
           } catch (e) {
             // Se popup falhar/bloquear, faz fallback para redirect
-            if (!(e && (e.code||'').includes('popup'))) {
-              console.warn('Popup Apple falhou, usando redirect:', e);
-            }
+            const code = e?.code||'';
+            if (!code.includes('popup')) throw e;
           }
         }
 
@@ -1734,34 +1784,9 @@ Excluir Conta
         const cred = await getRedirectResult(auth);
         if (cred && cred.user) {
           const user = cred.user;
-          // Criar documento no Firestore se for primeiro login
-          const userRef = doc(db, USERS_PATH, user.uid);
-          const snap = await getDoc(userRef);
-          if (!snap.exists()) {
-            let username = (user.email?.split('@')[0] || 'user').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'user';
-            // Garantir username único
-            let base = username, c = 1;
-            while (true) {
-              const uref = doc(db, USERNAMES_PATH, username);
-              const udoc = await getDoc(uref);
-              if (!udoc.exists()) { break; }
-              username = `${base}${c++}`;
-            }
-            await setDoc(userRef, {
-              admin:false, organizer:false,
-              name: user.displayName || 'Usuário',
-              username,
-              email: user.email || null,
-              photoUrl: user.photoURL || null,
-              createdAt: serverTimestamp(),
-              bio:'', followersCount:0, followingCount:0, isPrivate:false,
-              settings:{ notifyOnFriendGoing:true }
-            });
-            await setDoc(doc(db, USERNAMES_PATH, username), { uid: user.uid });
-            toast('Conta criada com sucesso!');
-          } else {
-            toast('Login realizado!');
-          }
+          const derivedName = extractAppleNameFromResult(cred);
+          await ensureAppleUserDocument(user, derivedName);
+          toast('Login realizado!');
           closeLogin();
           closeRegister();
         }
