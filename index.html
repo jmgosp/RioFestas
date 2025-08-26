@@ -1200,7 +1200,7 @@ Excluir Conta
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
     import {
-      getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, indexedDBLocalPersistence, signInAnonymously,
+      initializeAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, indexedDBLocalPersistence, signInAnonymously,
       onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
       updateProfile, sendPasswordResetEmail, signOut, GoogleAuthProvider, OAuthProvider,
       signInWithPopup, signInWithRedirect, getRedirectResult
@@ -1227,7 +1227,7 @@ Excluir Conta
 
     // --- Inicialização ---
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    const auth = initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence] });
     const db = getFirestore(app);
     const storage = getStorage(app);
 
