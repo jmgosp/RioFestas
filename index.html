@@ -1200,7 +1200,7 @@ Excluir Conta
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
     import {
-      getAuth, setPersistence, browserLocalPersistence, signInAnonymously,
+      getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, indexedDBLocalPersistence, signInAnonymously,
       onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
       updateProfile, sendPasswordResetEmail, signOut, GoogleAuthProvider, OAuthProvider,
       signInWithPopup, signInWithRedirect, getRedirectResult
@@ -1685,7 +1685,12 @@ Excluir Conta
 
     const signInWithApple = async (isRegistration = false) => {
       try {
-        await setPersistence(auth, browserLocalPersistence);
+        // Forçar persistência robusta no iOS (fallback multi-indexedDB/cookies)
+        try {
+          await setPersistence(auth, indexedDBLocalPersistence);
+        } catch {
+          await setPersistence(auth, browserLocalPersistence);
+        }
         const result = await signInWithRedirect(auth, appleProvider);
         // Em redirect, o fluxo continua após retorno do handler do Firebase
       } catch (err) {
@@ -1697,7 +1702,11 @@ Excluir Conta
     // Recuperar resultado de redirect (Apple) – garante persistência antes
     async function handleAuthRedirectResult() {
       try {
-        await setPersistence(auth, browserLocalPersistence);
+        try {
+          await setPersistence(auth, indexedDBLocalPersistence);
+        } catch {
+          await setPersistence(auth, browserLocalPersistence);
+        }
         const cred = await getRedirectResult(auth);
         if (cred && cred.user) {
           const user = cred.user;
