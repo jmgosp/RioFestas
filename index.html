@@ -635,6 +635,14 @@ Excluir Conta
   </div>
 </div>
 
+<!-- Botão Apple -->
+<button type="button" class="w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-black px-5 py-3 text-[15px] font-semibold text-white hover:bg-black/90 transition-colors" id="btn-apple-login">
+  <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M16.365 1.43c0 1.14-.418 2.087-1.255 2.842-.836.756-1.85 1.16-3.04 1.21-.03-1.08.38-1.998 1.234-2.753.854-.765 1.89-1.186 3.11-1.26.02.02.02.04.02.06l-.07.9zM21.43 18.12c-.41.95-.9 1.81-1.47 2.58-.77 1.04-1.39 1.76-1.86 2.17-.74.68-1.53 1.03-2.38 1.06-.61 0-1.35-.17-2.22-.51-.88-.34-1.69-.51-2.42-.51-.75 0-1.57.17-2.46.51-.88.34-1.6.51-2.15.51-.82-.03-1.62-.36-2.41-1.01-.52-.44-1.17-1.14-1.96-2.09-.84-1.04-1.53-2.25-2.07-3.63-.58-1.5-.87-2.96-.87-4.39 0-1.62.35-3.03 1.06-4.23.56-.98 1.3-1.77 2.22-2.36.92-.6 1.93-.9 3.03-.92.59 0 1.36.19 2.31.56.95.37 1.56.56 1.85.56.2 0 .84-.21 1.96-.63 1.05-.37 1.94-.53 2.67-.51 1.98.16 3.48.95 4.51 2.38-1.79 1.08-2.68 2.6-2.67 4.54 0 1.52.56 2.79 1.67 3.82.49.47 1.04.84 1.64 1.11-.13.37-.27.73-.43 1.08z"/>
+  </svg>
+  Continuar com Apple
+</button>
+
 <!-- Botão Google -->
 <button type="button" class="w-full inline-flex items-center justify-center gap-3 rounded-2xl border border-gray-300 bg-white px-5 py-3 text-[15px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors" id="btn-google-login">
   <svg class="w-5 h-5" viewBox="0 0 24 24">
@@ -691,6 +699,14 @@ Excluir Conta
     <span class="bg-white px-2 text-gray-500">ou</span>
   </div>
 </div>
+
+<!-- Botão Apple -->
+<button type="button" class="w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-black px-5 py-3 text-[15px] font-semibold text-white hover:bg-black/90 transition-colors" id="btn-apple-register">
+  <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M16.365 1.43c0 1.14-.418 2.087-1.255 2.842-.836.756-1.85 1.16-3.04 1.21-.03-1.08.38-1.998 1.234-2.753.854-.765 1.89-1.186 3.11-1.26.02.02.02.04.02.06l-.07.9zM21.43 18.12c-.41.95-.9 1.81-1.47 2.58-.77 1.04-1.39 1.76-1.86 2.17-.74.68-1.53 1.03-2.38 1.06-.61 0-1.35-.17-2.22-.51-.88-.34-1.69-.51-2.42-.51-.75 0-1.57.17-2.46.51-.88.34-1.6.51-2.15.51-.82-.03-1.62-.36-2.41-1.01-.52-.44-1.17-1.14-1.96-2.09-.84-1.04-1.53-2.25-2.07-3.63-.58-1.5-.87-2.96-.87-4.39 0-1.62.35-3.03 1.06-4.23.56-.98 1.3-1.77 2.22-2.36.92-.6 1.93-.9 3.03-.92.59 0 1.36.19 2.31.56.95.37 1.56.56 1.85.56.2 0 .84-.21 1.96-.63 1.05-.37 1.94-.53 2.67-.51 1.98.16 3.48.95 4.51 2.38-1.79 1.08-2.68 2.6-2.67 4.54 0 1.52.56 2.79 1.67 3.82.49.47 1.04.84 1.64 1.11-.13.37-.27.73-.43 1.08z"/>
+  </svg>
+  Continuar com Apple
+</button>
 
 <!-- Botão Google -->
 <button type="button" class="w-full inline-flex items-center justify-center gap-3 rounded-2xl border border-gray-300 bg-white px-5 py-3 text-[15px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors" id="btn-google-register">
@@ -1186,7 +1202,7 @@ Excluir Conta
     import {
       getAuth, setPersistence, browserLocalPersistence, signInAnonymously,
       onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-      updateProfile, sendPasswordResetEmail, signOut, GoogleAuthProvider,
+      updateProfile, sendPasswordResetEmail, signOut, GoogleAuthProvider, OAuthProvider,
       signInWithPopup, signInWithRedirect, getRedirectResult
     } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
     import {
@@ -1661,6 +1677,72 @@ Excluir Conta
     // Event listeners para botões do Google
     $('#btn-google-login').addEventListener('click', () => signInWithGoogle(false));
     $('#btn-google-register').addEventListener('click', () => signInWithGoogle(true));
+
+    // ===== Autenticação com Apple =====
+    const appleProvider = new OAuthProvider('apple.com');
+    appleProvider.addScope('email');
+    appleProvider.addScope('name');
+
+    const signInWithApple = async (isRegistration = false) => {
+      try {
+        await setPersistence(auth, browserLocalPersistence);
+        const result = await signInWithRedirect(auth, appleProvider);
+        // Em redirect, o fluxo continua após retorno do handler do Firebase
+      } catch (err) {
+        console.error('Erro na autenticação Apple:', err);
+        toast('Erro na autenticação com Apple. Tente novamente.', 'error');
+      }
+    };
+
+    // Recuperar resultado de redirect (Apple)
+    (async () => {
+      try {
+        const cred = await getRedirectResult(auth);
+        if (cred && cred.user) {
+          const user = cred.user;
+          // Criar documento no Firestore se for primeiro login
+          const userRef = doc(db, USERS_PATH, user.uid);
+          const snap = await getDoc(userRef);
+          if (!snap.exists()) {
+            let username = (user.email?.split('@')[0] || 'user').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'user';
+            // Garantir username único
+            let base = username, c = 1;
+            while (true) {
+              const uref = doc(db, USERNAMES_PATH, username);
+              const udoc = await getDoc(uref);
+              if (!udoc.exists()) { break; }
+              username = `${base}${c++}`;
+            }
+            await setDoc(userRef, {
+              admin:false, organizer:false,
+              name: user.displayName || 'Usuário',
+              username,
+              email: user.email || null,
+              photoUrl: user.photoURL || null,
+              createdAt: serverTimestamp(),
+              bio:'', followersCount:0, followingCount:0, isPrivate:false,
+              settings:{ notifyOnFriendGoing:true }
+            });
+            await setDoc(doc(db, USERNAMES_PATH, username), { uid: user.uid });
+            toast('Conta criada com sucesso!');
+          } else {
+            toast('Login realizado!');
+          }
+          closeLogin();
+          closeRegister();
+        }
+      } catch (err) {
+        if (err?.code !== 'auth/no-auth-event') {
+          console.error('Erro ao recuperar redirect Apple:', err);
+        }
+      }
+    })();
+
+    // Botões Apple
+    const btnAppleLogin = $('#btn-apple-login');
+    if (btnAppleLogin) btnAppleLogin.addEventListener('click', () => signInWithApple(false));
+    const btnAppleRegister = $('#btn-apple-register');
+    if (btnAppleRegister) btnAppleRegister.addEventListener('click', () => signInWithApple(true));
 
     onAuthStateChanged(auth, (user)=>{
       const unsubAll = () => {
