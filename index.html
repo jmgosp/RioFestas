@@ -1203,7 +1203,7 @@ Excluir Conta
       initializeAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, indexedDBLocalPersistence, signInAnonymously,
       onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
       updateProfile, sendPasswordResetEmail, signOut, GoogleAuthProvider, OAuthProvider,
-      signInWithPopup, signInWithRedirect, getRedirectResult
+      signInWithPopup, signInWithRedirect, getRedirectResult, browserPopupRedirectResolver
     } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
     import {
       getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc,
@@ -1227,7 +1227,10 @@ Excluir Conta
 
     // --- Inicialização ---
     const app = initializeApp(firebaseConfig);
-    const auth = initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence] });
+    const auth = initializeAuth(app, { 
+      persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence],
+      popupRedirectResolver: browserPopupRedirectResolver
+    });
     const db = getFirestore(app);
     const storage = getStorage(app);
 
