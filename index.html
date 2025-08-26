@@ -1022,13 +1022,13 @@ Excluir Conta
 </div>
 <!-- MODAL: LISTA DE SEGUIDORES/SEGUINDO -->
 <div class="fixed inset-0 z-[75] hidden" id="follow-list-modal">
-<div class="absolute inset-0 bg-black/40 backdrop-blur-sm fade" data-close="follow-list"></div>
-<div class="relative z-[76] mx-auto mt-20 w-[92%] max-w-sm rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
+<div class="absolute inset-0 bg-black/60 backdrop-blur-sm fade" data-close="follow-list"></div>
+<div class="relative z-[76] mx-auto mt-16 w-[92%] max-w-md rounded-3xl bg-white p-6 shadow-soft ring-subtle pop">
 <div class="flex items-center justify-between">
 <h3 class="text-xl font-semibold" id="follow-list-title">Lista</h3>
 <button aria-label="Fechar" class="rounded-full p-2 hover:bg-gray-100" data-close="follow-list">✕</button>
 </div>
-<div class="mt-4 max-h-[60vh] overflow-y-auto space-y-2" id="follow-list-content">
+<div class="mt-4 max-h-[50vh] overflow-y-auto space-y-2" id="follow-list-content">
 <!-- User list will be populated by JS -->
 </div>
 </div>
@@ -1230,7 +1230,6 @@ Excluir Conta
     const $  = (s)=>document.querySelector(s);
     const $$ = (s)=>document.querySelectorAll(s);
     const show = (el)=> {
-  console.log('Mostrando elemento:', el?.id, el);
   el?.classList.remove('hidden');
   // Adicionar classe modal-open para prevenir scroll da página de fundo
   if (el?.id === 'event-view') {
@@ -1238,7 +1237,6 @@ Excluir Conta
   }
 };
     const hide = (el)=> {
-  console.log('Escondendo elemento:', el?.id, el);
   el?.classList.add('hidden');
   // Remover classe modal-open quando fechar modal
   if (el?.id === 'event-view') {
@@ -1248,6 +1246,16 @@ Excluir Conta
       window.scrollTo(0, state.savedScrollPosition);
       state.savedScrollPosition = undefined;
     }
+  }
+  if (el?.id === 'user-profile-modal') {
+      const eventView = $('#event-view');
+      if (eventView) {
+          eventView.style.zIndex = ''; // Reset z-index
+      }
+  }
+  if (el?.id === 'follow-list-modal') {
+      el.style.zIndex = ''; // Reset z-index
+      document.body.classList.remove('modal-open');
   }
 };
     
@@ -1273,7 +1281,26 @@ Excluir Conta
 
     // Sistema de Toast com Ação
     const toast = (message, type = 'success', options = {}) => {
-        const container = $('#toast-container');
+        let container = $('#toast-container');
+        // Garantir que o container exista e esteja diretamente no body, com z-index alto
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            document.body.appendChild(container);
+        } else if (container.parentElement !== document.body) {
+            document.body.appendChild(container);
+        }
+        container.style.position = 'fixed';
+        container.style.left = '0';
+        container.style.right = '0';
+        container.style.bottom = '20px';
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.alignItems = 'center';
+        container.style.gap = '8px';
+        container.style.pointerEvents = 'none';
+        container.style.zIndex = '100000';
+
         const toastId = 'toast-' + Date.now();
         const toastEl = document.createElement('div');
         const { duration = 4000, actionText = null, onAction = null } = options;
@@ -1291,7 +1318,9 @@ Excluir Conta
         };
 
         toastEl.id = toastId;
-        toastEl.className = `pointer-events-auto flex items-center gap-3 w-[90%] max-w-sm rounded-2xl p-4 shadow-lg ring-1 toast-in ${colors[type] || colors.info}`;
+        toastEl.className = `pointer-events-auto flex items-center gap-3 w-[90%] max-w-sm rounded-2xl p-4 shadow-lg ring-1 ${colors[type] || colors.info}`;
+        // Adicionar animação manualmente
+        toastEl.style.animation = 'toast-in 0.3s ease-out forwards';
         toastEl.innerHTML = `
             <div class="flex-shrink-0">${icons[type] || icons.info}</div>
             <div class="flex-1 text-sm font-medium">${message}</div>
@@ -1302,8 +1331,7 @@ Excluir Conta
         container.appendChild(toastEl);
 
         const close = () => {
-            toastEl.classList.remove('toast-in');
-            toastEl.classList.add('toast-out');
+            toastEl.style.animation = 'toast-out 0.3s ease-in forwards';
             toastEl.addEventListener('animationend', () => toastEl.remove(), { once: true });
         };
 
@@ -1426,6 +1454,22 @@ Excluir Conta
             }
           }
         }
+        
+        // Não fechar follow-list-modal quando clica no backdrop
+        if (e.target.classList.contains('fade') && e.target.closest('#follow-list-modal')) {
+          return;
+        }
+        
+        // Verificar se o follow-list-modal está aberto e não fechar por outros eventos
+        const followListModal = $('#follow-list-modal');
+        if (followListModal && !followListModal.classList.contains('hidden')) {
+          // Se clicar no backdrop da lista, fechar apenas a lista
+          if (e.target.classList.contains('fade') && e.target.closest('#follow-list-modal')) {
+            hide(followListModal);
+          }
+          return;
+        }
+        
         return;
       }
       
@@ -3413,7 +3457,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         const followBtn = userCard.querySelector(`[data-follow-id]`);
         followBtn.addEventListener('click', () => toggleFollow(user.id, followBtn));
         userCard.querySelectorAll(`[data-profile-id]`).forEach(el => el.addEventListener('click', (e) => {
-            console.log('Clique no perfil da busca:', user.id);
+            
             e.stopPropagation();
             e.preventDefault();
             openUserProfileModal(user.id);
@@ -3423,13 +3467,13 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     });
 
     async function openUserProfileModal(userId) {
-        console.log('Abrindo perfil do usuário:', userId);
+        
         const user = state.users[userId];
         if (!user) return toast('Usuário não encontrado.', 'error');
 
         const contentEl = $('#profile-content');
         const modalEl = $('#user-profile-modal');
-        console.log('Modal encontrado:', modalEl);
+        
         
         // Garantir que o modal esteja no topo e no final do body
         try {
@@ -3448,12 +3492,12 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         
         // Mostrar loading e forçar reflow para pintar o modal já aberto
         contentEl.innerHTML = '<div class="text-center py-8">Carregando...</div>';
+        // Fallback de reflow apenas se necessário, sem atrasar sempre
         try {
-            // Forçar layout para garantir pintura imediata do modal
-            void modalEl.offsetHeight;
+            if (modalEl && modalEl.classList.contains('hidden') === false) {
+                void modalEl.offsetHeight;
+            }
         } catch (e) { /* noop */ }
-        // Agendar continuação sem bloquear a pintura
-        await new Promise(resolve => queueMicrotask(resolve));
 
         const isFollowing = state.userFollowing.has(userId);
         const isFollower = state.userFollowers.has(userId);
@@ -3562,11 +3606,15 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             if (removeFollowerBtn) removeFollowerBtn.addEventListener('click', () => promptRemoveFollower(userId, true));
         }
         
-        contentEl.querySelectorAll('[data-action="view-follow-list"]').forEach(btn => {
+                contentEl.querySelectorAll('[data-action="view-follow-list"]').forEach(btn => {
             btn.addEventListener('click', () => {
-                if (!canViewDetails) return;
+                if (!canViewDetails) {
+                    return;
+                }
                 const targetUserId = btn.dataset.userId;
                 const listType = btn.dataset.listType;
+                
+                // Não fechar o modal de perfil, apenas abrir a lista por cima
                 openFollowListModal(targetUserId, listType);
             });
         });
@@ -3594,6 +3642,16 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
                 hide($('#user-profile-modal'));
                 document.body.classList.remove('modal-open');
                 openViewModal(eventData);
+            }
+        }
+        
+        // Verificar cliques em perfis de usuários
+        const profileCard = e.target.closest('[data-profile-id]');
+        if (profileCard) {
+            const userId = profileCard.dataset.profileId;
+            if (userId) {
+                hide($('#follow-list-modal'));
+                openUserProfileModal(userId);
             }
         }
     });
@@ -3662,7 +3720,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         }
         await updateProfile(user, { displayName: name });
         
-        toast('Perfil atualizado com sucesso!');
+        toast('Perfil atualizado com sucesso!', 'success');
         state.newProfilePhotoUrl = null;
         state.photoRemovalFlag = false;
       } catch (err) {
@@ -3707,7 +3765,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
                         </div>
                     `;
                     userCard.addEventListener('click', (e) => {
-                        console.log('Clique no perfil do amigo:', friendId);
+                        
                         e.stopPropagation();
                         e.preventDefault();
                         hide($('#friends-list-modal'));
@@ -3735,7 +3793,17 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
 
     // ===== Exclusão de Conta =====
     $('#btn-delete-account').addEventListener('click', () => {
-        show($('#delete-account-modal'));
+        const modal = $('#delete-account-modal');
+        if (!modal) return;
+        // Garantir stacking context correto
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+        modal.style.zIndex = '10020';
+        modal.classList.remove('hidden');
+        document.body.classList.add('modal-open');
+        // Forçar reflow para renderizar imediatamente
+        try { void modal.offsetHeight; } catch {}
     });
 
     $('#confirm-delete-account-btn').addEventListener('click', async () => {
@@ -4201,7 +4269,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         `;
 
         el.querySelector('[data-profile-id]').addEventListener('click', (e) => {
-            console.log('Clique no perfil privado:', userData.id);
+            
             e.stopPropagation();
             e.preventDefault();
             openUserProfileModal(userData.id);
@@ -4224,9 +4292,28 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         const titleEl = $('#follow-list-title');
         const contentEl = $('#follow-list-content');
 
+        if (!modal) {
+            console.error('Modal follow-list-modal não encontrado!');
+            return;
+        }
+
         titleEl.textContent = listType === 'followers' ? 'Seguidores' : 'Seguindo';
         contentEl.innerHTML = '<div class="text-center text-gray-500 py-4">Carregando...</div>';
-        show(modal);
+        
+        // Mover modal para body para garantir stacking context correto
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+        
+        // Garantir que o modal apareça por cima do modal de perfil
+        modal.style.zIndex = '10000';
+        modal.classList.remove('hidden');
+        
+        // Forçar reflow para garantir que o modal seja renderizado
+        void modal.offsetHeight;
+        
+        // Adicionar classe modal-open para prevenir scroll
+        document.body.classList.add('modal-open');
 
         try {
             const collectionRef = collection(db, `artifacts/${appId}/users/${targetUserId}/${listType}`);
@@ -4238,6 +4325,25 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             }
 
             contentEl.innerHTML = ''; // Clear loading
+            
+            // Carregar dados dos usuários se não estiverem no state
+            const userIds = listSnap.docs.map(doc => doc.id);
+            const missingUserIds = userIds.filter(id => !state.users[id]);
+            
+            if (missingUserIds.length > 0) {
+                const userPromises = missingUserIds.map(async (userId) => {
+                    try {
+                        const userDoc = await getDoc(doc(db, USERS_PATH, userId));
+                        if (userDoc.exists()) {
+                            state.users[userId] = { id: userId, ...userDoc.data() };
+                        }
+                    } catch (err) {
+                        console.error(`Erro ao carregar usuário ${userId}:`, err);
+                    }
+                });
+                await Promise.all(userPromises);
+            }
+            
             listSnap.docs.forEach(doc => {
                 const userId = doc.id;
                 const userData = state.users[userId];
@@ -4254,7 +4360,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
 
     function createPublicFollowUserCard(userData) {
         const el = document.createElement('div');
-        el.className = 'flex items-center gap-3 p-2 rounded-xl';
+        el.className = 'flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50';
         
         const currentUserId = auth.currentUser?.uid;
         const isCurrentUserInList = currentUserId === userData.id;
@@ -4289,18 +4395,24 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             ${buttonHTML}
         `;
 
-        el.querySelector('[data-profile-id]').addEventListener('click', (e) => {
-            console.log('Clique no perfil da lista:', userData.id);
-            e.stopPropagation();
-            e.preventDefault();
-            hide($('#follow-list-modal'));
-            openUserProfileModal(userData.id);
-        });
+        // Adicionar evento de clique para abrir perfil
+        const profileClickArea = el.querySelector('[data-profile-id]');
+        if (profileClickArea) {
+            profileClickArea.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                hide($('#follow-list-modal'));
+                // Abrir o perfil no modal de perfil existente
+                openUserProfileModal(userData.id);
+            });
+        }
         
+        // Adicionar evento de clique para seguir/deixar de seguir
         const followBtn = el.querySelector('[data-follow-id]');
         if (followBtn) {
             followBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 toggleFollow(userData.id, followBtn);
             });
         }

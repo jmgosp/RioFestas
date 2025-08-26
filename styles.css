@@ -19,6 +19,7 @@
   
   /* Melhorar espaçamento para PWA */
   body {
+    user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
@@ -1706,6 +1707,18 @@ body.modal-open {
     box-shadow: 0 0 0 2px white;
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* Padroniza sobreposição do modal de perfil acima do event-view */
+#user-profile-modal { z-index: 9999 !important; }
+
+/* Garantir que o modal de lista de seguidores apareça por cima do modal de perfil */
+#follow-list-modal { z-index: 10000 !important; }
+
+/* Garantir que o toast apareça no topo de tudo */
+#toast-container { z-index: 99999 !important; }
+
+/* Garantir que o modal de exclusão de conta fique acima de todos */
+#delete-account-modal { z-index: 10020 !important; }
 
 @keyframes pulse {
     0%, 100% {
