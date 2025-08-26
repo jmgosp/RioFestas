@@ -1691,7 +1691,28 @@ Excluir Conta
         } catch {
           await setPersistence(auth, browserLocalPersistence);
         }
-        const result = await signInWithRedirect(auth, appleProvider);
+        // Detecta Safari/iOS e tenta popup primeiro para evitar ITP
+        const ua = navigator.userAgent || '';
+        const isIOS = /iPhone|iPad|iPod/.test(ua);
+        const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+        const canUsePopup = !isIOS || (isIOS && isSafari); // popup com gesto do usuário costuma funcionar
+
+        if (canUsePopup) {
+          try {
+            const cred = await signInWithPopup(auth, appleProvider);
+            if (cred?.user) {
+              // onAuthStateChanged cuidará do restante
+              return;
+            }
+          } catch (e) {
+            // Se popup falhar/bloquear, faz fallback para redirect
+            if (!(e && (e.code||'').includes('popup'))) {
+              console.warn('Popup Apple falhou, usando redirect:', e);
+            }
+          }
+        }
+
+        await signInWithRedirect(auth, appleProvider);
         // Em redirect, o fluxo continua após retorno do handler do Firebase
       } catch (err) {
         console.error('Erro na autenticação Apple:', err);
