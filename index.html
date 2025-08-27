@@ -1199,7 +1199,7 @@ Excluir Conta
       initializeAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, indexedDBLocalPersistence, signInAnonymously,
       onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
       updateProfile, sendPasswordResetEmail, signOut, GoogleAuthProvider, OAuthProvider,
-      signInWithPopup, signInWithRedirect, getRedirectResult, browserPopupRedirectResolver, signInWithCredential
+      signInWithPopup, signInWithRedirect, getRedirectResult, browserPopupRedirectResolver
     } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
     import {
       getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc,
@@ -1417,7 +1417,7 @@ Excluir Conta
 
 
     // ===== Sessão & roles =====
-    const state = { baseEvents: [], events:[], pending:[], users:{}, recurringEvents: [], settings: {}, eventExceptions: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, deleteNotificationTarget: null, removeFollowerTarget: null, resetRatingsTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, photoRemovalFlag: false, savedProfileScrollY: undefined, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} }, adminEventsView: 'active', selectedBairros: new Set(), selectedGeneros: new Set() };
+    const state = { baseEvents: [], events:[], pending:[], users:{}, recurringEvents: [], settings: {}, eventExceptions: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, deleteNotificationTarget: null, removeFollowerTarget: null, resetRatingsTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, photoRemovalFlag: false, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} }, adminEventsView: 'active', selectedBairros: new Set(), selectedGeneros: new Set() };
     let _unsubRole = null, _unsubEvents=null, _unsubPending=null, _unsubGoingTo=null, _unsubFollowing=null, _unsubFollowers=null, _unsubOutgoingRequests=null, _unsubIncomingRequests=null, _unsubNotifications=null, _unsubRecurring=null, _unsubSettings=null, _unsubExceptions=null;
 
     const renderHeader = ()=>{
@@ -1530,12 +1530,12 @@ Excluir Conta
     $('#form-login').addEventListener('submit', async (e)=>{
       e.preventDefault(); const email=$('#login-email').value.trim(); const pass=$('#login-pass').value; const btn=$('#submit-login'); const old=btn.textContent; btn.textContent='Entrando…'; btn.disabled=true; $('#err-login').classList.add('hidden');
       try{ 
-        try { await setPersistence(auth, indexedDBLocalPersistence); } catch { await setPersistence(auth, browserLocalPersistence); }
+        await setPersistence(auth, browserLocalPersistence);
         await signInWithEmailAndPassword(auth,email,pass); 
         closeLogin(); 
         toast('Login realizado!'); 
       }
-      catch(err){ console.error('Auth error (email/password):', err?.code, err?.message, err); const b=$('#err-login'); b.textContent=mapAuthErr(err); b.classList.remove('hidden'); }
+      catch(err){ const b=$('#err-login'); b.textContent=mapAuthErr(err); b.classList.remove('hidden'); }
       finally{ btn.textContent=old; btn.disabled=false; }
     });
 
@@ -1612,18 +1612,8 @@ Excluir Conta
     // Função para login/registro com Google
     const signInWithGoogle = async (isRegistration = false) => {
       try {
-        try { await setPersistence(auth, indexedDBLocalPersistence); } catch { await setPersistence(auth, browserLocalPersistence); }
-        const ua = navigator.userAgent || '';
-        const isIOS = /iPhone|iPad|iPod/.test(ua);
-        const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-        const useRedirect = isIOS; // em iOS, preferir redirect para maior compatibilidade
-        let result = null;
-        if (useRedirect) {
-          await signInWithRedirect(auth, googleProvider);
-          return; // fluxo continua no getRedirectResult
-        } else {
-          result = await signInWithPopup(auth, googleProvider);
-        }
+        await setPersistence(auth, browserLocalPersistence);
+        const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
         
         // Verificar se o usuário já existe no Firestore
@@ -1674,7 +1664,7 @@ Excluir Conta
         closeLogin();
         closeRegister();
       } catch (err) {
-        console.error('Erro na autenticação Google:', err?.code, err?.message, err);
+        console.error('Erro na autenticação Google:', err);
         if (err.code === 'auth/popup-closed-by-user') {
           toast('Login cancelado pelo usuário.', 'info');
         } else {
@@ -1738,101 +1728,6 @@ Excluir Conta
       return null;
     }
 
-    // ===== Apple JS (100% in-app) =====
-    const APPLE_SERVICE_ID = (window.APPLE_SERVICE_ID || 'com.riofestas.web');
-    const APPLE_REDIRECT_URI = (window.APPLE_REDIRECT_URI || 'https://www.riofestas.com/apple-callback');
-
-    function generateRandomString(length = 32) {
-      const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_.';
-      const randomValues = new Uint8Array(length);
-      crypto.getRandomValues(randomValues);
-      return Array.from(randomValues, v => charset[v % charset.length]).join('');
-    }
-
-    async function sha256Hex(input) {
-      const encoder = new TextEncoder();
-      const data = encoder.encode(input);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
-    function loadAppleJs() {
-      if (window.AppleID && window.AppleID.auth) return Promise.resolve();
-      return new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = 'https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js';
-        s.onload = () => resolve();
-        s.onerror = (e) => reject(e);
-        document.head.appendChild(s);
-      });
-    }
-
-    let appleJsInitialized = false;
-    async function initAppleJs() {
-      await loadAppleJs();
-      if (appleJsInitialized) return;
-      try {
-        window.AppleID.auth.init({
-          clientId: APPLE_SERVICE_ID,
-          scope: 'name email',
-          redirectURI: APPLE_REDIRECT_URI,
-          usePopup: true
-        });
-        appleJsInitialized = true;
-      } catch (e) {
-        console.error('AppleID.auth.init failed:', e);
-      }
-    }
-
-    // Pré-carregar o Apple JS assim que possível para manter o gesto do usuário no clique
-    loadAppleJs().catch(()=>{});
-
-    async function signInWithAppleJS(isRegistration = false) {
-      try {
-        // Não executar awaits antes do popup para não perder o gesto do usuário
-        if (!window.AppleID || !appleJsInitialized) {
-          try { await initAppleJs(); } catch {}
-        }
-        if (!window.AppleID || !appleJsInitialized) {
-          // Se ainda assim não estiver pronto, pedir para o usuário tentar novamente
-          toast('Preparando Apple Login... toque novamente em "Continuar com Apple".', 'info');
-          return;
-        }
-
-        const response = await window.AppleID.auth.signIn();
-        const idToken = response?.authorization?.id_token;
-        if (!idToken) throw new Error('Apple JS: id_token ausente');
-
-        // Autenticar no Firebase somente com idToken (sem nonce para evitar atrasar o popup)
-        const credential = OAuthProvider.credential({ idToken });
-        const cred = await signInWithCredential(auth, credential);
-        const user = cred.user;
-
-        // Derivar nome na primeira vez
-        let derivedName = null;
-        try {
-          const nameObj = response?.user?.name;
-          if (nameObj?.firstName || nameObj?.lastName) {
-            derivedName = `${nameObj.firstName||''} ${nameObj.lastName||''}`.trim();
-          }
-        } catch {}
-
-        await ensureAppleUserDocument(user, derivedName);
-        toast('Login realizado!');
-        closeLogin();
-        closeRegister();
-      } catch (err) {
-        if (err?.error === 'popup_closed_by_user') {
-          toast('Login com Apple cancelado.', 'info');
-          return;
-        }
-        console.error('Apple JS sign-in error:', err);
-        // Evitar redirecionar automaticamente; pedir novo toque após preparação
-        toast('Não foi possível abrir o Apple in-app agora. Tente novamente em instantes.', 'info');
-      }
-    }
-
     const signInWithApple = async (isRegistration = false) => {
       try {
         // Forçar persistência robusta no iOS (fallback multi-indexedDB/cookies)
@@ -1841,11 +1736,11 @@ Excluir Conta
         } catch {
           await setPersistence(auth, browserLocalPersistence);
         }
-        // Detecta Safari/iOS e tenta popup primeiro para evitar sair do app
+        // Detecta Safari/iOS e tenta popup primeiro para evitar ITP
         const ua = navigator.userAgent || '';
         const isIOS = /iPhone|iPad|iPod/.test(ua);
         const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-        const canUsePopup = !isIOS || (isIOS && isSafari);
+        const canUsePopup = !isIOS || (isIOS && isSafari); // popup com gesto do usuário costuma funcionar
 
         if (canUsePopup) {
           try {
@@ -1859,27 +1754,13 @@ Excluir Conta
               return;
             }
           } catch (e) {
-            console.warn('Popup Apple bloqueado/falhou:', e);
-            // Em vez de redirecionar automaticamente, oferecer opção explícita
-            toast('Não foi possível abrir o popup do Apple. Continuar por redirecionamento?', 'info', {
-              actionText: 'Usar redirecionamento',
-              onAction: async () => {
-                try { await signInWithRedirect(auth, appleProvider); } catch(err){ console.error('Apple redirect error:', err); toast('Falha ao redirecionar. Tente novamente.', 'error'); }
-              },
-              duration: 8000
-            });
-            return;
+            // Se popup falhar/bloquear por qualquer motivo, faz fallback para redirect
+            console.warn('Popup Apple falhou, usando redirect:', e);
           }
         }
 
-        // Para navegadores sem suporte a popup (ex.: alguns webviews), oferecer redirecionamento opcional
-        toast('Para continuar com Apple, use o redirecionamento seguro.', 'info', {
-          actionText: 'Continuar',
-          onAction: async () => {
-            try { await signInWithRedirect(auth, appleProvider); } catch(err){ console.error('Apple redirect error:', err); toast('Falha ao redirecionar. Tente novamente.', 'error'); }
-          },
-          duration: 8000
-        });
+        await signInWithRedirect(auth, appleProvider);
+        // Em redirect, o fluxo continua após retorno do handler do Firebase
       } catch (err) {
         console.error('Erro na autenticação Apple:', err);
         toast('Erro na autenticação com Apple. Tente novamente.', 'error');
@@ -1897,8 +1778,7 @@ Excluir Conta
         const cred = await getRedirectResult(auth);
         if (cred && cred.user) {
           const user = cred.user;
-          // Tentar extrair nome (para Apple); para Google pode ser null, sem problemas
-          const derivedName = extractAppleNameFromResult ? extractAppleNameFromResult(cred) : null;
+          const derivedName = extractAppleNameFromResult(cred);
           await ensureAppleUserDocument(user, derivedName);
           toast('Login realizado!');
           closeLogin();
@@ -1906,7 +1786,7 @@ Excluir Conta
         }
       } catch (err) {
         if (err?.code !== 'auth/no-auth-event') {
-          console.error('Erro ao recuperar redirect de provedor:', err?.code, err?.message, err);
+          console.error('Erro ao recuperar redirect Apple:', err);
         }
       }
     }
@@ -1914,9 +1794,9 @@ Excluir Conta
 
     // Botões Apple
     const btnAppleLogin = $('#btn-apple-login');
-    if (btnAppleLogin) btnAppleLogin.addEventListener('click', () => signInWithAppleJS(false));
+    if (btnAppleLogin) btnAppleLogin.addEventListener('click', () => signInWithApple(false));
     const btnAppleRegister = $('#btn-apple-register');
-    if (btnAppleRegister) btnAppleRegister.addEventListener('click', () => signInWithAppleJS(true));
+    if (btnAppleRegister) btnAppleRegister.addEventListener('click', () => signInWithApple(true));
 
     onAuthStateChanged(auth, (user)=>{
       const unsubAll = () => {
@@ -1995,25 +1875,6 @@ Excluir Conta
 
     $('#btn-user').addEventListener('click', (e)=>{ e.stopPropagation(); $('#user-menu').classList.toggle('hidden'); });
     document.addEventListener('click', ()=> $('#user-menu').classList.add('hidden'));
-
-    // Fechar modal de perfil com restauração de scroll ao clicar no backdrop/fechar
-    document.addEventListener('click', (e) => {
-      const closeEl = e.target.closest('[data-close="user-profile"]');
-      const isBackdrop = e.target.classList && e.target.classList.contains('fade') && e.target.closest('#user-profile-modal');
-      if (closeEl || isBackdrop) {
-        hide($('#user-profile-modal'));
-        document.body.classList.remove('modal-open');
-        try {
-          document.body.style.position = '';
-          document.body.style.top = '';
-          document.body.style.width = '';
-          if (typeof state.savedProfileScrollY === 'number') {
-            window.scrollTo(0, state.savedProfileScrollY);
-          }
-          state.savedProfileScrollY = undefined;
-        } catch {}
-      }
-    });
     $('#btn-logout').addEventListener('click', async()=>{ await signOut(auth); toast('Você saiu da sua conta.'); hide($('#view-admin')); hide($('#view-organizer')); });
 
     // ===== Navegação =====
@@ -2045,7 +1906,7 @@ Excluir Conta
       show($(viewId));
       if (viewId === '#home-view') show($('#hero-section'));
       if (viewId === '#view-locations') await renderLocationsPage();
-      // Não forçar scroll ao topo quando navegando para outras views; manter posição atual
+      window.scrollTo(0, 0);
       updateHeaderStyles(viewId); 
     }
           $('#btn-home-header').addEventListener('click', () => {
@@ -3742,13 +3603,6 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     });
 
     async function openUserProfileModal(userId) {
-        // Salvar posição de scroll atual para manter a tela "estática"
-        try {
-            state.savedProfileScrollY = window.scrollY;
-            document.body.style.top = `-${state.savedProfileScrollY}px`;
-            document.body.style.position = 'fixed';
-            document.body.style.width = '100%';
-        } catch {}
         
         const user = state.users[userId];
         if (!user) return toast('Usuário não encontrado.', 'error');
@@ -3915,52 +3769,26 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       `).join('');
     }
     
-    // Interceptar cedo (fase de captura) para evitar navegação por anchors #
-    document.addEventListener('click', (e) => {
-        const elProfile = e.target.closest('[data-profile-id]');
-        const elEvent = e.target.closest('[data-event-id]');
-        if ((elProfile || elEvent) && e.cancelable) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-    }, true);
-
     document.addEventListener('click', (e) => {
         const card = e.target.closest('[data-event-id]');
         if (card) {
-            if (e.cancelable) e.preventDefault();
-            e.stopPropagation();
             const eventId = card.dataset.eventId;
             const eventData = state.events.find(ev => (ev._original_id || ev._id) === eventId);
             if (eventData) {
                 hide($('#user-profile-modal'));
                 document.body.classList.remove('modal-open');
-                // Restaurar posição da página ao fechar o modal via clique em evento
-                try {
-                    document.body.style.position = '';
-                    document.body.style.top = '';
-                    document.body.style.width = '';
-                    if (typeof state.savedProfileScrollY === 'number') {
-                        window.scrollTo(0, state.savedProfileScrollY);
-                    }
-                    state.savedProfileScrollY = undefined;
-                } catch {}
                 openViewModal(eventData);
             }
-            return;
         }
         
         // Verificar cliques em perfis de usuários
         const profileCard = e.target.closest('[data-profile-id]');
         if (profileCard) {
-            if (e.cancelable) e.preventDefault();
-            e.stopPropagation();
             const userId = profileCard.dataset.profileId;
             if (userId) {
                 hide($('#follow-list-modal'));
                 openUserProfileModal(userId);
             }
-            return;
         }
     });
 
