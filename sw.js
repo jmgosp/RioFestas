@@ -1,7 +1,6 @@
-const CACHE_NAME = 'riofestas-v1.0.0';
+const CACHE_NAME = 'riofestas-v1.0.1';
 const urlsToCache = [
   '/',
-  '/index.html',
   '/styles.css',
   '/app.js',
   '/splash-screen.jpg',
@@ -23,6 +22,7 @@ self.addEventListener('install', (event) => {
         console.log('Cache aberto');
         return cache.addAll(urlsToCache);
       })
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -39,11 +39,30 @@ self.addEventListener('activate', (event) => {
         })
       );
     })
+    .then(() => self.clients.claim())
   );
 });
 
 // Interceptação de requisições
 self.addEventListener('fetch', (event) => {
+  // Navegações (documentos/HTML): estratégia network-first para garantir atualização
+  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+    event.respondWith(
+      (async () => {
+        try {
+          const fresh = await fetch(event.request, { cache: 'no-store' });
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(event.request, fresh.clone());
+          return fresh;
+        } catch (err) {
+          const cached = await caches.match(event.request);
+          return cached || caches.match('/');
+        }
+      })()
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
