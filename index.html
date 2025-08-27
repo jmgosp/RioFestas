@@ -1199,7 +1199,7 @@ Excluir Conta
       initializeAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, indexedDBLocalPersistence, signInAnonymously,
       onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
       updateProfile, sendPasswordResetEmail, signOut, GoogleAuthProvider, OAuthProvider,
-      signInWithPopup, signInWithRedirect, getRedirectResult, browserPopupRedirectResolver
+      signInWithPopup, signInWithRedirect, getRedirectResult, browserPopupRedirectResolver, signInWithCredential
     } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
     import {
       getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc,
@@ -1746,11 +1746,11 @@ Excluir Conta
         } catch {
           await setPersistence(auth, browserLocalPersistence);
         }
-        // Detecta Safari/iOS e tenta popup primeiro para evitar ITP
+        // Detecta Safari/iOS e tenta popup primeiro para evitar sair do app
         const ua = navigator.userAgent || '';
         const isIOS = /iPhone|iPad|iPod/.test(ua);
         const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-        const canUsePopup = !isIOS || (isIOS && isSafari); // popup com gesto do usuário costuma funcionar
+        const canUsePopup = !isIOS || (isIOS && isSafari);
 
         if (canUsePopup) {
           try {
@@ -1764,13 +1764,27 @@ Excluir Conta
               return;
             }
           } catch (e) {
-            // Se popup falhar/bloquear por qualquer motivo, faz fallback para redirect
-            console.warn('Popup Apple falhou, usando redirect:', e);
+            console.warn('Popup Apple bloqueado/falhou:', e);
+            // Em vez de redirecionar automaticamente, oferecer opção explícita
+            toast('Não foi possível abrir o popup do Apple. Continuar por redirecionamento?', 'info', {
+              actionText: 'Usar redirecionamento',
+              onAction: async () => {
+                try { await signInWithRedirect(auth, appleProvider); } catch(err){ console.error('Apple redirect error:', err); toast('Falha ao redirecionar. Tente novamente.', 'error'); }
+              },
+              duration: 8000
+            });
+            return;
           }
         }
 
-        await signInWithRedirect(auth, appleProvider);
-        // Em redirect, o fluxo continua após retorno do handler do Firebase
+        // Para navegadores sem suporte a popup (ex.: alguns webviews), oferecer redirecionamento opcional
+        toast('Para continuar com Apple, use o redirecionamento seguro.', 'info', {
+          actionText: 'Continuar',
+          onAction: async () => {
+            try { await signInWithRedirect(auth, appleProvider); } catch(err){ console.error('Apple redirect error:', err); toast('Falha ao redirecionar. Tente novamente.', 'error'); }
+          },
+          duration: 8000
+        });
       } catch (err) {
         console.error('Erro na autenticação Apple:', err);
         toast('Erro na autenticação com Apple. Tente novamente.', 'error');
