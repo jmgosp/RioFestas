@@ -1738,6 +1738,100 @@ Excluir Conta
       return null;
     }
 
+    // ===== Apple JS (100% in-app) =====
+    const APPLE_SERVICE_ID = (window.APPLE_SERVICE_ID || 'com.riofestas.web');
+    const APPLE_REDIRECT_URI = (window.APPLE_REDIRECT_URI || 'https://www.riofestas.com/apple-callback');
+
+    function generateRandomString(length = 32) {
+      const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_.';
+      const randomValues = new Uint8Array(length);
+      crypto.getRandomValues(randomValues);
+      return Array.from(randomValues, v => charset[v % charset.length]).join('');
+    }
+
+    async function sha256Hex(input) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(input);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function loadAppleJs() {
+      if (window.AppleID && window.AppleID.auth) return Promise.resolve();
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js';
+        s.onload = () => resolve();
+        s.onerror = (e) => reject(e);
+        document.head.appendChild(s);
+      });
+    }
+
+    let appleJsInitialized = false;
+    async function initAppleJs() {
+      await loadAppleJs();
+      if (appleJsInitialized) return;
+      try {
+        window.AppleID.auth.init({
+          clientId: APPLE_SERVICE_ID,
+          scope: 'name email',
+          redirectURI: APPLE_REDIRECT_URI,
+          usePopup: true
+        });
+        appleJsInitialized = true;
+      } catch (e) {
+        console.error('AppleID.auth.init failed:', e);
+      }
+    }
+
+    async function signInWithAppleJS(isRegistration = false) {
+      try {
+        try { await setPersistence(auth, indexedDBLocalPersistence); } catch { await setPersistence(auth, browserLocalPersistence); }
+        await initAppleJs();
+        if (!window.AppleID || !appleJsInitialized) {
+          // Fallback para fluxo anterior (popup/redirect do Firebase)
+          return signInWithApple(isRegistration);
+        }
+
+        const rawNonce = generateRandomString(32);
+        const hashedNonce = await sha256Hex(rawNonce);
+        const response = await window.AppleID.auth.signIn({ nonce: hashedNonce });
+        const idToken = response?.authorization?.id_token;
+        if (!idToken) throw new Error('Apple JS: id_token ausente');
+
+        const credential = OAuthProvider.credential({ idToken, rawNonce });
+        const cred = await signInWithCredential(auth, credential);
+        const user = cred.user;
+
+        // Derivar nome na primeira vez
+        let derivedName = null;
+        try {
+          const nameObj = response?.user?.name;
+          if (nameObj?.firstName || nameObj?.lastName) {
+            derivedName = `${nameObj.firstName||''} ${nameObj.lastName||''}`.trim();
+          }
+        } catch {}
+
+        await ensureAppleUserDocument(user, derivedName);
+        toast('Login realizado!');
+        closeLogin();
+        closeRegister();
+      } catch (err) {
+        if (err?.error === 'popup_closed_by_user') {
+          toast('Login com Apple cancelado.', 'info');
+          return;
+        }
+        console.error('Apple JS sign-in error:', err);
+        // Oferece fallback para redirect somente se o usuário aceitar
+        toast('Não foi possível concluir com Apple in-app. Deseja tentar com redirecionamento?', 'info', {
+          actionText: 'Tentar',
+          onAction: async () => { try { await signInWithRedirect(auth, appleProvider); } catch(e){ console.error('Apple redirect error:', e); toast('Falha ao redirecionar.', 'error'); } },
+          duration: 8000
+        });
+      }
+    }
+
     const signInWithApple = async (isRegistration = false) => {
       try {
         // Forçar persistência robusta no iOS (fallback multi-indexedDB/cookies)
@@ -1819,9 +1913,9 @@ Excluir Conta
 
     // Botões Apple
     const btnAppleLogin = $('#btn-apple-login');
-    if (btnAppleLogin) btnAppleLogin.addEventListener('click', () => signInWithApple(false));
+    if (btnAppleLogin) btnAppleLogin.addEventListener('click', () => signInWithAppleJS(false));
     const btnAppleRegister = $('#btn-apple-register');
-    if (btnAppleRegister) btnAppleRegister.addEventListener('click', () => signInWithApple(true));
+    if (btnAppleRegister) btnAppleRegister.addEventListener('click', () => signInWithAppleJS(true));
 
     onAuthStateChanged(auth, (user)=>{
       const unsubAll = () => {
