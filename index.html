@@ -669,7 +669,10 @@ Excluir Conta
 <div class="grid gap-3 md:grid-cols-2">
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-name" placeholder="Nome completo" required="" type="text"/>
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-username" placeholder="Nome de usuário (@exemplo)" required="" type="text"/>
+<div class="flex flex-col gap-1">
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-email" placeholder="E-mail" required="" type="email"/>
+<p class="text-xs text-gray-500">Seu email não é coletado (sua atividade não é rastreada) e, assim, não é usado para publicidade e propaganda de eventos</p>
+</div>
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-pass" placeholder="Senha (mín. 6)" required="" type="password"/>
 </div>
 <label class="flex items-center gap-2 select-none text-sm"><input class="h-4 w-4" id="reg-organizer-check" type="checkbox"/> Sou organizador de eventos</label>
@@ -680,7 +683,6 @@ Excluir Conta
 <input class="rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-website" placeholder="Site ou Instagram"/>
 <textarea class="md:col-span-2 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="org-about" placeholder="Sobre a empresa"></textarea>
 </input></div>
-<label class="flex items-center gap-2 select-none text-sm"><input class="h-4 w-4" id="reg-hide-email" type="checkbox"/> Ocultar meu email e não usar minha atividade para publicidade ou propaganda de eventos</label>
 <div class="flex items-start gap-2 text-sm">
 <input class="mt-0.5" id="reg-terms" required="" type="checkbox"/>
 <label class="text-gray-600" for="reg-terms">Eu li e aceito os <a class="text-pink-600 hover:underline" href="https://firebasestorage.googleapis.com/v0/b/riofestas2.firebasestorage.app/o/termos%20de%20uso.html?alt=media&amp;token=f7f7a4f3-b414-4bb8-b631-e2704652eb83" target="_blank">Termos de Uso e a Política de Privacidade</a>.</label>
