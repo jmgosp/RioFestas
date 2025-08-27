@@ -1785,22 +1785,27 @@ Excluir Conta
       }
     }
 
+    // Pré-carregar o Apple JS assim que possível para manter o gesto do usuário no clique
+    loadAppleJs().catch(()=>{});
+
     async function signInWithAppleJS(isRegistration = false) {
       try {
-        try { await setPersistence(auth, indexedDBLocalPersistence); } catch { await setPersistence(auth, browserLocalPersistence); }
-        await initAppleJs();
+        // Não executar awaits antes do popup para não perder o gesto do usuário
         if (!window.AppleID || !appleJsInitialized) {
-          // Fallback para fluxo anterior (popup/redirect do Firebase)
-          return signInWithApple(isRegistration);
+          try { await initAppleJs(); } catch {}
+        }
+        if (!window.AppleID || !appleJsInitialized) {
+          // Se ainda assim não estiver pronto, pedir para o usuário tentar novamente
+          toast('Preparando Apple Login... toque novamente em "Continuar com Apple".', 'info');
+          return;
         }
 
-        const rawNonce = generateRandomString(32);
-        const hashedNonce = await sha256Hex(rawNonce);
-        const response = await window.AppleID.auth.signIn({ nonce: hashedNonce });
+        const response = await window.AppleID.auth.signIn();
         const idToken = response?.authorization?.id_token;
         if (!idToken) throw new Error('Apple JS: id_token ausente');
 
-        const credential = OAuthProvider.credential({ idToken, rawNonce });
+        // Autenticar no Firebase somente com idToken (sem nonce para evitar atrasar o popup)
+        const credential = OAuthProvider.credential({ idToken });
         const cred = await signInWithCredential(auth, credential);
         const user = cred.user;
 
@@ -1823,12 +1828,8 @@ Excluir Conta
           return;
         }
         console.error('Apple JS sign-in error:', err);
-        // Oferece fallback para redirect somente se o usuário aceitar
-        toast('Não foi possível concluir com Apple in-app. Deseja tentar com redirecionamento?', 'info', {
-          actionText: 'Tentar',
-          onAction: async () => { try { await signInWithRedirect(auth, appleProvider); } catch(e){ console.error('Apple redirect error:', e); toast('Falha ao redirecionar.', 'error'); } },
-          duration: 8000
-        });
+        // Evitar redirecionar automaticamente; pedir novo toque após preparação
+        toast('Não foi possível abrir o Apple in-app agora. Tente novamente em instantes.', 'info');
       }
     }
 
