@@ -636,7 +636,7 @@ Excluir Conta
 </div>
 
 <!-- Botão Apple -->
-<button type="button" class="w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-black px-5 py-3 text-[15px] font-semibold text-white hover:bg-black/90 transition-colors" id="btn-apple-login">
+<button type="button" class="hidden w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-black px-5 py-3 text-[15px] font-semibold text-white hover:bg-black/90 transition-colors" id="btn-apple-login">
   <img src="https://img.icons8.com/m_sharp/512/FFFFFF/mac-os.png" alt="Apple" class="w-5 h-5 shrink-0" width="20" height="20"/>
   Continuar com Apple
 </button>
@@ -699,7 +699,7 @@ Excluir Conta
 </div>
 
 <!-- Botão Apple -->
-<button type="button" class="w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-black px-5 py-3 text-[15px] font-semibold text-white hover:bg-black/90 transition-colors" id="btn-apple-register">
+<button type="button" class="hidden w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-black px-5 py-3 text-[15px] font-semibold text-white hover:bg-black/90 transition-colors" id="btn-apple-register">
   <img src="https://img.icons8.com/m_sharp/512/FFFFFF/mac-os.png" alt="Apple" class="w-5 h-5 shrink-0" width="20" height="20"/>
   Continuar com Apple
 </button>
@@ -1677,126 +1677,116 @@ Excluir Conta
     $('#btn-google-login').addEventListener('click', () => signInWithGoogle(false));
     $('#btn-google-register').addEventListener('click', () => signInWithGoogle(true));
 
-    // ===== Autenticação com Apple =====
-    const appleProvider = new OAuthProvider('apple.com');
-    appleProvider.addScope('email');
-    appleProvider.addScope('name');
+    // Feature flag para Apple (desativado temporariamente)
+    const APPLE_LOGIN_ENABLED = false;
+    if (APPLE_LOGIN_ENABLED) {
+      // ===== Autenticação com Apple =====
+      const appleProvider = new OAuthProvider('apple.com');
+      appleProvider.addScope('email');
+      appleProvider.addScope('name');
 
-    async function ensureAppleUserDocument(user, fallbackName=null) {
-      const userRef = doc(db, USERS_PATH, user.uid);
-      const snap = await getDoc(userRef);
-      if (!snap.exists()) {
-        let name = user.displayName || fallbackName || 'Usuário';
-        let email = user.email || null;
-        // Gerar username a partir do email ou nome
-        let baseUsername = (email?.split('@')[0] || name || 'user').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'user';
-        let username = baseUsername;
-        let c = 1;
-        while (true) {
-          const uref = doc(db, USERNAMES_PATH, username);
-          const udoc = await getDoc(uref);
-          if (!udoc.exists()) break;
-          username = `${baseUsername}${c++}`;
-        }
-        await setDoc(userRef, {
-          admin:false, organizer:false,
-          name, username, email,
-          photoUrl: user.photoURL || null,
-          createdAt: serverTimestamp(),
-          bio:'', followersCount:0, followingCount:0, isPrivate:false,
-          settings:{ notifyOnFriendGoing:true }
-        });
-        await setDoc(doc(db, USERNAMES_PATH, username), { uid: user.uid });
-      } else {
-        // Completar nome se estiver vazio
-        if (!user.displayName && fallbackName) {
-          try { await updateProfile(user, { displayName: fallbackName }); } catch {}
-        }
-      }
-    }
-
-    function extractAppleNameFromResult(result){
-      try {
-        const tr = result?._tokenResponse || {};
-        // Firebase retorna fullName na primeira vez
-        const fullName = tr?.fullName || tr?.name || null;
-        if (typeof fullName === 'string') return fullName;
-        if (fullName?.givenName || fullName?.familyName) {
-          return `${fullName.givenName||''} ${fullName.familyName||''}`.trim();
-        }
-      } catch {}
-      return null;
-    }
-
-    const signInWithApple = async (isRegistration = false) => {
-      try {
-        // Forçar persistência robusta no iOS (fallback multi-indexedDB/cookies)
-        try {
-          await setPersistence(auth, indexedDBLocalPersistence);
-        } catch {
-          await setPersistence(auth, browserLocalPersistence);
-        }
-        // Detecta Safari/iOS e tenta popup primeiro para evitar ITP
-        const ua = navigator.userAgent || '';
-        const isIOS = /iPhone|iPad|iPod/.test(ua);
-        const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-        const canUsePopup = !isIOS || (isIOS && isSafari); // popup com gesto do usuário costuma funcionar
-
-        if (canUsePopup) {
-          try {
-            const cred = await signInWithPopup(auth, appleProvider);
-            if (cred?.user) {
-              const derivedName = extractAppleNameFromResult(cred);
-              await ensureAppleUserDocument(cred.user, derivedName);
-              toast('Login realizado!');
-              closeLogin();
-              closeRegister();
-              return;
-            }
-          } catch (e) {
-            // Se popup falhar/bloquear por qualquer motivo, faz fallback para redirect
-            console.warn('Popup Apple falhou, usando redirect:', e);
+      async function ensureAppleUserDocument(user, fallbackName=null) {
+        const userRef = doc(db, USERS_PATH, user.uid);
+        const snap = await getDoc(userRef);
+        if (!snap.exists()) {
+          let name = user.displayName || fallbackName || 'Usuário';
+          let email = user.email || null;
+          let baseUsername = (email?.split('@')[0] || name || 'user').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'user';
+          let username = baseUsername;
+          let c = 1;
+          while (true) {
+            const uref = doc(db, USERNAMES_PATH, username);
+            const udoc = await getDoc(uref);
+            if (!udoc.exists()) break;
+            username = `${baseUsername}${c++}`;
+          }
+          await setDoc(userRef, {
+            admin:false, organizer:false,
+            name, username, email,
+            photoUrl: user.photoURL || null,
+            createdAt: serverTimestamp(),
+            bio:'', followersCount:0, followingCount:0, isPrivate:false,
+            settings:{ notifyOnFriendGoing:true }
+          });
+          await setDoc(doc(db, USERNAMES_PATH, username), { uid: user.uid });
+        } else {
+          if (!user.displayName && fallbackName) {
+            try { await updateProfile(user, { displayName: fallbackName }); } catch {}
           }
         }
-
-        await signInWithRedirect(auth, appleProvider);
-        // Em redirect, o fluxo continua após retorno do handler do Firebase
-      } catch (err) {
-        console.error('Erro na autenticação Apple:', err);
-        toast('Erro na autenticação com Apple. Tente novamente.', 'error');
       }
-    };
 
-    // Recuperar resultado de redirect (Apple) – garante persistência antes
-    async function handleAuthRedirectResult() {
-      try {
+      function extractAppleNameFromResult(result){
         try {
-          await setPersistence(auth, indexedDBLocalPersistence);
-        } catch {
-          await setPersistence(auth, browserLocalPersistence);
+          const tr = result?._tokenResponse || {};
+          const fullName = tr?.fullName || tr?.name || null;
+          if (typeof fullName === 'string') return fullName;
+          if (fullName?.givenName || fullName?.familyName) {
+            return `${fullName.givenName||''} ${fullName.familyName||''}`.trim();
+          }
+        } catch {}
+        return null;
+      }
+
+      const signInWithApple = async (isRegistration = false) => {
+        try {
+          try { await setPersistence(auth, indexedDBLocalPersistence); }
+          catch { await setPersistence(auth, browserLocalPersistence); }
+
+          const ua = navigator.userAgent || '';
+          const isIOS = /iPhone|iPad|iPod/.test(ua);
+          const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+          const canUsePopup = !isIOS || (isIOS && isSafari);
+
+          if (canUsePopup) {
+            try {
+              const cred = await signInWithPopup(auth, appleProvider);
+              if (cred?.user) {
+                const derivedName = extractAppleNameFromResult(cred);
+                await ensureAppleUserDocument(cred.user, derivedName);
+                toast('Login realizado!');
+                closeLogin();
+                closeRegister();
+                return;
+              }
+            } catch (e) {
+              console.warn('Popup Apple falhou, usando redirect:', e);
+            }
+          }
+
+          await signInWithRedirect(auth, appleProvider);
+        } catch (err) {
+          console.error('Erro na autenticação Apple:', err);
+          toast('Erro na autenticação com Apple. Tente novamente.', 'error');
         }
-        const cred = await getRedirectResult(auth);
-        if (cred && cred.user) {
-          const user = cred.user;
-          const derivedName = extractAppleNameFromResult(cred);
-          await ensureAppleUserDocument(user, derivedName);
-          toast('Login realizado!');
-          closeLogin();
-          closeRegister();
-        }
-      } catch (err) {
-        if (err?.code !== 'auth/no-auth-event') {
-          console.error('Erro ao recuperar redirect Apple:', err);
+      };
+
+      async function handleAuthRedirectResult() {
+        try {
+          try { await setPersistence(auth, indexedDBLocalPersistence); }
+          catch { await setPersistence(auth, browserLocalPersistence); }
+          const cred = await getRedirectResult(auth);
+          if (cred && cred.user) {
+            const user = cred.user;
+            const derivedName = extractAppleNameFromResult(cred);
+            await ensureAppleUserDocument(user, derivedName);
+            toast('Login realizado!');
+            closeLogin();
+            closeRegister();
+          }
+        } catch (err) {
+          if (err?.code !== 'auth/no-auth-event') {
+            console.error('Erro ao recuperar redirect Apple:', err);
+          }
         }
       }
-    }
-    handleAuthRedirectResult();
+      handleAuthRedirectResult();
 
-    // Botões Apple
-    const btnAppleLogin = $('#btn-apple-login');
-    if (btnAppleLogin) btnAppleLogin.addEventListener('click', () => signInWithApple(false));
-    const btnAppleRegister = $('#btn-apple-register');
-    if (btnAppleRegister) btnAppleRegister.addEventListener('click', () => signInWithApple(true));
+      const btnAppleLogin = $('#btn-apple-login');
+      if (btnAppleLogin) { btnAppleLogin.classList.remove('hidden'); btnAppleLogin.addEventListener('click', () => signInWithApple(false)); }
+      const btnAppleRegister = $('#btn-apple-register');
+      if (btnAppleRegister) { btnAppleRegister.classList.remove('hidden'); btnAppleRegister.addEventListener('click', () => signInWithApple(true)); }
+    }
 
     onAuthStateChanged(auth, (user)=>{
       const unsubAll = () => {
