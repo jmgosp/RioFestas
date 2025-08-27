@@ -3806,6 +3806,16 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       `).join('');
     }
     
+    // Interceptar cedo (fase de captura) para evitar navegação por anchors #
+    document.addEventListener('click', (e) => {
+        const elProfile = e.target.closest('[data-profile-id]');
+        const elEvent = e.target.closest('[data-event-id]');
+        if ((elProfile || elEvent) && e.cancelable) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }, true);
+
     document.addEventListener('click', (e) => {
         const card = e.target.closest('[data-event-id]');
         if (card) {
