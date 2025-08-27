@@ -1417,7 +1417,7 @@ Excluir Conta
 
 
     // ===== Sessão & roles =====
-    const state = { baseEvents: [], events:[], pending:[], users:{}, recurringEvents: [], settings: {}, eventExceptions: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, deleteNotificationTarget: null, removeFollowerTarget: null, resetRatingsTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, photoRemovalFlag: false, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} }, adminEventsView: 'active', selectedBairros: new Set(), selectedGeneros: new Set() };
+    const state = { baseEvents: [], events:[], pending:[], users:{}, recurringEvents: [], settings: {}, eventExceptions: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, deleteNotificationTarget: null, removeFollowerTarget: null, resetRatingsTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, photoRemovalFlag: false, savedProfileScrollY: undefined, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} }, adminEventsView: 'active', selectedBairros: new Set(), selectedGeneros: new Set() };
     let _unsubRole = null, _unsubEvents=null, _unsubPending=null, _unsubGoingTo=null, _unsubFollowing=null, _unsubFollowers=null, _unsubOutgoingRequests=null, _unsubIncomingRequests=null, _unsubNotifications=null, _unsubRecurring=null, _unsubSettings=null, _unsubExceptions=null;
 
     const renderHeader = ()=>{
@@ -1530,12 +1530,12 @@ Excluir Conta
     $('#form-login').addEventListener('submit', async (e)=>{
       e.preventDefault(); const email=$('#login-email').value.trim(); const pass=$('#login-pass').value; const btn=$('#submit-login'); const old=btn.textContent; btn.textContent='Entrando…'; btn.disabled=true; $('#err-login').classList.add('hidden');
       try{ 
-        await setPersistence(auth, browserLocalPersistence);
+        try { await setPersistence(auth, indexedDBLocalPersistence); } catch { await setPersistence(auth, browserLocalPersistence); }
         await signInWithEmailAndPassword(auth,email,pass); 
         closeLogin(); 
         toast('Login realizado!'); 
       }
-      catch(err){ const b=$('#err-login'); b.textContent=mapAuthErr(err); b.classList.remove('hidden'); }
+      catch(err){ console.error('Auth error (email/password):', err?.code, err?.message, err); const b=$('#err-login'); b.textContent=mapAuthErr(err); b.classList.remove('hidden'); }
       finally{ btn.textContent=old; btn.disabled=false; }
     });
 
@@ -1612,8 +1612,18 @@ Excluir Conta
     // Função para login/registro com Google
     const signInWithGoogle = async (isRegistration = false) => {
       try {
-        await setPersistence(auth, browserLocalPersistence);
-        const result = await signInWithPopup(auth, googleProvider);
+        try { await setPersistence(auth, indexedDBLocalPersistence); } catch { await setPersistence(auth, browserLocalPersistence); }
+        const ua = navigator.userAgent || '';
+        const isIOS = /iPhone|iPad|iPod/.test(ua);
+        const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+        const useRedirect = isIOS; // em iOS, preferir redirect para maior compatibilidade
+        let result = null;
+        if (useRedirect) {
+          await signInWithRedirect(auth, googleProvider);
+          return; // fluxo continua no getRedirectResult
+        } else {
+          result = await signInWithPopup(auth, googleProvider);
+        }
         const user = result.user;
         
         // Verificar se o usuário já existe no Firestore
@@ -1664,7 +1674,7 @@ Excluir Conta
         closeLogin();
         closeRegister();
       } catch (err) {
-        console.error('Erro na autenticação Google:', err);
+        console.error('Erro na autenticação Google:', err?.code, err?.message, err);
         if (err.code === 'auth/popup-closed-by-user') {
           toast('Login cancelado pelo usuário.', 'info');
         } else {
@@ -1778,7 +1788,8 @@ Excluir Conta
         const cred = await getRedirectResult(auth);
         if (cred && cred.user) {
           const user = cred.user;
-          const derivedName = extractAppleNameFromResult(cred);
+          // Tentar extrair nome (para Apple); para Google pode ser null, sem problemas
+          const derivedName = extractAppleNameFromResult ? extractAppleNameFromResult(cred) : null;
           await ensureAppleUserDocument(user, derivedName);
           toast('Login realizado!');
           closeLogin();
@@ -1786,7 +1797,7 @@ Excluir Conta
         }
       } catch (err) {
         if (err?.code !== 'auth/no-auth-event') {
-          console.error('Erro ao recuperar redirect Apple:', err);
+          console.error('Erro ao recuperar redirect de provedor:', err?.code, err?.message, err);
         }
       }
     }
@@ -1875,6 +1886,25 @@ Excluir Conta
 
     $('#btn-user').addEventListener('click', (e)=>{ e.stopPropagation(); $('#user-menu').classList.toggle('hidden'); });
     document.addEventListener('click', ()=> $('#user-menu').classList.add('hidden'));
+
+    // Fechar modal de perfil com restauração de scroll ao clicar no backdrop/fechar
+    document.addEventListener('click', (e) => {
+      const closeEl = e.target.closest('[data-close="user-profile"]');
+      const isBackdrop = e.target.classList && e.target.classList.contains('fade') && e.target.closest('#user-profile-modal');
+      if (closeEl || isBackdrop) {
+        hide($('#user-profile-modal'));
+        document.body.classList.remove('modal-open');
+        try {
+          document.body.style.position = '';
+          document.body.style.top = '';
+          document.body.style.width = '';
+          if (typeof state.savedProfileScrollY === 'number') {
+            window.scrollTo(0, state.savedProfileScrollY);
+          }
+          state.savedProfileScrollY = undefined;
+        } catch {}
+      }
+    });
     $('#btn-logout').addEventListener('click', async()=>{ await signOut(auth); toast('Você saiu da sua conta.'); hide($('#view-admin')); hide($('#view-organizer')); });
 
     // ===== Navegação =====
@@ -1906,7 +1936,7 @@ Excluir Conta
       show($(viewId));
       if (viewId === '#home-view') show($('#hero-section'));
       if (viewId === '#view-locations') await renderLocationsPage();
-      window.scrollTo(0, 0);
+      // Não forçar scroll ao topo quando navegando para outras views; manter posição atual
       updateHeaderStyles(viewId); 
     }
           $('#btn-home-header').addEventListener('click', () => {
@@ -3603,6 +3633,13 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     });
 
     async function openUserProfileModal(userId) {
+        // Salvar posição de scroll atual para manter a tela "estática"
+        try {
+            state.savedProfileScrollY = window.scrollY;
+            document.body.style.top = `-${state.savedProfileScrollY}px`;
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+        } catch {}
         
         const user = state.users[userId];
         if (!user) return toast('Usuário não encontrado.', 'error');
@@ -3772,23 +3809,39 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     document.addEventListener('click', (e) => {
         const card = e.target.closest('[data-event-id]');
         if (card) {
+            if (e.cancelable) e.preventDefault();
+            e.stopPropagation();
             const eventId = card.dataset.eventId;
             const eventData = state.events.find(ev => (ev._original_id || ev._id) === eventId);
             if (eventData) {
                 hide($('#user-profile-modal'));
                 document.body.classList.remove('modal-open');
+                // Restaurar posição da página ao fechar o modal via clique em evento
+                try {
+                    document.body.style.position = '';
+                    document.body.style.top = '';
+                    document.body.style.width = '';
+                    if (typeof state.savedProfileScrollY === 'number') {
+                        window.scrollTo(0, state.savedProfileScrollY);
+                    }
+                    state.savedProfileScrollY = undefined;
+                } catch {}
                 openViewModal(eventData);
             }
+            return;
         }
         
         // Verificar cliques em perfis de usuários
         const profileCard = e.target.closest('[data-profile-id]');
         if (profileCard) {
+            if (e.cancelable) e.preventDefault();
+            e.stopPropagation();
             const userId = profileCard.dataset.profileId;
             if (userId) {
                 hide($('#follow-list-modal'));
                 openUserProfileModal(userId);
             }
+            return;
         }
     });
 
