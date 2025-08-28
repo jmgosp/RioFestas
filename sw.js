@@ -2,8 +2,8 @@ const CACHE_NAME = 'riofestas-v1.0.2';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/styles.css',
-  '/app.js',
+  '/styles.css?v=1.0.2',
+  '/app.js?v=1.0.2',
   '/splash-screen.jpg',
   '/icon-192.png',
   '/icon-512.png',

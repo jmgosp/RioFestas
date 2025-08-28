@@ -41,7 +41,7 @@
 <!-- Manifest -->
 <link rel="manifest" href="/manifest.json">
 
-<link href="styles.css" rel="stylesheet"/>
+<link href="styles.css?v=1.0.2" rel="stylesheet"/>
 <!-- Tailwind + Inter -->
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -4836,7 +4836,8 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     // ===== PWA Service Worker =====
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
+        const SW_VERSION = '1.0.2';
+        navigator.serviceWorker.register(`sw.js?v=${SW_VERSION}`)
           .then((registration) => {
             console.log('SW registrado: ', registration);
             if (registration.waiting) {
@@ -6206,5 +6207,5 @@ if (themeColorMeta) {
   </div>
 </footer>
 
-<script src="app.js"></script></body>
+<script src="app.js?v=1.0.2"></script></body>
 </html>
