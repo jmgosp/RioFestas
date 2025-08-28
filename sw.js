@@ -1,4 +1,4 @@
-const CACHE_NAME = 'riofestas-v1.0.0';
+const CACHE_NAME = 'riofestas-v1.0.1';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -23,6 +23,7 @@ self.addEventListener('install', (event) => {
         console.log('Cache aberto');
         return cache.addAll(urlsToCache);
       })
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -38,44 +39,43 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
 // Interceptação de requisições
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Retorna do cache se disponível
-        if (response) {
+  const req = event.request;
+
+  // Network-first para navegações/HTML para garantir atualização imediata
+  if (req.mode === 'navigate' || req.destination === 'document') {
+    event.respondWith(
+      fetch(req)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
           return response;
-        }
+        })
+        .catch(() => caches.match(req).then((res) => res || caches.match('/index.html')))
+    );
+    return;
+  }
 
-        // Se não estiver no cache, busca da rede
-        return fetch(event.request)
-          .then((response) => {
-            // Verifica se a resposta é válida
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
+  // Cache-first para demais recursos
+  event.respondWith(
+    caches.match(req)
+      .then((response) => {
+        if (response) return response;
+        return fetch(req)
+          .then((networkResponse) => {
+            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+              return networkResponse;
             }
-
-            // Clona a resposta para poder usar no cache
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, responseToCache));
+            return networkResponse;
           })
-          .catch(() => {
-            // Fallback para páginas offline
-            if (event.request.destination === 'document') {
-              return caches.match('/index.html');
-            }
-          });
+          .catch(() => undefined);
       })
   );
 });
