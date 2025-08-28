@@ -1,4 +1,4 @@
-const CACHE_NAME = 'riofestas-v1.0.1';
+const CACHE_NAME = 'riofestas-v1.0.2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -50,7 +50,7 @@ self.addEventListener('fetch', (event) => {
   // Network-first para navegações/HTML para garantir atualização imediata
   if (req.mode === 'navigate' || req.destination === 'document') {
     event.respondWith(
-      fetch(req)
+      fetch(new Request(req, { cache: 'no-store' }))
         .then((response) => {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
@@ -78,6 +78,13 @@ self.addEventListener('fetch', (event) => {
           .catch(() => undefined);
       })
   );
+});
+
+// Recebe comando para ativar imediatamente
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // Notificações push (para futuras implementações)
