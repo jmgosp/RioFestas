@@ -1,9 +1,9 @@
-const CACHE_NAME = 'riofestas-v1.0.2';
+const CACHE_NAME = 'riofestas-v1.0.0';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/styles.css?v=1.0.2',
-  '/app.js?v=1.0.2',
+  '/styles.css',
+  '/app.js',
   '/splash-screen.jpg',
   '/icon-192.png',
   '/icon-512.png',
@@ -23,7 +23,6 @@ self.addEventListener('install', (event) => {
         console.log('Cache aberto');
         return cache.addAll(urlsToCache);
       })
-      .then(() => self.skipWaiting())
   );
 });
 
@@ -39,52 +38,46 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    }).then(() => self.clients.claim())
+    })
   );
 });
 
 // Interceptação de requisições
 self.addEventListener('fetch', (event) => {
-  const req = event.request;
-
-  // Network-first para navegações/HTML para garantir atualização imediata
-  if (req.mode === 'navigate' || req.destination === 'document') {
-    event.respondWith(
-      fetch(new Request(req, { cache: 'no-store' }))
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
-          return response;
-        })
-        .catch(() => caches.match(req).then((res) => res || caches.match('/index.html')))
-    );
-    return;
-  }
-
-  // Cache-first para demais recursos
   event.respondWith(
-    caches.match(req)
+    caches.match(event.request)
       .then((response) => {
-        if (response) return response;
-        return fetch(req)
-          .then((networkResponse) => {
-            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-              return networkResponse;
+        // Retorna do cache se disponível
+        if (response) {
+          return response;
+        }
+
+        // Se não estiver no cache, busca da rede
+        return fetch(event.request)
+          .then((response) => {
+            // Verifica se a resposta é válida
+            if (!response || response.status !== 200 || response.type !== 'basic') {
+              return response;
             }
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, responseToCache));
-            return networkResponse;
+
+            // Clona a resposta para poder usar no cache
+            const responseToCache = response.clone();
+
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(event.request, responseToCache);
+              });
+
+            return response;
           })
-          .catch(() => undefined);
+          .catch(() => {
+            // Fallback para páginas offline
+            if (event.request.destination === 'document') {
+              return caches.match('/index.html');
+            }
+          });
       })
   );
-});
-
-// Recebe comando para ativar imediatamente
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
 });
 
 // Notificações push (para futuras implementações)

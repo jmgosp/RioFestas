@@ -41,7 +41,7 @@
 <!-- Manifest -->
 <link rel="manifest" href="/manifest.json">
 
-<link href="styles.css?v=1.0.2" rel="stylesheet"/>
+<link href="styles.css" rel="stylesheet"/>
 <!-- Tailwind + Inter -->
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -624,10 +624,9 @@ Excluir Conta
 </div>
 <div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="err-login"></div>
 <button class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90" id="submit-login">Entrar</button>
-<p class="mt-2 text-xs text-gray-500">Usamos apenas o seu nome para exibição na aba Social. O seu e-mail fica sob a autenticação da Google Firebase e oculto para nós; não rastreamos sua atividade e não usamos seu e-mail para publicidade.</p>
 
 <!-- Separador -->
-<div class="relative my-4 hidden" id="login-separator">
+<div class="relative my-4">
   <div class="absolute inset-0 flex items-center">
     <div class="w-full border-t border-gray-300"></div>
   </div>
@@ -637,13 +636,13 @@ Excluir Conta
 </div>
 
 <!-- Botão Apple -->
-<button type="button" class="hidden w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-black px-5 py-3 text-[15px] font-semibold text-white hover:bg-black/90 transition-colors" id="btn-apple-login">
+<button type="button" class="w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-black px-5 py-3 text-[15px] font-semibold text-white hover:bg-black/90 transition-colors" id="btn-apple-login">
   <img src="https://img.icons8.com/m_sharp/512/FFFFFF/mac-os.png" alt="Apple" class="w-5 h-5 shrink-0" width="20" height="20"/>
   Continuar com Apple
 </button>
 
 <!-- Botão Google -->
-<button type="button" class="hidden w-full inline-flex items-center justify-center gap-3 rounded-2xl border border-gray-300 bg-white px-5 py-3 text-[15px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors" id="btn-google-login">
+<button type="button" class="w-full inline-flex items-center justify-center gap-3 rounded-2xl border border-gray-300 bg-white px-5 py-3 text-[15px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors" id="btn-google-login">
   <svg class="w-5 h-5" viewBox="0 0 24 24">
     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -670,10 +669,7 @@ Excluir Conta
 <div class="grid gap-3 md:grid-cols-2">
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-name" placeholder="Nome completo" required="" type="text"/>
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-username" placeholder="Nome de usuário (@exemplo)" required="" type="text"/>
-<div class="flex flex-col gap-1">
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-email" placeholder="E-mail" required="" type="email"/>
-<p class="text-xs text-gray-500">Seu email não é coletado (sua atividade não é rastreada) e, assim, não é usado para publicidade e propaganda de eventos</p>
-</div>
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-pass" placeholder="Senha (mín. 6)" required="" type="password"/>
 </div>
 <label class="flex items-center gap-2 select-none text-sm"><input class="h-4 w-4" id="reg-organizer-check" type="checkbox"/> Sou organizador de eventos</label>
@@ -693,7 +689,7 @@ Excluir Conta
 <button class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90" id="submit-register">Registrar</button>
 
 <!-- Separador -->
-<div class="relative my-4 hidden" id="register-separator">
+<div class="relative my-4">
   <div class="absolute inset-0 flex items-center">
     <div class="w-full border-t border-gray-300"></div>
   </div>
@@ -703,13 +699,13 @@ Excluir Conta
 </div>
 
 <!-- Botão Apple -->
-<button type="button" class="hidden w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-black px-5 py-3 text-[15px] font-semibold text-white hover:bg-black/90 transition-colors" id="btn-apple-register">
+<button type="button" class="w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-black px-5 py-3 text-[15px] font-semibold text-white hover:bg-black/90 transition-colors" id="btn-apple-register">
   <img src="https://img.icons8.com/m_sharp/512/FFFFFF/mac-os.png" alt="Apple" class="w-5 h-5 shrink-0" width="20" height="20"/>
   Continuar com Apple
 </button>
 
 <!-- Botão Google -->
-<button type="button" class="hidden w-full inline-flex items-center justify-center gap-3 rounded-2xl border border-gray-300 bg-white px-5 py-3 text-[15px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors" id="btn-google-register">
+<button type="button" class="w-full inline-flex items-center justify-center gap-3 rounded-2xl border border-gray-300 bg-white px-5 py-3 text-[15px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors" id="btn-google-register">
   <svg class="w-5 h-5" viewBox="0 0 24 24">
     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -1677,126 +1673,130 @@ Excluir Conta
       }
     };
 
-    // Feature flag para Google (desativado temporariamente)
-    const GOOGLE_LOGIN_ENABLED = false;
-    if (GOOGLE_LOGIN_ENABLED) {
-      // Event listeners para botões do Google
-      const gLogin = $('#btn-google-login'); if (gLogin) { gLogin.classList.remove('hidden'); gLogin.addEventListener('click', () => signInWithGoogle(false)); }
-      const gReg = $('#btn-google-register'); if (gReg) { gReg.classList.remove('hidden'); gReg.addEventListener('click', () => signInWithGoogle(true)); }
-      const sepLogin = $('#login-separator'); if (sepLogin) sepLogin.classList.remove('hidden');
-      const sepRegister = $('#register-separator'); if (sepRegister) sepRegister.classList.remove('hidden');
-    }
+    // Event listeners para botões do Google
+    $('#btn-google-login').addEventListener('click', () => signInWithGoogle(false));
+    $('#btn-google-register').addEventListener('click', () => signInWithGoogle(true));
 
-    // Feature flag para Apple (desativado temporariamente)
-    const APPLE_LOGIN_ENABLED = false;
-    if (APPLE_LOGIN_ENABLED) {
-      // ===== Autenticação com Apple =====
-      const appleProvider = new OAuthProvider('apple.com');
-      appleProvider.addScope('email');
-      appleProvider.addScope('name');
+    // ===== Autenticação com Apple =====
+    const appleProvider = new OAuthProvider('apple.com');
+    appleProvider.addScope('email');
+    appleProvider.addScope('name');
 
-      async function ensureAppleUserDocument(user, fallbackName=null) {
-        const userRef = doc(db, USERS_PATH, user.uid);
-        const snap = await getDoc(userRef);
-        if (!snap.exists()) {
-          let name = user.displayName || fallbackName || 'Usuário';
-          let email = user.email || null;
-          let baseUsername = (email?.split('@')[0] || name || 'user').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'user';
-          let username = baseUsername;
-          let c = 1;
-          while (true) {
-            const uref = doc(db, USERNAMES_PATH, username);
-            const udoc = await getDoc(uref);
-            if (!udoc.exists()) break;
-            username = `${baseUsername}${c++}`;
-          }
-          await setDoc(userRef, {
-            admin:false, organizer:false,
-            name, username, email,
-            photoUrl: user.photoURL || null,
-            createdAt: serverTimestamp(),
-            bio:'', followersCount:0, followingCount:0, isPrivate:false,
-            settings:{ notifyOnFriendGoing:true }
-          });
-          await setDoc(doc(db, USERNAMES_PATH, username), { uid: user.uid });
-        } else {
-          if (!user.displayName && fallbackName) {
-            try { await updateProfile(user, { displayName: fallbackName }); } catch {}
-          }
+    async function ensureAppleUserDocument(user, fallbackName=null) {
+      const userRef = doc(db, USERS_PATH, user.uid);
+      const snap = await getDoc(userRef);
+      if (!snap.exists()) {
+        let name = user.displayName || fallbackName || 'Usuário';
+        let email = user.email || null;
+        // Gerar username a partir do email ou nome
+        let baseUsername = (email?.split('@')[0] || name || 'user').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'user';
+        let username = baseUsername;
+        let c = 1;
+        while (true) {
+          const uref = doc(db, USERNAMES_PATH, username);
+          const udoc = await getDoc(uref);
+          if (!udoc.exists()) break;
+          username = `${baseUsername}${c++}`;
+        }
+        await setDoc(userRef, {
+          admin:false, organizer:false,
+          name, username, email,
+          photoUrl: user.photoURL || null,
+          createdAt: serverTimestamp(),
+          bio:'', followersCount:0, followingCount:0, isPrivate:false,
+          settings:{ notifyOnFriendGoing:true }
+        });
+        await setDoc(doc(db, USERNAMES_PATH, username), { uid: user.uid });
+      } else {
+        // Completar nome se estiver vazio
+        if (!user.displayName && fallbackName) {
+          try { await updateProfile(user, { displayName: fallbackName }); } catch {}
         }
       }
+    }
 
-      function extractAppleNameFromResult(result){
+    function extractAppleNameFromResult(result){
+      try {
+        const tr = result?._tokenResponse || {};
+        // Firebase retorna fullName na primeira vez
+        const fullName = tr?.fullName || tr?.name || null;
+        if (typeof fullName === 'string') return fullName;
+        if (fullName?.givenName || fullName?.familyName) {
+          return `${fullName.givenName||''} ${fullName.familyName||''}`.trim();
+        }
+      } catch {}
+      return null;
+    }
+
+    const signInWithApple = async (isRegistration = false) => {
+      try {
+        // Forçar persistência robusta no iOS (fallback multi-indexedDB/cookies)
         try {
-          const tr = result?._tokenResponse || {};
-          const fullName = tr?.fullName || tr?.name || null;
-          if (typeof fullName === 'string') return fullName;
-          if (fullName?.givenName || fullName?.familyName) {
-            return `${fullName.givenName||''} ${fullName.familyName||''}`.trim();
-          }
-        } catch {}
-        return null;
-      }
+          await setPersistence(auth, indexedDBLocalPersistence);
+        } catch {
+          await setPersistence(auth, browserLocalPersistence);
+        }
+        // Detecta Safari/iOS e tenta popup primeiro para evitar ITP
+        const ua = navigator.userAgent || '';
+        const isIOS = /iPhone|iPad|iPod/.test(ua);
+        const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+        const canUsePopup = !isIOS || (isIOS && isSafari); // popup com gesto do usuário costuma funcionar
 
-      const signInWithApple = async (isRegistration = false) => {
-        try {
-          try { await setPersistence(auth, indexedDBLocalPersistence); }
-          catch { await setPersistence(auth, browserLocalPersistence); }
-
-          const ua = navigator.userAgent || '';
-          const isIOS = /iPhone|iPad|iPod/.test(ua);
-          const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-          const canUsePopup = !isIOS || (isIOS && isSafari);
-
-          if (canUsePopup) {
-            try {
-              const cred = await signInWithPopup(auth, appleProvider);
-              if (cred?.user) {
-                const derivedName = extractAppleNameFromResult(cred);
-                await ensureAppleUserDocument(cred.user, derivedName);
-                toast('Login realizado!');
-                closeLogin();
-                closeRegister();
-                return;
-              }
-            } catch (e) {
-              console.warn('Popup Apple falhou, usando redirect:', e);
+        if (canUsePopup) {
+          try {
+            const cred = await signInWithPopup(auth, appleProvider);
+            if (cred?.user) {
+              const derivedName = extractAppleNameFromResult(cred);
+              await ensureAppleUserDocument(cred.user, derivedName);
+              toast('Login realizado!');
+              closeLogin();
+              closeRegister();
+              return;
             }
+          } catch (e) {
+            // Se popup falhar/bloquear por qualquer motivo, faz fallback para redirect
+            console.warn('Popup Apple falhou, usando redirect:', e);
           }
-
-          await signInWithRedirect(auth, appleProvider);
-        } catch (err) {
-          console.error('Erro na autenticação Apple:', err);
-          toast('Erro na autenticação com Apple. Tente novamente.', 'error');
         }
-      };
 
-      async function handleAuthRedirectResult() {
+        await signInWithRedirect(auth, appleProvider);
+        // Em redirect, o fluxo continua após retorno do handler do Firebase
+      } catch (err) {
+        console.error('Erro na autenticação Apple:', err);
+        toast('Erro na autenticação com Apple. Tente novamente.', 'error');
+      }
+    };
+
+    // Recuperar resultado de redirect (Apple) – garante persistência antes
+    async function handleAuthRedirectResult() {
+      try {
         try {
-          try { await setPersistence(auth, indexedDBLocalPersistence); }
-          catch { await setPersistence(auth, browserLocalPersistence); }
-          const cred = await getRedirectResult(auth);
-          if (cred && cred.user) {
-            const user = cred.user;
-            const derivedName = extractAppleNameFromResult(cred);
-            await ensureAppleUserDocument(user, derivedName);
-            toast('Login realizado!');
-            closeLogin();
-            closeRegister();
-          }
-        } catch (err) {
-          if (err?.code !== 'auth/no-auth-event') {
-            console.error('Erro ao recuperar redirect Apple:', err);
-          }
+          await setPersistence(auth, indexedDBLocalPersistence);
+        } catch {
+          await setPersistence(auth, browserLocalPersistence);
+        }
+        const cred = await getRedirectResult(auth);
+        if (cred && cred.user) {
+          const user = cred.user;
+          const derivedName = extractAppleNameFromResult(cred);
+          await ensureAppleUserDocument(user, derivedName);
+          toast('Login realizado!');
+          closeLogin();
+          closeRegister();
+        }
+      } catch (err) {
+        if (err?.code !== 'auth/no-auth-event') {
+          console.error('Erro ao recuperar redirect Apple:', err);
         }
       }
-      handleAuthRedirectResult();
-
-      const btnAppleLogin = $('#btn-apple-login');
-      if (btnAppleLogin) { btnAppleLogin.classList.remove('hidden'); btnAppleLogin.addEventListener('click', () => signInWithApple(false)); }
-      const btnAppleRegister = $('#btn-apple-register');
-      if (btnAppleRegister) { btnAppleRegister.classList.remove('hidden'); btnAppleRegister.addEventListener('click', () => signInWithApple(true)); }
     }
+    handleAuthRedirectResult();
+
+    // Botões Apple
+    const btnAppleLogin = $('#btn-apple-login');
+    if (btnAppleLogin) btnAppleLogin.addEventListener('click', () => signInWithApple(false));
+    const btnAppleRegister = $('#btn-apple-register');
+    if (btnAppleRegister) btnAppleRegister.addEventListener('click', () => signInWithApple(true));
 
     onAuthStateChanged(auth, (user)=>{
       const unsubAll = () => {
@@ -4836,35 +4836,13 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     // ===== PWA Service Worker =====
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        // Forçar atualização manual: acesse com ?forceUpdate=1 para limpar SW e caches
-        try {
-          const params = new URLSearchParams(location.search);
-          if (params.get('forceUpdate') === '1') {
-            navigator.serviceWorker.getRegistrations()
-              .then((regs) => Promise.all(regs.map((r) => r.unregister())))
-              .then(() => caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))))
-              .then(() => location.replace(location.pathname));
-            return; // evita registrar SW nesta navegação de limpeza
-          }
-        } catch {}
-
-        const SW_VERSION = '1.0.2';
-        navigator.serviceWorker.register(`sw.js?v=${SW_VERSION}`)
+        navigator.serviceWorker.register('/sw.js')
           .then((registration) => {
             console.log('SW registrado: ', registration);
-            if (registration.waiting) {
-              registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-            }
-            registration.update();
           })
           .catch((registrationError) => {
             console.log('SW falhou: ', registrationError);
           });
-
-        // Recarrega automaticamente quando o SW assume controle
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-          window.location.reload();
-        });
       });
     }
 
@@ -6219,5 +6197,5 @@ if (themeColorMeta) {
   </div>
 </footer>
 
-<script src="app.js?v=1.0.2"></script></body>
+<script src="app.js"></script></body>
 </html>
