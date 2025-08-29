@@ -1025,7 +1025,7 @@ Excluir Conta
 <!-- MODAL DE PERFIL DE USUÁRIO -->
 <div class="fixed inset-0 z-[80] hidden" id="user-profile-modal">
 <div class="absolute inset-0 fade" data-close="user-profile"></div>
-<div class="relative z-[71] mx-auto mt-4 w-[96%] max-w-2xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[95vh] overflow-hidden flex flex-col">
+<div class="relative z-[71] mx-auto mt-4 w-[96%] max-w-2xl rounded-3xl bg-white shadow-soft ring-subtle pop max-h-[95vh] overflow-hidden flex flex-col" style="transform: translateY(0);">
 <div class="sticky top-0 z-10 flex items-center justify-between px-6 pt-5 pb-3 bg-white/95 backdrop-blur rounded-t-3xl border-b border-gray-100">
 <h3 class="text-xl font-semibold" id="profile-title">Perfil de Usuário</h3>
 <button aria-label="Fechar" class="rounded-full p-2 hover:bg-gray-100" data-close="user-profile">✕</button>
@@ -1280,6 +1280,14 @@ Excluir Conta
       const eventView = $('#event-view');
       if (eventView) {
           eventView.style.zIndex = ''; // Reset z-index
+      }
+      document.body.classList.remove('modal-open');
+      // Restaurar overflow da página
+      document.body.style.overflow = '';
+      // Restaurar posição de scroll se foi salva
+      if (state.savedScrollPosition !== undefined) {
+        window.scrollTo(0, state.savedScrollPosition);
+        state.savedScrollPosition = undefined;
       }
   }
   if (el?.id === 'follow-list-modal') {
@@ -1627,6 +1635,26 @@ Excluir Conta
     const signInWithGoogle = async (isRegistration = false) => {
       try {
         await setPersistence(auth, browserLocalPersistence);
+        
+        // Detectar se está rodando como PWA
+        const isPWA = isRunningAsPWA();
+        
+        // Para PWA, usar redirect para navegador externo
+        if (isPWA) {
+          // Salvar estado atual para retornar após login
+          const currentState = {
+            timestamp: Date.now(),
+            source: 'pwa',
+            returnUrl: window.location.href
+          };
+          localStorage.setItem('google_auth_state', JSON.stringify(currentState));
+          
+          // Usar redirect para navegador externo
+          await signInWithRedirect(auth, googleProvider);
+          return;
+        }
+        
+        // Para site normal, usar popup
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
         
@@ -1844,7 +1872,7 @@ Excluir Conta
       }
     };
 
-    // Recuperar resultado de redirect (Apple) – garante persistência antes
+    // Recuperar resultado de redirect (Apple/Google) – garante persistência antes
     async function handleAuthRedirectResult() {
       try {
         try {
@@ -1855,11 +1883,60 @@ Excluir Conta
         const cred = await getRedirectResult(auth);
         if (cred && cred.user) {
           const user = cred.user;
-          const derivedName = extractAppleNameFromResult(cred);
-          await ensureAppleUserDocument(user, derivedName);
+          
+          // Verificar se é Apple ou Google
+          const isApple = cred.providerId === 'apple.com';
+          const isGoogle = cred.providerId === 'google.com';
+          
+          if (isApple) {
+            const derivedName = extractAppleNameFromResult(cred);
+            await ensureAppleUserDocument(user, derivedName);
+          } else if (isGoogle) {
+            // Verificar se o usuário já existe no Firestore
+            const userDoc = await getDoc(doc(db, USERS_PATH, user.uid));
+            
+            if (!userDoc.exists()) {
+              // Novo usuário - criar perfil
+              const userData = {
+                admin: false,
+                organizer: false,
+                name: user.displayName || 'Usuário',
+                username: user.email?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9_]/g, '') || 'user',
+                email: user.email,
+                photoUrl: user.photoURL,
+                createdAt: serverTimestamp(),
+                bio: '',
+                followersCount: 0,
+                followingCount: 0,
+                isPrivate: false,
+                settings: { notifyOnFriendGoing: true }
+              };
+
+              // Verificar se o username já existe e gerar um único
+              let username = userData.username;
+              let counter = 1;
+              while (true) {
+                const usernameRef = doc(db, USERNAMES_PATH, username);
+                const usernameDoc = await getDoc(usernameRef);
+                if (!usernameDoc.exists()) {
+                  break;
+                }
+                username = `${userData.username}${counter}`;
+                counter++;
+              }
+              userData.username = username;
+
+              // Salvar dados do usuário
+              await setDoc(doc(db, USERS_PATH, user.uid), userData);
+              await setDoc(doc(db, USERNAMES_PATH, username), { uid: user.uid });
+            }
+          }
           
           // Verificar se veio de PWA e restaurar estado
-          const authState = localStorage.getItem('apple_auth_state');
+          const appleAuthState = localStorage.getItem('apple_auth_state');
+          const googleAuthState = localStorage.getItem('google_auth_state');
+          const authState = appleAuthState || googleAuthState;
+          
           if (authState) {
             try {
               const state = JSON.parse(authState);
@@ -1868,10 +1945,12 @@ Excluir Conta
               
               // Limpar estado salvo
               localStorage.removeItem('apple_auth_state');
+              localStorage.removeItem('google_auth_state');
               
               // Se veio de PWA e o tempo é recente (< 5 minutos), mostrar mensagem específica
               if (isPWA && timeDiff < 300000) {
-                toast('Login realizado com sucesso no app!', 'success');
+                const providerName = isApple ? 'Apple' : 'Google';
+                toast(`Login realizado com sucesso no app via ${providerName}!`, 'success');
                 
                 // Fechar modais se estiverem abertos
                 closeLogin();
@@ -1899,40 +1978,51 @@ Excluir Conta
         }
       } catch (err) {
         if (err?.code !== 'auth/no-auth-event') {
-          console.error('Erro ao recuperar redirect Apple:', err);
+          console.error('Erro ao recuperar redirect:', err);
         }
       }
     }
     
-    // Verificar se o usuário retornou de um login com Apple e não foi processado
-    function checkForUnprocessedAppleAuth() {
-      const authState = localStorage.getItem('apple_auth_state');
-      if (authState) {
-        try {
-          const state = JSON.parse(authState);
-          const timeDiff = Date.now() - state.timestamp;
-          
-          // Se o estado é antigo (> 10 minutos), limpar
-          if (timeDiff > 600000) {
-            localStorage.removeItem('apple_auth_state');
-            return;
+    // Verificar se o usuário retornou de um login com Apple/Google e não foi processado
+    function checkForUnprocessedAuth() {
+      const appleAuthState = localStorage.getItem('apple_auth_state');
+      const googleAuthState = localStorage.getItem('google_auth_state');
+      
+      [appleAuthState, googleAuthState].forEach((authState, index) => {
+        if (authState) {
+          try {
+            const state = JSON.parse(authState);
+            const timeDiff = Date.now() - state.timestamp;
+            const provider = index === 0 ? 'apple' : 'google';
+            
+            // Se o estado é antigo (> 10 minutos), limpar
+            if (timeDiff > 600000) {
+              localStorage.removeItem(`${provider}_auth_state`);
+              return;
+            }
+            
+            // Se for PWA e o usuário não está logado, mostrar botão de retry
+            if (state.source === 'pwa' && (!auth.currentUser || auth.currentUser.isAnonymous)) {
+              setTimeout(() => {
+                if (provider === 'apple') {
+                  updateAppleRetryButtons();
+                }
+                // Para Google, não há botão de retry específico, mas pode mostrar uma mensagem
+                if (provider === 'google') {
+                  toast('Login com Google não foi concluído. Tente novamente.', 'info');
+                }
+              }, 1000);
+            }
+          } catch (e) {
+            console.warn('Erro ao verificar estado de autenticação:', e);
+            localStorage.removeItem(`${provider}_auth_state`);
           }
-          
-          // Se for PWA e o usuário não está logado, mostrar botão de retry
-          if (state.source === 'pwa' && (!auth.currentUser || auth.currentUser.isAnonymous)) {
-            setTimeout(() => {
-              updateAppleRetryButtons();
-            }, 1000);
-          }
-        } catch (e) {
-          console.warn('Erro ao verificar estado de autenticação:', e);
-          localStorage.removeItem('apple_auth_state');
         }
-      }
+      });
     }
     
     // Verificar estado de autenticação ao carregar a página
-    setTimeout(checkForUnprocessedAppleAuth, 2000);
+    setTimeout(checkForUnprocessedAuth, 2000);
     
     // Função para tentar reautenticação em caso de falha no PWA
     async function retryAppleAuthInPWA() {
@@ -3814,6 +3904,10 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         const contentEl = $('#profile-content');
         const modalEl = $('#user-profile-modal');
         
+        // Salvar a posição atual de scroll antes de abrir o modal
+        const currentScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+        state.savedScrollPosition = currentScrollPosition;
+        
         
         // Garantir que o modal esteja no topo e no final do body
         try {
@@ -3830,8 +3924,19 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         show(modalEl);
         document.body.classList.add('modal-open');
         
+        // Prevenir scroll da página de fundo quando o modal estiver aberto
+        document.body.style.overflow = 'hidden';
+        
         // Mostrar loading e forçar reflow para pintar o modal já aberto
         contentEl.innerHTML = '<div class="text-center py-8">Carregando...</div>';
+        
+        // Garantir que o modal não cause scroll automático
+        setTimeout(() => {
+          if (state.savedScrollPosition !== undefined) {
+            window.scrollTo(0, state.savedScrollPosition);
+          }
+        }, 10);
+        
         // Fallback de reflow apenas se necessário, sem atrasar sempre
         try {
             if (modalEl && modalEl.classList.contains('hidden') === false) {
