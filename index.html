@@ -640,6 +640,13 @@ Excluir Conta
   <img src="https://img.icons8.com/m_sharp/512/FFFFFF/mac-os.png" alt="Apple" class="w-5 h-5 shrink-0" width="20" height="20"/>
   Continuar com Apple
 </button>
+<!-- Botão de retry para PWA (aparece apenas quando necessário) -->
+<button type="button" class="w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-gray-600 px-5 py-3 text-[15px] font-semibold text-white hover:bg-gray-700 transition-colors hidden" id="btn-apple-retry">
+  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+  </svg>
+  Tentar Novamente (App)
+</button>
 
 <!-- Botão Google -->
 <button type="button" class="w-full inline-flex items-center justify-center gap-3 rounded-2xl border border-gray-300 bg-white px-5 py-3 text-[15px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors" id="btn-google-login">
@@ -702,6 +709,13 @@ Excluir Conta
 <button type="button" class="w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-black px-5 py-3 text-[15px] font-semibold text-white hover:bg-black/90 transition-colors" id="btn-apple-register">
   <img src="https://img.icons8.com/m_sharp/512/FFFFFF/mac-os.png" alt="Apple" class="w-5 h-5 shrink-0" width="20" height="20"/>
   Continuar com Apple
+</button>
+<!-- Botão de retry para PWA (aparece apenas quando necessário) -->
+<button type="button" class="w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-gray-600 px-5 py-3 text-[15px] font-semibold text-white hover:bg-gray-700 transition-colors hidden" id="btn-apple-retry-register">
+  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.003 0 01-15.357-2m15.357 2H15"></path>
+  </svg>
+  Tentar Novamente (App)
 </button>
 
 <!-- Botão Google -->
@@ -1677,10 +1691,40 @@ Excluir Conta
     $('#btn-google-login').addEventListener('click', () => signInWithGoogle(false));
     $('#btn-google-register').addEventListener('click', () => signInWithGoogle(true));
 
+    // ===== Detecção de PWA =====
+    function isRunningAsPWA() {
+      // Múltiplas formas de detectar PWA
+      return (
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true ||
+        document.referrer.includes('android-app://') ||
+        window.location.search.includes('source=pwa') ||
+        window.location.hostname === 'localhost' && window.location.port === '' ||
+        window.location.protocol === 'file:' ||
+        // Detectar se está em um WebView ou app nativo
+        /Android|iPhone|iPad|iPod/.test(navigator.userAgent) && 
+        (window.navigator.userAgent.includes('wv') || // Android WebView
+         window.navigator.userAgent.includes('Mobile') && !window.navigator.userAgent.includes('Safari'))
+      );
+    }
+
     // ===== Autenticação com Apple =====
     const appleProvider = new OAuthProvider('apple.com');
     appleProvider.addScope('email');
     appleProvider.addScope('name');
+    
+    // Configurações específicas para melhorar o redirecionamento em PWA
+    if (isRunningAsPWA()) {
+      // Configurar custom parameters para melhorar a experiência em PWA
+      appleProvider.setCustomParameters({
+        // Forçar popup mesmo em dispositivos móveis quando possível
+        prompt: 'select_account',
+        // Adicionar parâmetros para melhorar o retorno ao app
+        response_mode: 'fragment',
+        // Garantir que o estado seja preservado
+        state: 'pwa_auth'
+      });
+    }
 
     async function ensureAppleUserDocument(user, fallbackName=null) {
       const userRef = doc(db, USERS_PATH, user.uid);
@@ -1736,13 +1780,18 @@ Excluir Conta
         } catch {
           await setPersistence(auth, browserLocalPersistence);
         }
+        
+        // Detectar se está rodando como PWA (standalone)
+        const isPWA = isRunningAsPWA();
+        
         // Detecta Safari/iOS e tenta popup primeiro para evitar ITP
         const ua = navigator.userAgent || '';
         const isIOS = /iPhone|iPad|iPod/.test(ua);
         const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
         const canUsePopup = !isIOS || (isIOS && isSafari); // popup com gesto do usuário costuma funcionar
 
-        if (canUsePopup) {
+        // Se for PWA, tentar popup primeiro mesmo em iOS para evitar problemas de redirect
+        if (isPWA || canUsePopup) {
           try {
             const cred = await signInWithPopup(auth, appleProvider);
             if (cred?.user) {
@@ -1756,14 +1805,42 @@ Excluir Conta
           } catch (e) {
             // Se popup falhar/bloquear por qualquer motivo, faz fallback para redirect
             console.warn('Popup Apple falhou, usando redirect:', e);
+            
+            // Se for PWA, mostrar botão de retry
+            if (isPWA) {
+              setTimeout(() => {
+                updateAppleRetryButtons();
+              }, 1000);
+            }
           }
         }
 
-        await signInWithRedirect(auth, appleProvider);
+        // Para PWA, usar uma estratégia de redirect mais robusta
+        if (isPWA) {
+          // Salvar estado atual para retornar após login
+          const currentState = {
+            timestamp: Date.now(),
+            source: 'pwa',
+            returnUrl: window.location.href
+          };
+          localStorage.setItem('apple_auth_state', JSON.stringify(currentState));
+          
+          // Usar redirect com estado personalizado
+          await signInWithRedirect(auth, appleProvider);
+        } else {
+          await signInWithRedirect(auth, appleProvider);
+        }
         // Em redirect, o fluxo continua após retorno do handler do Firebase
       } catch (err) {
         console.error('Erro na autenticação Apple:', err);
         toast('Erro na autenticação com Apple. Tente novamente.', 'error');
+        
+        // Se for PWA, mostrar botão de retry
+        if (isRunningAsPWA()) {
+          setTimeout(() => {
+            updateAppleRetryButtons();
+          }, 1000);
+        }
       }
     };
 
@@ -1780,6 +1857,42 @@ Excluir Conta
           const user = cred.user;
           const derivedName = extractAppleNameFromResult(cred);
           await ensureAppleUserDocument(user, derivedName);
+          
+          // Verificar se veio de PWA e restaurar estado
+          const authState = localStorage.getItem('apple_auth_state');
+          if (authState) {
+            try {
+              const state = JSON.parse(authState);
+              const isPWA = state.source === 'pwa';
+              const timeDiff = Date.now() - state.timestamp;
+              
+              // Limpar estado salvo
+              localStorage.removeItem('apple_auth_state');
+              
+              // Se veio de PWA e o tempo é recente (< 5 minutos), mostrar mensagem específica
+              if (isPWA && timeDiff < 300000) {
+                toast('Login realizado com sucesso no app!', 'success');
+                
+                // Fechar modais se estiverem abertos
+                closeLogin();
+                closeRegister();
+                
+                // Pequeno delay para garantir que a UI foi atualizada
+                setTimeout(() => {
+                  // Verificar se o usuário está logado
+                  if (auth.currentUser) {
+                    toast('Bem-vindo de volta!', 'success');
+                  }
+                }, 500);
+                
+                return;
+              }
+            } catch (e) {
+              console.warn('Erro ao processar estado de autenticação:', e);
+            }
+          }
+          
+          // Comportamento padrão para não-PWA
           toast('Login realizado!');
           closeLogin();
           closeRegister();
@@ -1790,6 +1903,57 @@ Excluir Conta
         }
       }
     }
+    
+    // Verificar se o usuário retornou de um login com Apple e não foi processado
+    function checkForUnprocessedAppleAuth() {
+      const authState = localStorage.getItem('apple_auth_state');
+      if (authState) {
+        try {
+          const state = JSON.parse(authState);
+          const timeDiff = Date.now() - state.timestamp;
+          
+          // Se o estado é antigo (> 10 minutos), limpar
+          if (timeDiff > 600000) {
+            localStorage.removeItem('apple_auth_state');
+            return;
+          }
+          
+          // Se for PWA e o usuário não está logado, mostrar botão de retry
+          if (state.source === 'pwa' && (!auth.currentUser || auth.currentUser.isAnonymous)) {
+            setTimeout(() => {
+              updateAppleRetryButtons();
+            }, 1000);
+          }
+        } catch (e) {
+          console.warn('Erro ao verificar estado de autenticação:', e);
+          localStorage.removeItem('apple_auth_state');
+        }
+      }
+    }
+    
+    // Verificar estado de autenticação ao carregar a página
+    setTimeout(checkForUnprocessedAppleAuth, 2000);
+    
+    // Função para tentar reautenticação em caso de falha no PWA
+    async function retryAppleAuthInPWA() {
+      if (!isRunningAsPWA()) return;
+      
+      try {
+        // Tentar popup novamente
+        const cred = await signInWithPopup(auth, appleProvider);
+        if (cred?.user) {
+          const derivedName = extractAppleNameFromResult(cred);
+          await ensureAppleUserDocument(cred.user, derivedName);
+          toast('Login realizado com sucesso!', 'success');
+          closeLogin();
+          closeRegister();
+          return true;
+        }
+      } catch (e) {
+        console.warn('Reautenticação popup falhou:', e);
+        return false;
+      }
+    }
     handleAuthRedirectResult();
 
     // Botões Apple
@@ -1797,6 +1961,27 @@ Excluir Conta
     if (btnAppleLogin) btnAppleLogin.addEventListener('click', () => signInWithApple(false));
     const btnAppleRegister = $('#btn-apple-register');
     if (btnAppleRegister) btnAppleRegister.addEventListener('click', () => signInWithApple(true));
+    
+    // Botões de retry para PWA
+    const btnAppleRetry = $('#btn-apple-retry');
+    const btnAppleRetryRegister = $('#btn-apple-retry-register');
+    
+    if (btnAppleRetry) btnAppleRetry.addEventListener('click', () => retryAppleAuthInPWA());
+    if (btnAppleRetryRegister) btnAppleRetryRegister.addEventListener('click', () => retryAppleAuthInPWA());
+    
+    // Função para mostrar/esconder botões de retry baseado no contexto
+    function updateAppleRetryButtons() {
+      const isPWA = isRunningAsPWA();
+      const showRetry = isPWA && auth.currentUser?.isAnonymous;
+      
+      if (btnAppleRetry) btnAppleRetry.classList.toggle('hidden', !showRetry);
+      if (btnAppleRetryRegister) btnAppleRetryRegister.classList.toggle('hidden', !showRetry);
+    }
+    
+    // Atualizar botões quando o estado de autenticação mudar
+    onAuthStateChanged(auth, () => {
+      updateAppleRetryButtons();
+    });
 
     onAuthStateChanged(auth, (user)=>{
       const unsubAll = () => {
@@ -1812,6 +1997,25 @@ Excluir Conta
       unsubAll();
       
       state.isAdmin=false; state.isOrganizer=false; state.currentUserData=null; state.userGoingTo.clear(); state.userFollowing.clear(); state.userFollowers.clear(); state.userOutgoingRequests.clear(); state.incomingFollowRequests.clear();
+      
+      // Se for PWA e o usuário acabou de fazer login, mostrar mensagem específica
+      if (user && !user.isAnonymous && isRunningAsPWA()) {
+        const authState = localStorage.getItem('apple_auth_state');
+        if (authState) {
+          try {
+            const state = JSON.parse(authState);
+            if (state.source === 'pwa') {
+              // Limpar estado e mostrar mensagem de boas-vindas
+              localStorage.removeItem('apple_auth_state');
+              setTimeout(() => {
+                toast('Bem-vindo ao RioFestas! 🎉', 'success');
+              }, 1000);
+            }
+          } catch (e) {
+            console.warn('Erro ao processar estado de autenticação:', e);
+          }
+        }
+      }
 
       if (user && !user.isAnonymous) {
         _unsubRole = onSnapshot(doc(db, USERS_PATH, user.uid), (d)=>{
