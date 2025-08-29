@@ -61,6 +61,34 @@ document.addEventListener('DOMContentLoaded', function(){
   let isPreloading = false;
   let initialLoadComplete = false;
   
+  // IntersectionObserver-based lazy loader (secure defaults)
+  const lazyObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const img = entry.target;
+      const dataSrc = img.getAttribute('data-src');
+      if (dataSrc) {
+        // Security and perf defaults
+        img.setAttribute('loading', 'lazy');
+        img.setAttribute('decoding', 'async');
+        img.setAttribute('referrerpolicy', 'no-referrer');
+        img.setAttribute('crossorigin', 'anonymous');
+        img.src = dataSrc;
+        img.removeAttribute('data-src');
+      }
+      lazyObserver.unobserve(img);
+    });
+  }, { root: null, rootMargin: '200px 0px', threshold: 0.01 });
+
+  function observeLazyImages(root){
+    try{
+      (root||document).querySelectorAll('img[data-src]:not([data-lazy-observed])').forEach(img => {
+        img.setAttribute('data-lazy-observed','1');
+        lazyObserver.observe(img);
+      });
+    }catch(e){ /* no-op */ }
+  }
+  
   // Extreme preload for critical images
   const extremePreload = () => {
     const criticalImages = [
@@ -170,6 +198,8 @@ document.addEventListener('DOMContentLoaded', function(){
         processImageQueue();
       }
     });
+    // Also observe newly added lazy images
+    observeLazyImages(document);
   };
 
   const preloadCriticalImages = (root) => {
@@ -223,6 +253,7 @@ document.addEventListener('DOMContentLoaded', function(){
           }
           if (n.querySelectorAll && n.querySelectorAll('img').length > 0) {
             shouldOptimize = true;
+            observeLazyImages(n);
           }
         }
       });
