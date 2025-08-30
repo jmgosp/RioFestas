@@ -1410,8 +1410,9 @@ Excluir Conta
             const exactEndDate = new Date(endDatePart);
             exactEndDate.setHours(endHours, endMinutes, 0, 0);
             
-            // Se o horário de término é menor que 6h da manhã, provavelmente termina no dia seguinte
-            if (endHours < 6) {
+            // Se o horário de término é menor que 6h da manhã e NÃO há endDate explícito,
+            // assume que termina no dia seguinte
+            if (endHours < 6 && !ev.endDate) {
                 exactEndDate.setDate(exactEndDate.getDate() + 1);
             }
             
@@ -2382,8 +2383,9 @@ Excluir Conta
                 const exactEndDate = new Date(eventDate);
                 exactEndDate.setHours(endHours, endMinutes, 0, 0);
                 
-                // Se o horário de término é menor que 6h da manhã, provavelmente termina no dia seguinte
-                if (endHours < 6) {
+                // Se o horário de término é menor que 6h da manhã e NÃO há endDate explícito,
+                // assume que termina no dia seguinte
+                if (endHours < 6 && !event.endDate) {
                     exactEndDate.setDate(exactEndDate.getDate() + 1);
                 }
                 
@@ -2693,10 +2695,11 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
          const exactEndDate = new Date(endDatePart);
          exactEndDate.setHours(endHours, endMinutes, 0, 0);
  
-         // Se o horário de término é menor que 6h da manhã, provavelmente termina no dia seguinte
-         if (endHours < 6) {
+         // Se o horário de término é menor que 6h da manhã e NÃO há endDate explícito,
+         // assume que termina no dia seguinte
+         if (endHours < 6 && !ev.endDate) {
            exactEndDate.setDate(exactEndDate.getDate() + 1);
-           console.log(`Evento com timeEnd < 6h: ${ev.name}, Data ajustada para: ${exactEndDate.toLocaleString()}`);
+           console.log(`Evento com timeEnd < 6h (sem endDate): ${ev.name}, Data ajustada para: ${exactEndDate.toLocaleString()}`);
          }
  
          const isActive = now <= exactEndDate;
