@@ -3730,13 +3730,48 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
     }
     
     function promptRemoveFollower(followerId, fromProfile = false) {
-        const followerUser = state.users[followerId];
+        console.log('promptRemoveFollower called with:', followerId, fromProfile); // Debug
+        const followerUser = state.users[followerId] || { id: followerId, name: '' };
         if (!followerUser) return toast('Usuário não encontrado.', 'error');
         
         state.removeFollowerTarget = { id: followerId, name: followerUser.name, fromProfile };
+        const modal = $('#remove-follower-modal');
+        console.log('Modal found:', !!modal); // Debug
+        if (modal) {
+            $('#remove-follower-name').textContent = followerUser.name || 'este usuário';
+            // Garantir z-index e visibilidade acima de qualquer overlay
+            try { modal.style.zIndex = '100000'; } catch(e){}
+            modal.classList.remove('hidden');
+            // Forçar visibilidade
+            modal.style.display = 'block';
+            modal.style.visibility = 'visible';
+            modal.style.opacity = '1';
+            console.log('Modal shown'); // Debug
+            console.log('Modal classes:', modal.className); // Debug
+            console.log('Modal style:', modal.style.cssText); // Debug
+        } else {
+            // Fallback de segurança caso o modal não exista
+            (async ()=>{
+                if (confirm(`Remover ${followerUser.name || 'este usuário'} dos seus seguidores?`)) {
+                    await confirmRemoveFollower();
+                }
+            })();
+        }
         
-        $('#remove-follower-name').textContent = followerUser.name || 'este usuário';
-        show($('#remove-follower-modal'));
+        // Fallback adicional: se o modal não aparecer visualmente após 100ms, usar confirm nativo
+        setTimeout(() => {
+            const modal = $('#remove-follower-modal');
+            if (modal && !modal.classList.contains('hidden')) {
+                const rect = modal.getBoundingClientRect();
+                if (rect.width === 0 || rect.height === 0) {
+                    console.log('Modal not visible, using native confirm'); // Debug
+                    modal.classList.add('hidden');
+                    if (confirm(`Remover ${followerUser.name || 'este usuário'} dos seus seguidores?`)) {
+                        confirmRemoveFollower();
+                    }
+                }
+            }
+        }, 100);
     }
 
     async function confirmRemoveFollower() {
@@ -3747,9 +3782,8 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         if (!currentUser || currentUser.isAnonymous) return;
 
         const btn = $('#remove-follower-confirm-btn');
-        const oldText = btn.textContent;
-        btn.disabled = true;
-        btn.textContent = 'Removendo...';
+        let oldText = 'Remover';
+        if (btn) { oldText = btn.textContent; btn.disabled = true; btn.textContent = 'Removendo...'; }
 
         const followerUserRef = doc(db, USERS_PATH, followerId);
         
@@ -3781,13 +3815,22 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             console.error("Erro ao remover seguidor:", err);
             toast(err.message || "Ocorreu um erro ao remover seguidor.", 'error');
         } finally {
-            btn.disabled = false;
-            btn.textContent = oldText;
-            hide($('#remove-follower-modal'));
+            if (btn) { btn.disabled = false; btn.textContent = oldText; }
+            const modal = $('#remove-follower-modal');
+            if (modal && !modal.classList.contains('hidden')) modal.classList.add('hidden');
             state.removeFollowerTarget = null;
         }
     }
-    $('#remove-follower-confirm-btn').addEventListener('click', confirmRemoveFollower);
+    // Event listener para o botão de confirmação
+    document.addEventListener('click', (e)=>{
+        const btn = e.target.closest('#remove-follower-confirm-btn');
+        if (btn) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Confirm button clicked'); // Debug
+            confirmRemoveFollower();
+        }
+    });
 
     // ===== Social: Feeds =====
     async function renderSocialFeeds() {
@@ -4716,8 +4759,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             e.preventDefault();
             openUserProfileModal(userData.id);
         });
-        const removeBtn = el.querySelector('[data-remove-follower-id]');
-        if (removeBtn) removeBtn.addEventListener('click', () => promptRemoveFollower(userData.id));
+        // Event listener removido - usando delegação global
         
         const unfollowBtn = el.querySelector('[data-unfollow-id]');
         if (unfollowBtn) unfollowBtn.addEventListener('click', () => {
@@ -4727,6 +4769,25 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
 
         return el;
     }
+
+    // Global event delegation for removing follower buttons
+    document.body.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-remove-follower-id]');
+        if (btn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const uid = btn.getAttribute('data-remove-follower-id');
+            if (uid) {
+                console.log('Removing follower:', uid); // Debug
+                // Usar confirm nativo diretamente para evitar problemas com modal
+                const followerUser = state.users[uid] || { id: uid, name: '' };
+                if (confirm(`Remover ${followerUser.name || 'este usuário'} dos seus seguidores?`)) {
+                    state.removeFollowerTarget = { id: uid, name: followerUser.name, fromProfile: false };
+                    confirmRemoveFollower();
+                }
+            }
+        }
+    });
 
     // ===== Social: Modal de Lista de Seguidores/Seguindo (Público) =====
     async function openFollowListModal(targetUserId, listType) {
@@ -4861,7 +4922,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
 
         return el;
     }
-    
+
     // ===== Admin: Eventos Recorrentes =====
    $('#recurring-event-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -4899,7 +4960,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         listEl.innerHTML = '';
         if (state.recurringEvents.length === 0) {
             listEl.innerHTML = '<div class="py-3 text-sm text-gray-500">Nenhum evento recorrente cadastrado.</div>';
-            return;
+                    return;
         }
         state.recurringEvents.forEach(rev => {
             const el = document.createElement('div');
@@ -5095,7 +5156,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             toast('Não foi possível enviar sua avaliação.', 'error');
         }
     }
-    
+
     async function removeRating(recurringEventId, ratingToRemove) {
         const user = auth.currentUser;
         if (!user || user.isAnonymous) return;
