@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Dashboard de Estatísticas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] } } } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="bg-gray-950 text-gray-100">
+  <div id="app" class="min-h-screen">
+    <header class="sticky top-0 z-40 border-b border-white/10 backdrop-blur bg-gray-950/70">
+      <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded-xl bg-pink-600 grid place-items-center text-white font-bold">RF</div>
+          <div>
+            <div class="text-lg font-extrabold">Painel de monitoramento</div>
+            <div class="text-xs text-gray-400">Estatísticas completas de eventos</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="user-label" class="text-sm text-gray-300"></span>
+          <button id="btn-signout" class="hidden rounded-full bg-gray-800 hover:bg-gray-700 px-3 py-1.5 text-sm">Sair</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+      <div id="gate" class="hidden rounded-2xl bg-rose-600/10 border border-rose-400/30 p-4">
+        <div class="font-semibold">Acesso restrito</div>
+        <div class="text-sm text-rose-200">Faça login com uma conta de administrador ou organizador.</div>
+      </div>
+
+      <section id="cards" class="grid gap-4 md:grid-cols-4">
+        <div class="rounded-2xl bg-gray-900 p-4 border border-white/10">
+          <div class="text-xs text-gray-400">Eventos ativos</div>
+          <div id="card-events" class="mt-1 text-2xl font-extrabold">—</div>
+        </div>
+        <div class="rounded-2xl bg-gray-900 p-4 border border-white/10">
+          <div class="text-xs text-gray-400">Confirmações totais</div>
+          <div id="card-goings" class="mt-1 text-2xl font-extrabold">—</div>
+        </div>
+        <div class="rounded-2xl bg-gray-900 p-4 border border-white/10">
+          <div class="text-xs text-gray-400">Bairros cadastrados</div>
+          <div id="card-bairros" class="mt-1 text-2xl font-extrabold">—</div>
+        </div>
+        <div class="rounded-2xl bg-gray-900 p-4 border border-white/10">
+          <div class="text-xs text-gray-400">Locais recorrentes</div>
+          <div id="card-recorrentes" class="mt-1 text-2xl font-extrabold">—</div>
+        </div>
+      </section>
+
+      <section class="grid gap-6 md:grid-cols-2">
+        <div class="rounded-2xl bg-gray-900 p-4 border border-white/10">
+          <div class="flex items-center justify-between">
+            <div class="font-semibold">Confirmações por bairro</div>
+            <div class="text-xs text-gray-400" id="updatedAt1">—</div>
+          </div>
+          <canvas id="chartByBairro" height="160"></canvas>
+        </div>
+        <div class="rounded-2xl bg-gray-900 p-4 border border-white/10">
+          <div class="flex items-center justify-between">
+            <div class="font-semibold">Top eventos (confirmados)</div>
+            <div class="text-xs text-gray-400" id="updatedAt2">—</div>
+          </div>
+          <canvas id="chartTopEvents" height="160"></canvas>
+        </div>
+      </section>
+
+      <section class="rounded-2xl bg-gray-900 p-4 border border-white/10">
+        <div class="flex items-center justify-between">
+          <div class="font-semibold">Visão detalhada por evento</div>
+          <div class="text-xs text-gray-400" id="updatedAt3">—</div>
+        </div>
+        <div class="mt-3 overflow-auto">
+          <table class="min-w-full text-sm">
+            <thead class="text-gray-400">
+              <tr>
+                <th class="px-3 py-2 text-left">Evento</th>
+                <th class="px-3 py-2 text-left">Data</th>
+                <th class="px-3 py-2 text-left">Bairro</th>
+                <th class="px-3 py-2 text-right">Confirmados</th>
+                <th class="px-3 py-2 text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-events"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+    import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, browserPopupRedirectResolver, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+    import { getFirestore, collection, doc, getDoc, getDocs, onSnapshot, query, orderBy, limit, where } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyA_9DrafoKA0dfaprtFvRG5qDt3itFu3Ms',
+      authDomain: 'riofestas2.firebaseapp.com',
+      projectId: 'riofestas2',
+      storageBucket: 'riofestas2.firebasestorage.app',
+      messagingSenderId: '50086400997',
+      appId: '1:50086400997:web:d7440f7bf48d0e087b150c',
+      measurementId: 'G-CCD25NKM4L'
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = (await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js')).initializeAuth(app, {
+      persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence],
+      popupRedirectResolver: browserPopupRedirectResolver
+    });
+    const db = getFirestore(app);
+
+    const appId = firebaseConfig.appId;
+    const EVENTS_PATH   = `artifacts/${appId}/public/data/events`;
+    const USERS_PATH    = `artifacts/${appId}/public/data/users`;
+    const BAIRROS_PATH  = `artifacts/${appId}/public/data/bairros`;
+    const RECURRING_EVENTS_PATH = `artifacts/${appId}/public/data/recurringEvents`;
+
+    const gate = document.getElementById('gate');
+    const userLabel = document.getElementById('user-label');
+    const btnSignOut = document.getElementById('btn-signout');
+
+    btnSignOut.addEventListener('click', async()=>{ try{ await signOut(auth); }catch(e){} });
+
+    async function ensureAccess(user){
+      if(!user) return false;
+      const snap = await getDoc(doc(db, USERS_PATH, user.uid));
+      const data = snap.exists() ? snap.data() : {};
+      const ok = !!(data.admin || data.organizer);
+      return ok;
+    }
+
+    function showGate(msg){
+      gate.classList.remove('hidden');
+      gate.querySelector('.text-sm').textContent = msg || 'Faça login com uma conta autorizada.';
+    }
+
+    async function requireLogin(){
+      return new Promise(resolve => {
+        onAuthStateChanged(auth, async(user)=>{
+          if(!user){
+            showGate('Autenticação necessária. Faça login para continuar.');
+            // Exibir prompt simples de login (email/senha)
+            const email = prompt('Email do administrador/organizador:');
+            const pass = email ? prompt('Senha:') : null;
+            if(email && pass){
+              try{ await signInWithEmailAndPassword(auth, email, pass); }catch(e){ alert('Falha no login: '+(e?.message||'erro')); }
+            }
+            return;
+          }
+          const allowed = await ensureAccess(user);
+          if(!allowed){ showGate('Acesso negado. Esta área é restrita.'); return; }
+          userLabel.textContent = user.email || user.displayName || 'Usuário';
+          btnSignOut.classList.remove('hidden');
+          gate.classList.add('hidden');
+          resolve(user);
+        });
+      });
+    }
+
+    function fmtDate(ts){ try{ const d = ts?.toDate ? ts.toDate() : new Date(ts); return d.toLocaleDateString('pt-BR',{ day:'2-digit', month:'short', year:'numeric'}) }catch{ return '—' } }
+
+    const elTbl = document.getElementById('tbl-events');
+    const cardEvents = document.getElementById('card-events');
+    const cardGoings = document.getElementById('card-goings');
+    const cardBairros = document.getElementById('card-bairros');
+    const cardRecorrentes = document.getElementById('card-recorrentes');
+
+    let chartByBairro, chartTopEvents;
+
+    function upsertChart(ctx, type, data, options){
+      if(ctx._chart){ ctx._chart.destroy(); }
+      const c = new Chart(ctx, { type, data, options });
+      ctx._chart = c; return c;
+    }
+
+    await requireLogin();
+
+    // Carregar listas auxiliares
+    const bairrosSnap = await getDocs(collection(db, BAIRROS_PATH));
+    const bairros = bairrosSnap.docs.map(d=>({ id: d.id, ...d.data() }));
+    cardBairros.textContent = String(bairros.length);
+
+    const recSnap = await getDocs(collection(db, RECURRING_EVENTS_PATH));
+    cardRecorrentes.textContent = String(recSnap.size || 0);
+
+    // Eventos com contadores e campos principais
+    const eventsSnap = await getDocs(query(collection(db, EVENTS_PATH)));
+    const events = eventsSnap.docs.map(d=>({ id:d.id, ...d.data() }));
+    cardEvents.textContent = String(events.length);
+
+    // Somatório de confirmados (goingCount)
+    const totalGoings = events.reduce((s,e)=> s + (e.goingCount||0), 0);
+    cardGoings.textContent = String(totalGoings);
+
+    // Gráfico: confirmações por bairro
+    const bairroIdToName = new Map(bairros.map(b=>[b.id, b.name]));
+    const aggByBairro = new Map();
+    for(const ev of events){
+      const key = ev.bairroId || '—';
+      const val = aggByBairro.get(key) || 0;
+      aggByBairro.set(key, val + (ev.goingCount||0));
+    }
+    const byBairroSorted = Array.from(aggByBairro.entries()).sort((a,b)=>b[1]-a[1]).slice(0,12);
+    const ctxB = document.getElementById('chartByBairro');
+    upsertChart(ctxB, 'bar', { labels: byBairroSorted.map(([id])=> bairroIdToName.get(id)||'—'), datasets: [{ label:'Confirmados', data: byBairroSorted.map(([,v])=>v), backgroundColor: '#f472b6' }] }, { responsive:true, plugins:{ legend:{ display:false } } });
+    document.getElementById('updatedAt1').textContent = new Date().toLocaleString('pt-BR');
+
+    // Gráfico: top eventos por confirmados
+    const topEv = [...events].sort((a,b)=>(b.goingCount||0)-(a.goingCount||0)).slice(0,10);
+    const ctxT = document.getElementById('chartTopEvents');
+    upsertChart(ctxT, 'bar', { labels: topEv.map(e=> e.name||'—'), datasets: [{ label:'Confirmados', data: topEv.map(e=> e.goingCount||0), backgroundColor: '#22d3ee' }] }, { responsive:true, indexAxis:'y', plugins:{ legend:{ display:false } } });
+    document.getElementById('updatedAt2').textContent = new Date().toLocaleString('pt-BR');
+
+    // Tabela detalhada
+    function renderTable(){
+      const rows = events.sort((a,b)=> (b.goingCount||0)-(a.goingCount||0)).map(ev=>{
+        const d = ev.date?.toDate ? ev.date.toDate() : (ev.date ? new Date(ev.date) : null);
+        const bairro = bairroIdToName.get(ev.bairroId)||'—';
+        const cnt = ev.goingCount || 0;
+        return `<tr class="border-t border-white/10">
+          <td class="px-3 py-2">${ev.name||'—'}</td>
+          <td class="px-3 py-2">${d?d.toLocaleDateString('pt-BR'):'—'}</td>
+          <td class="px-3 py-2">${bairro}</td>
+          <td class="px-3 py-2 text-right">${cnt}</td>
+          <td class="px-3 py-2 text-right"><button data-ev="${ev.id}" class="text-pink-400 hover:underline">Ver confirmados</button></td>
+        </tr>`;
+      });
+      elTbl.innerHTML = rows.join('');
+    }
+    renderTable();
+    document.getElementById('updatedAt3').textContent = new Date().toLocaleString('pt-BR');
+
+    // Abrir lista de confirmados sob demanda
+    elTbl.addEventListener('click', async(e)=>{
+      const btn = e.target.closest('button[data-ev]');
+      if(!btn) return;
+      const evId = btn.getAttribute('data-ev');
+      const attendeesPath = `${EVENTS_PATH}/${evId}/attendees`;
+      const snap = await getDocs(collection(db, attendeesPath));
+      const users = [];
+      for(const d of snap.docs){
+        const u = await getDoc(doc(db, USERS_PATH, d.id));
+        users.push(u.exists()? u.data() : { email: d.id });
+      }
+      alert(`${users.length} confirmados:\n` + users.map(u=> (u.name||u.email||u.username||'—')).join('\n'));
+    });
+  </script>
+</body>
+</html>
+
+
