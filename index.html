@@ -3168,6 +3168,14 @@ async function deleteRecurringInstance(eventInstance) {
                 return name.includes(_q) || local.includes(_q) || inStyle;
             });
         }
+        // Ordenar por data (mais próxima primeiro)
+        activeEvents.sort((a,b)=>{
+            try{
+                const da = a?.date?.toDate ? a.date.toDate() : new Date(a?.date);
+                const db = b?.date?.toDate ? b.date.toDate() : new Date(b?.date);
+                return da - db;
+            }catch(e){ return 0; }
+        });
         
         if (activeEvents.length === 0) {
             const hasQuery = !!_q;
