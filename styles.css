@@ -1409,16 +1409,6 @@
     box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
 }
 
-/* Botões de tabs (email/celular) – melhor contraste ativo */
-#login-tab-email, #login-tab-phone {
-    transition: all .15s ease;
-}
-.is-active-tab {
-    background: linear-gradient(135deg, #ec4899, #db2777) !important;
-    color: #fff !important;
-    border-color: transparent !important;
-}
-
 [data-theme="dark"] .search-icon {
     color: #9ca3af;
 }
