@@ -1765,7 +1765,8 @@ Reenviar em <span id="sms-countdown">60</span>s
           if (el){ el.textContent = 'Login por SMS exige abrir via http(s). Use um servidor local (ex.: npx serve) ou seu domínio.'; el.classList.remove('hidden'); }
           return;
         }
-        ensureRecaptcha();
+        // Caixinha visível do reCAPTCHA para SMS
+        ensureRecaptchaVisible();
       }
     }
     if (loginTabEmail && loginTabPhone){
@@ -1836,9 +1837,9 @@ Reenviar em <span id="sms-countdown">60</span>s
           recaptchaVerifierRegister = null;
         }
         
-        // Criar nova instância
+        // Criar nova instância visível para reduzir erros no registro por SMS
         recaptchaVerifierRegister = new RecaptchaVerifier(auth, 'recaptcha-container-register', {
-          size: 'invisible',
+          size: 'normal',
           callback: () => {},
           'expired-callback': () => {}
         });
