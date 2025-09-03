@@ -1674,14 +1674,7 @@ Excluir Conta
       loginTabPhone.classList.toggle('bg-pink-600', !emailActive);
       loginTabPhone.classList.toggle('text-white', !emailActive);
       loginTabPhone.classList.toggle('border-pink-600', !emailActive);
-      if (!emailActive) {
-        if (location.protocol !== 'http:' && location.protocol !== 'https:' && location.protocol !== 'chrome-extension:') {
-          const el = document.getElementById('err-login-phone');
-          if (el){ el.textContent = 'Login por SMS exige abrir via http(s). Use um servidor local (ex.: npx serve) ou seu domínio.'; el.classList.remove('hidden'); }
-          return;
-        }
-        ensureRecaptcha();
-      }
+      if (!emailActive) { ensureRecaptcha(); }
     }
     if (loginTabEmail && loginTabPhone){
       loginTabEmail.addEventListener('click', ()=> switchLoginMode('email'));
@@ -1701,6 +1694,8 @@ Excluir Conta
           callback: () => {},
           'expired-callback': () => {}
         });
+        // Render para garantir widget pronto
+        try { recaptchaVerifierLogin.render(); } catch(e) { /* no-op */ }
         return recaptchaVerifierLogin;
       }catch(e){ console.warn('recaptcha init failed', e); return null; }
     }
@@ -1821,11 +1816,11 @@ Excluir Conta
           cred = await createUserWithEmailAndPassword(auth, email, pass);
         } else {
           // Cadastro por telefone: exige verificação SMS
-          // Inicializa visível para minimizar falhas de ambiente
-          let recaptcha;
-          try {
-            recaptcha = new RecaptchaVerifier(auth, 'recaptcha-container-register', { size: 'normal' });
-          } catch(e) { recaptcha = null; }
+          const recaptcha = (function(){
+            try{
+              return new RecaptchaVerifier(auth, 'recaptcha-container-register', { size: 'invisible' });
+            }catch(e){ return null; }
+          })();
           if (!recaptcha) throw new Error('Erro ao iniciar verificação do telefone.');
           const confirmation = await signInWithPhoneNumber(auth, phone, recaptcha);
           const code = window.prompt('Digite o código enviado por SMS:');
