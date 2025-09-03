@@ -727,16 +727,21 @@ Excluir Conta
 <div class="mt-4" id="login-sms-container">
 <div class="mb-3 grid grid-cols-2 gap-2 text-sm">
 <button type="button" class="rounded-full border border-gray-200 px-3 py-1.5 font-semibold bg-white text-gray-700" id="login-tab-email">E-mail</button>
-<button type="button" class="rounded-full border border-gray-200 px-3 py-1.5 font-semibold bg-white text-gray-700" id="login-tab-phone">SMS</button>
+<button type="button" class="rounded-full border border-gray-200 px-3 py-1.5 font-semibold bg-white text-gray-700" id="login-tab-phone">Celular</button>
 </div>
 <form class="space-y-4 hidden" id="form-login-phone">
-<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="login-phone" placeholder="Celular (ex: +55 21 99999-9999)" type="tel"/>
-<div id="recaptcha-container-login" class="rounded-xl border border-gray-200 p-2 bg-gray-50"></div>
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="login-phone" placeholder="Celular (DDD + número)" type="tel"/>
+<div id="recaptcha-container-login"></div>
 <button class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90" id="send-sms-btn" type="button">Enviar código</button>
 <div class="hidden" id="sms-step-verify">
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="login-sms-code" placeholder="Código recebido" inputmode="numeric" pattern="[0-9]*"/>
 <button class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90" id="verify-sms-btn" type="button">Verificar e entrar</button>
+<div class="flex items-center justify-between text-xs text-gray-600 mt-1" id="login-resend-area">
+  <span id="login-resend-timer">Reenviar em 30s</span>
+  <button type="button" class="text-pink-600 font-semibold disabled:text-gray-400" id="login-resend-btn" disabled>Reenviar código</button>
 </div>
+</div>
+<div class="flex items-center justify-between text-sm"><span></span><button class="text-pink-600 font-semibold" id="switch-register-from-phone" type="button">Registrar-se</button></div>
 <div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="err-login-phone"></div>
 </form>
 </div>
@@ -757,12 +762,25 @@ Excluir Conta
 <div class="grid gap-3 md:grid-cols-2">
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-name" placeholder="Nome completo" required="" type="text"/>
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-username" placeholder="Nome de usuário (@exemplo)" required="" type="text"/>
-<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-email" placeholder="E-mail (opcional se usar SMS)" type="email"/>
-<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-pass" placeholder="Senha (mín. 6, opcional para SMS)" type="password"/>
+<div class="grid gap-2 grid-cols-2 text-xs md:col-span-2">
+  <label class="inline-flex items-center gap-2"><input type="radio" name="reg-method" id="reg-method-email" checked> E-mail</label>
+  <label class="inline-flex items-center gap-2"><input type="radio" name="reg-method" id="reg-method-phone"> Celular</label>
 </div>
-<div class="grid gap-3 md:grid-cols-2">
-<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-phone" placeholder="Celular (ex: +55 21 99999-9999)" type="tel"/>
-<div id="recaptcha-container-register" class="rounded-xl border border-gray-200 p-2 bg-gray-50"></div>
+<div class="grid gap-3 md:grid-cols-2 md:col-span-2" id="reg-email-fields">
+  <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-email" placeholder="E-mail" type="email"/>
+  <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-pass" placeholder="Senha (mín. 6)" type="password"/>
+</div>
+</div>
+<div class="grid gap-3 md:grid-cols-2 hidden" id="reg-phone-fields">
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-phone" placeholder="Celular (DDD + número)" type="tel"/>
+<div id="recaptcha-container-register"></div>
+<div class="md:col-span-2 hidden" id="reg-sms-step">
+  <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-sms-code" placeholder="Código recebido" inputmode="numeric" pattern="[0-9]*"/>
+  <div class="flex items-center justify-between text-xs text-gray-600 mt-1">
+    <span id="reg-resend-timer">Reenviar em 30s</span>
+    <button type="button" class="text-pink-600 font-semibold disabled:text-gray-400" id="reg-resend-btn" disabled>Reenviar código</button>
+  </div>
+</div>
 </div>
 <label class="flex items-center gap-2 select-none text-sm"><input class="h-4 w-4" id="reg-organizer-check" type="checkbox"/> Sou organizador de eventos</label>
 <div class="hidden grid gap-3 md:grid-cols-2" id="reg-organizer-form">
@@ -1668,12 +1686,14 @@ Excluir Conta
       const emailActive = mode === 'email';
       formLogin.classList.toggle('hidden', !emailActive);
       formLoginPhone.classList.toggle('hidden', emailActive);
-      loginTabEmail.classList.toggle('bg-pink-600', emailActive);
-      loginTabEmail.classList.toggle('text-white', emailActive);
-      loginTabEmail.classList.toggle('border-pink-600', emailActive);
-      loginTabPhone.classList.toggle('bg-pink-600', !emailActive);
-      loginTabPhone.classList.toggle('text-white', !emailActive);
-      loginTabPhone.classList.toggle('border-pink-600', !emailActive);
+      // estilos do tab ativo (sem ficar branco)
+      [loginTabEmail, loginTabPhone].forEach(btn=>{
+        btn.classList.remove('bg-pink-600','text-white','border-pink-600');
+        btn.classList.add('bg-white','text-gray-700','border-gray-200');
+      });
+      const activeBtn = emailActive ? loginTabEmail : loginTabPhone;
+      activeBtn.classList.remove('bg-white','text-gray-700','border-gray-200');
+      activeBtn.classList.add('bg-pink-600','text-white','border-pink-600');
       if (!emailActive) { ensureRecaptcha(); }
     }
     if (loginTabEmail && loginTabPhone){
@@ -1681,6 +1701,23 @@ Excluir Conta
       loginTabPhone.addEventListener('click', ()=> switchLoginMode('phone'));
       switchLoginMode('email');
     }
+
+    // Registro: alterna método email x celular
+    (function(){
+      const mEmail = document.getElementById('reg-method-email');
+      const mPhone = document.getElementById('reg-method-phone');
+      const emailFields = document.getElementById('reg-email-fields');
+      const phoneFields = document.getElementById('reg-phone-fields');
+      if (!mEmail || !mPhone || !emailFields || !phoneFields) return;
+      function update(){
+        const useEmail = mEmail.checked;
+        emailFields.classList.toggle('hidden', !useEmail);
+        phoneFields.classList.toggle('hidden', useEmail);
+      }
+      mEmail.addEventListener('change', update);
+      mPhone.addEventListener('change', update);
+      update();
+    })();
 
     // reCAPTCHA para login via SMS
     let recaptchaVerifierLogin = null;
@@ -1723,27 +1760,87 @@ Excluir Conta
       p = p.replace(/[^\d+]/g, '');
       return p;
     }
+    function toBrazilE164(raw){
+      let digits = String(raw||'').replace(/\D/g,'');
+      if (digits.length < 10) return '';
+      if (digits.startsWith('0')) digits = digits.replace(/^0+/, '');
+      return '+55' + digits;
+    }
+
+    // Cooldown para evitar auth/too-many-requests
+    function getCooldown(key){
+      try{ const v = parseInt(localStorage.getItem('rf_sms_cd_'+key)||'0',10); return isNaN(v)?0:v; }catch(e){ return 0; }
+    }
+    function setCooldown(key, seconds){
+      const until = Date.now() + (seconds*1000);
+      try{ localStorage.setItem('rf_sms_cd_'+key, String(until)); }catch(e){}
+      return until;
+    }
+    function getRemainingSeconds(key){
+      const until = getCooldown(key); const now = Date.now();
+      return Math.max(0, Math.ceil((until-now)/1000));
+    }
+    let _cdTimerLogin = null;
+    function startLoginCooldown(seconds){
+      const until = setCooldown('login', seconds);
+      const update = ()=>{
+        const rem = getRemainingSeconds('login');
+        if (sendSmsBtn){ sendSmsBtn.disabled = rem>0; sendSmsBtn.textContent = rem>0 ? `Reenviar em ${rem}s` : 'Enviar código'; }
+        if (rem<=0 && _cdTimerLogin){ clearInterval(_cdTimerLogin); _cdTimerLogin = null; }
+      };
+      if (_cdTimerLogin) clearInterval(_cdTimerLogin);
+      _cdTimerLogin = setInterval(update, 1000);
+      update();
+    }
 
     if (sendSmsBtn){
       sendSmsBtn.addEventListener('click', async()=>{
         try{
           hide(errLoginPhone);
+          // Verifica cooldown
+          const rem = getRemainingSeconds('login');
+          if (rem>0){ errLoginPhone.textContent = `Aguarde ${rem}s para reenviar o código.`; show(errLoginPhone); return; }
           let phoneRaw = (document.getElementById('login-phone')?.value || '');
-          const phone = normalizePhone(phoneRaw);
-          if (!/^\+\d{10,15}$/.test(phone)) { errLoginPhone.textContent='Informe o celular no formato internacional (ex: +5521999999999).'; show(errLoginPhone); return; }
+          const phone = toBrazilE164(phoneRaw);
+          if (!/^\+\d{10,15}$/.test(phone)) { errLoginPhone.textContent='Informe o celular: DDD + número (apenas dígitos).'; show(errLoginPhone); return; }
           const verifier = ensureRecaptcha();
           if (!verifier){ errLoginPhone.textContent='Falha ao iniciar verificação. Recarregue a página.'; show(errLoginPhone); return; }
           sendSmsBtn.disabled = true; sendSmsBtn.textContent = 'Enviando…';
           await setPersistence(auth, browserLocalPersistence);
           _smsConfirmation = await signInWithPhoneNumber(auth, phone, verifier);
           smsVerifyStep.classList.remove('hidden');
+          // esconder botão enviar e iniciar UI de reenvio de 30s
+          const resendArea = document.getElementById('login-resend-area');
+          const resendBtn = document.getElementById('login-resend-btn');
+          const resendTimer = document.getElementById('login-resend-timer');
+          if (resendArea && resendBtn && resendTimer){
+            resendArea.classList.remove('hidden');
+            let t=30; resendBtn.disabled=true; resendBtn.classList.add('disabled');
+            resendTimer.textContent = `Reenviar em ${t}s`;
+            const int = setInterval(()=>{
+              t--; resendTimer.textContent = t>0 ? `Reenviar em ${t}s` : 'Pode reenviar';
+              if (t<=0){ clearInterval(int); resendBtn.disabled=false; resendBtn.classList.remove('disabled'); resendTimer.textContent=''; }
+            },1000);
+            resendBtn.onclick = async()=>{
+              if (resendBtn.disabled) return;
+              resendBtn.disabled=true; resendBtn.textContent='Reenviando…';
+              try{ _smsConfirmation = await signInWithPhoneNumber(auth, phone, ensureRecaptcha()); }
+              catch(e){ errLoginPhone.textContent = mapAuthErr(e) + (e?.code?` (${e.code})`:'' ); show(errLoginPhone); }
+              finally{ resendBtn.textContent='Reenviar código'; resendBtn.disabled=true; t=30; resendBtn.classList.add('disabled'); }
+            };
+          }
           toast('Código enviado por SMS.');
+          startLoginCooldown(60);
         }catch(err){
           const code = err?.code || '';
           // Fallback: se falha de reCAPTCHA/app credential, reconfigurar para visível
           if (code.includes('captcha') || code.includes('app-credential')){
             ensureRecaptchaVisible();
             errLoginPhone.textContent = 'Não conseguimos verificar que você não é um robô. Resolva o reCAPTCHA visível e tente novamente.' + (err?.code ? ` (${err.code})` : '');
+          } else if (code.includes('too-many-requests')){
+            // Impõe cooldown local mesmo se o Firebase disparar rate limit prematuro
+            startLoginCooldown(60);
+            errLoginPhone.textContent = 'Muitas tentativas. Aguarde 60s e tente novamente. (auth/too-many-requests)';
           } else {
             errLoginPhone.textContent = mapAuthErr(err) + (err?.code ? ` (${err.code})` : '');
           }
@@ -1752,6 +1849,11 @@ Excluir Conta
           sendSmsBtn.disabled = false; sendSmsBtn.textContent = 'Enviar código';
         }
       });
+    }
+    // Atalho "Registrar-se" na aba Celular
+    const switchRegPhone = document.getElementById('switch-register-from-phone');
+    if (switchRegPhone){
+      switchRegPhone.addEventListener('click', ()=>{ hide($('#auth-login')); show($('#auth-register')); });
     }
 
     if (verifySmsBtn){
@@ -1784,7 +1886,7 @@ Excluir Conta
       e.preventDefault();
       const name=$('#reg-name').value.trim();
       const usernameRaw = $('#reg-username').value.trim();
-      const email=$('#reg-email').value.trim(); const pass=$('#reg-pass').value; const isOrg=$('#reg-organizer-check').checked;
+      const email=$('#reg-email')?.value?.trim()||''; const pass=$('#reg-pass')?.value||''; const isOrg=$('#reg-organizer-check').checked;
       const phone=($('#reg-phone')?.value||'').trim();
       const btn=$('#submit-register'); const old=btn.textContent; btn.textContent='Registrando…'; btn.disabled=true;
       const errEl = $('#err-register'); hide(errEl);
@@ -1796,8 +1898,10 @@ Excluir Conta
       const username = usernameRaw.toLowerCase().replace(/[^a-z0-9_]/g, '');
 
       // Permitir cadastro por e-mail/senha OU por telefone (SMS)
-      const usingEmailPassword = !!email && pass.length >= 6;
-      const usingPhone = !!phone;
+      const methodEmail = document.getElementById('reg-method-email')?.checked;
+      const methodPhone = document.getElementById('reg-method-phone')?.checked;
+      const usingEmailPassword = methodEmail && !!email && pass.length >= 6;
+      const usingPhone = methodPhone && !!phone;
       if (!username || !name || (!usingEmailPassword && !usingPhone)) {
         errEl.textContent = 'Informe nome, usuário e (e-mail+senha) ou celular.'; show(errEl);
         btn.textContent=old; btn.disabled=false; return;
@@ -1823,7 +1927,7 @@ Excluir Conta
             p = p.replace(/[^\d+]/g, '');
             return p;
           }
-          const phoneE164 = normalizePhone(phone);
+          const phoneE164 = ('+55' + String(phone).replace(/\D/g,''));
           if (!/^\+\d{10,15}$/.test(phoneE164)) throw new Error('Informe o celular no formato internacional (ex: +5521999999999).');
 
           let recaptchaReg = null;
