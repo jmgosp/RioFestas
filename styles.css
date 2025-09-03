@@ -521,6 +521,43 @@
     [data-theme="dark"] #filters-content > .inner-filter-content {
         scrollbar-color: var(--rf-border) transparent;
     }
+
+    /* === Radio bonito (segmentado) para escolha de método de registro === */
+    .rf-seg {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        background: #f3f4f6; /* gray-100 */
+        border-radius: 9999px;
+        padding: 4px;
+    }
+    .rf-seg .rf-choice {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .35rem .65rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        color: #374151; /* gray-700 */
+        background: #ffffff;
+        border: 1px solid #e5e7eb; /* gray-200 */
+        cursor: pointer;
+        transition: all .18s ease;
+        user-select: none;
+    }
+    .rf-seg .rf-choice input[type="radio"]{
+        accent-color: #ec4899; /* pink-600 */
+        width: 14px; height: 14px;
+    }
+    .rf-seg .rf-choice.active{
+        background: #ec4899;
+        border-color: #ec4899;
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(236,72,153,.25);
+    }
+    [data-theme="dark"] .rf-seg { background: #1f2937; }
+    [data-theme="dark"] .rf-seg .rf-choice { background: #0f1218; border-color: var(--rf-border); color: var(--rf-text); }
+    [data-theme="dark"] .rf-seg .rf-choice.active { background: #ec4899; border-color: #ec4899; color: #fff; }
   
 /* === Fixes rápidos de mobile para Taxonomias + selects múltiplos === */
 @media (max-width: 640px) {

@@ -766,6 +766,7 @@ Excluir Conta
   <label class="inline-flex items-center gap-2"><input type="radio" name="reg-method" id="reg-method-email" checked> E-mail</label>
   <label class="inline-flex items-center gap-2"><input type="radio" name="reg-method" id="reg-method-phone"> Celular</label>
 </div>
+<div class="md:col-span-2"><div class="rf-seg" id="reg-method-group"><label class="rf-choice active" id="reg-choice-email"><input type="radio" name="reg-method" id="reg-method-email" checked> E-mail</label><label class="rf-choice" id="reg-choice-phone"><input type="radio" name="reg-method" id="reg-method-phone"> Celular</label></div></div>
 <div class="grid gap-3 md:grid-cols-2 md:col-span-2" id="reg-email-fields">
   <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-email" placeholder="E-mail" type="email"/>
   <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-pass" placeholder="Senha (mín. 6)" type="password"/>
@@ -1704,15 +1705,20 @@ Excluir Conta
 
     // Registro: alterna método email x celular
     (function(){
+      const grp = document.getElementById('reg-method-group');
       const mEmail = document.getElementById('reg-method-email');
       const mPhone = document.getElementById('reg-method-phone');
       const emailFields = document.getElementById('reg-email-fields');
       const phoneFields = document.getElementById('reg-phone-fields');
-      if (!mEmail || !mPhone || !emailFields || !phoneFields) return;
+      if (!mEmail || !mPhone || !emailFields || !phoneFields || !grp) return;
       function update(){
         const useEmail = mEmail.checked;
         emailFields.classList.toggle('hidden', !useEmail);
         phoneFields.classList.toggle('hidden', useEmail);
+        // estilo visual
+        const labels = grp.querySelectorAll('.rf-choice');
+        labels.forEach(l=>l.classList.remove('active'));
+        (useEmail ? mEmail : mPhone).parentElement.classList.add('active');
       }
       mEmail.addEventListener('change', update);
       mPhone.addEventListener('change', update);
@@ -1767,39 +1773,13 @@ Excluir Conta
       return '+55' + digits;
     }
 
-    // Cooldown para evitar auth/too-many-requests
-    function getCooldown(key){
-      try{ const v = parseInt(localStorage.getItem('rf_sms_cd_'+key)||'0',10); return isNaN(v)?0:v; }catch(e){ return 0; }
-    }
-    function setCooldown(key, seconds){
-      const until = Date.now() + (seconds*1000);
-      try{ localStorage.setItem('rf_sms_cd_'+key, String(until)); }catch(e){}
-      return until;
-    }
-    function getRemainingSeconds(key){
-      const until = getCooldown(key); const now = Date.now();
-      return Math.max(0, Math.ceil((until-now)/1000));
-    }
-    let _cdTimerLogin = null;
-    function startLoginCooldown(seconds){
-      const until = setCooldown('login', seconds);
-      const update = ()=>{
-        const rem = getRemainingSeconds('login');
-        if (sendSmsBtn){ sendSmsBtn.disabled = rem>0; sendSmsBtn.textContent = rem>0 ? `Reenviar em ${rem}s` : 'Enviar código'; }
-        if (rem<=0 && _cdTimerLogin){ clearInterval(_cdTimerLogin); _cdTimerLogin = null; }
-      };
-      if (_cdTimerLogin) clearInterval(_cdTimerLogin);
-      _cdTimerLogin = setInterval(update, 1000);
-      update();
-    }
+    // Removido cooldown local: permitir tentativas ilimitadas
 
     if (sendSmsBtn){
       sendSmsBtn.addEventListener('click', async()=>{
         try{
           hide(errLoginPhone);
-          // Verifica cooldown
-          const rem = getRemainingSeconds('login');
-          if (rem>0){ errLoginPhone.textContent = `Aguarde ${rem}s para reenviar o código.`; show(errLoginPhone); return; }
+          // Sem cooldown local
           let phoneRaw = (document.getElementById('login-phone')?.value || '');
           const phone = toBrazilE164(phoneRaw);
           if (!/^\+\d{10,15}$/.test(phone)) { errLoginPhone.textContent='Informe o celular: DDD + número (apenas dígitos).'; show(errLoginPhone); return; }
@@ -1830,7 +1810,7 @@ Excluir Conta
             };
           }
           toast('Código enviado por SMS.');
-          startLoginCooldown(60);
+          // Sem cooldown local
         }catch(err){
           const code = err?.code || '';
           // Fallback: se falha de reCAPTCHA/app credential, reconfigurar para visível
@@ -1838,9 +1818,8 @@ Excluir Conta
             ensureRecaptchaVisible();
             errLoginPhone.textContent = 'Não conseguimos verificar que você não é um robô. Resolva o reCAPTCHA visível e tente novamente.' + (err?.code ? ` (${err.code})` : '');
           } else if (code.includes('too-many-requests')){
-            // Impõe cooldown local mesmo se o Firebase disparar rate limit prematuro
-            startLoginCooldown(60);
-            errLoginPhone.textContent = 'Muitas tentativas. Aguarde 60s e tente novamente. (auth/too-many-requests)';
+            // Não aplicar bloqueio local; apenas informar
+            errLoginPhone.textContent = 'Muitas tentativas. Tente novamente agora ou verifique o número/reCAPTCHA. (auth/too-many-requests)';
           } else {
             errLoginPhone.textContent = mapAuthErr(err) + (err?.code ? ` (${err.code})` : '');
           }
