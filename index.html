@@ -1690,7 +1690,7 @@ Excluir Conta
         if (!container) return null;
         if (recaptchaVerifierLogin) return recaptchaVerifierLogin;
         recaptchaVerifierLogin = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
-          size: 'invisible',
+          size: 'normal',
           callback: () => {},
           'expired-callback': () => {}
         });
@@ -1743,9 +1743,9 @@ Excluir Conta
           // Fallback: se falha de reCAPTCHA/app credential, reconfigurar para visível
           if (code.includes('captcha') || code.includes('app-credential')){
             ensureRecaptchaVisible();
-            errLoginPhone.textContent = 'Não conseguimos verificar que você não é um robô. Resolva o reCAPTCHA visível e tente novamente.';
+            errLoginPhone.textContent = 'Não conseguimos verificar que você não é um robô. Resolva o reCAPTCHA visível e tente novamente.' + (err?.code ? ` (${err.code})` : '');
           } else {
-            errLoginPhone.textContent = mapAuthErr(err);
+            errLoginPhone.textContent = mapAuthErr(err) + (err?.code ? ` (${err.code})` : '');
           }
           show(errLoginPhone);
         } finally {
@@ -1765,7 +1765,7 @@ Excluir Conta
           _smsConfirmation = null;
           closeLogin();
           toast('Login via SMS realizado!');
-        }catch(err){ errLoginPhone.textContent = mapAuthErr(err); show(errLoginPhone); }
+        }catch(err){ errLoginPhone.textContent = mapAuthErr(err) + (err?.code ? ` (${err.code})` : ''); show(errLoginPhone); }
         finally { verifySmsBtn.disabled = false; verifySmsBtn.textContent = 'Verificar e entrar'; }
       });
     }
@@ -1828,8 +1828,8 @@ Excluir Conta
 
           let recaptchaReg = null;
           try {
-            recaptchaReg = new RecaptchaVerifier(auth, 'recaptcha-container-register', { size: 'invisible' });
-            try { recaptchaReg.render(); } catch(e) {}
+            recaptchaReg = new RecaptchaVerifier(auth, 'recaptcha-container-register', { size: 'normal' });
+            try { await recaptchaReg.render(); } catch(e) {}
           } catch(e) { recaptchaReg = null; }
 
           try {
@@ -1875,7 +1875,8 @@ Excluir Conta
         }
         closeRegister();
       } catch(err) {
-        errEl.textContent = err.message.includes('@') ? err.message : mapAuthErr(err);
+        const friendly = err.message?.includes('@') ? err.message : mapAuthErr(err);
+        errEl.textContent = friendly + (err?.code ? ` (${err.code})` : '');
         show(errEl);
       } finally {
         btn.textContent=old; btn.disabled=false;
@@ -5670,6 +5671,12 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       if(c.includes('auth/account-exists-with-different-credential')) return 'Conta já existe com credenciais diferentes.'; 
       if(c.includes('auth/operation-not-allowed')) return 'Operação não permitida. Contate o administrador.'; 
       if(c.includes('auth/network-request-failed')) return 'Erro de conexão. Verifique sua internet.'; 
+      if(c.includes('auth/unauthorized-domain')||c.includes('auth/app-not-authorized')) return 'Domínio não autorizado no Firebase Auth. Adicione o domínio em Authentication > Configurações > Domínios autorizados.';
+      if(c.includes('auth/invalid-app-credential')||c.includes('auth/captcha-check-failed')) return 'Falha na verificação do reCAPTCHA. Resolva o desafio e tente novamente.';
+      if(c.includes('auth/missing-phone-number')||c.includes('auth/invalid-phone-number')) return 'Número de celular inválido. Use o formato +5521999999999.';
+      if(c.includes('auth/too-many-requests')) return 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+      if(c.includes('auth/quota-exceeded')) return 'Cota de SMS excedida no projeto Firebase.';
+      if(c.includes('auth/invalid-verification-code')) return 'Código SMS inválido.';
       return 'Falha de autenticação.'; 
     }
   
