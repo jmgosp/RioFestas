@@ -2712,6 +2712,7 @@ Excluir Conta
         if (activeButton && activeButton.el) {
             activeButton.el.classList.remove(activeButton.default);
             activeButton.el.classList.add(activeButton.active);
+            activeButton.el.classList.add('pointer-events-none');
         }
     }
 
@@ -2768,10 +2769,10 @@ Excluir Conta
       const friendsBtn = e.target.closest('#social-nav-friends');
       const notifsBtn = e.target.closest('#social-nav-notifs');
       const profileBtn = e.target.closest('#social-nav-profile');
-      if (forYouBtn) setSocialBottomActive('foryou');
-      if (friendsBtn) setSocialBottomActive('friends');
-      if (notifsBtn) setSocialBottomActive('notifs');
-      if (profileBtn) setSocialBottomActive('profile');
+      if (forYouBtn) { setSocialBottomActive('foryou'); activateSocialTab('foryou'); }
+      if (friendsBtn) { setSocialBottomActive('friends'); activateSocialTab('friends'); }
+      if (notifsBtn) { setSocialBottomActive('notifs'); activateSocialTab('notifs'); }
+      if (profileBtn) { setSocialBottomActive('profile'); }
     });
 
     // Navegação da barra inferior da Rede
