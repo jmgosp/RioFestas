@@ -1946,6 +1946,30 @@ Excluir Conta
           verifySmsBtn.disabled = true; verifySmsBtn.textContent = 'Verificando…';
           const res = await _smsConfirmation.confirm(code);
           _smsConfirmation = null;
+          // Verificar se já existe perfil no Firestore; se não, bloquear login e redirecionar para registro
+          try {
+            const snap = await getDoc(doc(db, USERS_PATH, res.user.uid));
+            if (!snap.exists()) {
+              // Bloqueia login: encerra sessão e abre registro (método celular pré-selecionado)
+              await signOut(auth);
+              const errText = 'Este celular ainda não está cadastrado. Crie sua conta primeiro.';
+              errLoginPhone.textContent = errText; show(errLoginPhone);
+              hide($('#auth-login')); show($('#auth-register'));
+              const mPhone = document.getElementById('reg-method-phone');
+              if (mPhone) { mPhone.checked = true; mPhone.dispatchEvent(new Event('change')); }
+              const regPhone = document.getElementById('reg-phone');
+              if (regPhone) {
+                const digits = String(res.user.phoneNumber||'').replace(/\D/g,'').replace(/^55/, '');
+                regPhone.value = digits;
+              }
+              return; // Não fecha login como sucesso
+            }
+          } catch(e) {
+            // Se falhar a verificação, por segurança não permite login
+            await signOut(auth);
+            errLoginPhone.textContent = 'Não foi possível validar seu cadastro. Tente novamente ou crie sua conta.'; show(errLoginPhone);
+            return;
+          }
           closeLogin();
           toast('Login via SMS realizado!');
         }catch(err){ errLoginPhone.textContent = mapAuthErr(err) + (err?.code ? ` (${err.code})` : ''); show(errLoginPhone); }
