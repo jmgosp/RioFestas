@@ -1789,6 +1789,8 @@ Excluir Conta
           await setPersistence(auth, browserLocalPersistence);
           _smsConfirmation = await signInWithPhoneNumber(auth, phone, verifier);
           smsVerifyStep.classList.remove('hidden');
+          // esconder o botão grande após primeira solicitação
+          if (sendSmsBtn) sendSmsBtn.classList.add('hidden');
           // esconder botão enviar e iniciar UI de reenvio de 30s
           const resendArea = document.getElementById('login-resend-area');
           const resendBtn = document.getElementById('login-resend-btn');
@@ -1898,16 +1900,9 @@ Excluir Conta
         if (usingEmailPassword){
           cred = await createUserWithEmailAndPassword(auth, email, pass);
         } else {
-          // Cadastro por telefone: exige verificação SMS
-          function normalizePhone(raw){
-            if (!raw) return '';
-            let p = String(raw).trim().replace(/\s+/g,'');
-            p = p.replace(/(?!^)\+/g, '');
-            p = p.replace(/[^\d+]/g, '');
-            return p;
-          }
+          // Cadastro por telefone: exige verificação SMS (inline, sem prompt)
           const phoneE164 = ('+55' + String(phone).replace(/\D/g,''));
-          if (!/^\+\d{10,15}$/.test(phoneE164)) throw new Error('Informe o celular no formato internacional (ex: +5521999999999).');
+          if (!/^\+\d{10,15}$/.test(phoneE164)) throw new Error('Informe o celular: DDD + número.');
 
           let recaptchaReg = null;
           try {
@@ -1915,28 +1910,48 @@ Excluir Conta
             try { await recaptchaReg.render(); } catch(e) {}
           } catch(e) { recaptchaReg = null; }
 
-          try {
-            if (!recaptchaReg) throw new Error('captcha');
-            const confirmation = await signInWithPhoneNumber(auth, phoneE164, recaptchaReg);
-            const code = window.prompt('Digite o código enviado por SMS:');
-            if (!code) throw new Error('Código não informado.');
-            cred = await confirmation.confirm(code);
-          } catch(err) {
-            const code = err?.code || '';
-            // fallback reCAPTCHA visível
-            try { recaptchaReg?.clear(); } catch(e){}
-            recaptchaReg = null;
-            if (code.includes('captcha') || code.includes('app-credential') || code.includes('internal-error')){
-              recaptchaReg = new RecaptchaVerifier(auth, 'recaptcha-container-register', { size: 'normal' });
-              try { await recaptchaReg.render(); } catch(e) {}
-              const confirmation = await signInWithPhoneNumber(auth, phoneE164, recaptchaReg);
-              const codeInput = window.prompt('Digite o código enviado por SMS:');
-              if (!codeInput) throw new Error('Código não informado.');
-              cred = await confirmation.confirm(codeInput);
-            } else {
-              throw err;
-            }
+          const confirmation = await signInWithPhoneNumber(auth, phoneE164, recaptchaReg);
+          // Mostrar UI inline de verificação
+          const step = document.getElementById('reg-sms-step');
+          const codeInput = document.getElementById('reg-sms-code');
+          const resendBtn = document.getElementById('reg-resend-btn');
+          const resendTimer = document.getElementById('reg-resend-timer');
+          if (step){ step.classList.remove('hidden'); }
+          // Esconde botão submit enquanto aguarda código
+          const submitBtn = document.getElementById('submit-register');
+          if (submitBtn) submitBtn.classList.add('hidden');
+
+          // Inicia contador 30s para reenvio
+          let t=30; if (resendBtn){ resendBtn.disabled=true; }
+          if (resendTimer) resendTimer.textContent = `Reenviar em ${t}s`;
+          const int = setInterval(()=>{
+            t--; if (resendTimer) resendTimer.textContent = t>0 ? `Reenviar em ${t}s` : 'Pode reenviar';
+            if (t<=0){ clearInterval(int); if (resendBtn){ resendBtn.disabled=false; } if (resendTimer) resendTimer.textContent=''; }
+          },1000);
+          if (resendBtn){
+            resendBtn.onclick = async()=>{
+              if (resendBtn.disabled) return;
+              resendBtn.disabled = true; resendBtn.textContent = 'Reenviando…';
+              try{ await signInWithPhoneNumber(auth, phoneE164, new RecaptchaVerifier(auth, 'recaptcha-container-register', { size:'normal' })); }
+              catch(e){ const er=document.getElementById('err-register'); if(er){ er.textContent = (e?.code||'Falha ao reenviar'); er.classList.remove('hidden'); } }
+              finally{ resendBtn.textContent = 'Reenviar código'; t=30; resendBtn.disabled=true; }
+            };
           }
+
+          // Aguarda o usuário clicar em Registrar novamente após digitar código
+          await new Promise((resolve)=>{
+            const handler = async()=>{
+              const code = codeInput?.value?.trim();
+              if (!code) return;
+              try{ cred = await confirmation.confirm(code); resolve(); }
+              catch(e){ const er=document.getElementById('err-register'); if(er){ er.textContent = (e?.code||'Código inválido'); er.classList.remove('hidden'); } }
+            };
+            if (submitBtn){
+              submitBtn.classList.remove('hidden');
+              submitBtn.textContent = 'Confirmar código';
+              submitBtn.onclick = (ev)=>{ ev.preventDefault(); handler(); };
+            }
+          });
         }
         await updateProfile(cred.user, { displayName: name });
 
