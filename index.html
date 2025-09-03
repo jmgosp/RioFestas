@@ -489,6 +489,27 @@
 <label class="text-sm font-medium text-gray-700">Sua Bio</label>
 <textarea class="mt-1 w-full min-h-[80px] rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="account-bio" placeholder="Fale um pouco sobre você..."></textarea>
 </div>
+<div class="hidden" id="phone-change-block">
+  <label class="text-sm font-medium text-gray-700">Número de celular</label>
+  <div class="mt-1 grid gap-2">
+    <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="account-phone-view" readonly type="text"/>
+    <div class="grid gap-2" id="phone-change-step1">
+      <input class="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3" id="account-phone-new" placeholder="Novo celular (DDD + número)" type="tel"/>
+      <div id="recaptcha-container-phone-change"></div>
+      <button class="inline-flex items-center rounded-full bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90" type="button" id="btn-phone-send">Enviar código</button>
+    </div>
+    <div class="hidden" id="phone-change-step2">
+      <input class="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3" id="account-phone-code" placeholder="Código recebido" inputmode="numeric" pattern="[0-9]*"/>
+      <div class="flex items-center justify-between text-xs text-gray-600 mt-1">
+        <span id="phone-change-resend-timer">Reenviar em 30s</span>
+        <button type="button" class="text-pink-600 font-semibold disabled:text-gray-400" id="btn-phone-resend" disabled>Reenviar código</button>
+      </div>
+      <button class="inline-flex items-center rounded-full bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90" type="button" id="btn-phone-confirm">Confirmar novo número</button>
+      <div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="phone-change-error"></div>
+    </div>
+  </div>
+  <p class="text-xs text-gray-500 mt-1">Disponível apenas para contas criadas com celular.</p>
+</div>
 <div class="flex items-center justify-between rounded-2xl bg-gray-50 p-3 ring-subtle">
 <label class="text-sm font-medium text-gray-700" for="account-private">Tornar perfil privado</label>
 <label class="relative inline-flex items-center cursor-pointer">
@@ -1783,6 +1804,75 @@ Excluir Conta
       return '+55' + digits;
     }
 
+    // ===== Troca de número (apenas contas phone) =====
+    (function(){
+      const btnSend = document.getElementById('btn-phone-send');
+      const step1 = document.getElementById('phone-change-step1');
+      const step2 = document.getElementById('phone-change-step2');
+      const newPhoneInput = document.getElementById('account-phone-new');
+      const codeInput = document.getElementById('account-phone-code');
+      const resendBtn = document.getElementById('btn-phone-resend');
+      const resendTimer = document.getElementById('phone-change-resend-timer');
+      const errBox = document.getElementById('phone-change-error');
+      const btnConfirm = document.getElementById('btn-phone-confirm');
+      const recaptchaId = 'recaptcha-container-phone-change';
+      let confirmationPhoneChange = null;
+
+      async function ensureRecaptchaChange(){
+        try{
+          const el = document.getElementById(recaptchaId);
+          if (!el) return null;
+          const v = new RecaptchaVerifier(auth, recaptchaId, { size:'invisible' });
+          try{ await v.render(); }catch(e){}
+          return v;
+        }catch(e){ return null; }
+      }
+
+      if (btnSend){
+        btnSend.addEventListener('click', async()=>{
+          try{
+            if (errBox) errBox.classList.add('hidden');
+            const phone = toBrazilE164(newPhoneInput?.value||'');
+            if (!/^\+\d{10,15}$/.test(phone)) { if(errBox){ errBox.textContent='Informe DDD + número.'; errBox.classList.remove('hidden'); } return; }
+            const verifier = await ensureRecaptchaChange();
+            confirmationPhoneChange = await signInWithPhoneNumber(auth, phone, verifier);
+            if (step2) step2.classList.remove('hidden');
+            if (step1) step1.classList.add('hidden');
+            // Timer 30s
+            let t=30; if (resendBtn) resendBtn.disabled=true; if (resendTimer) resendTimer.textContent=`Reenviar em ${t}s`;
+            const int = setInterval(()=>{ t--; if (resendTimer) resendTimer.textContent = t>0?`Reenviar em ${t}s`:''; if (t<=0){ clearInterval(int); if(resendBtn) resendBtn.disabled=false; } },1000);
+          }catch(e){ if(errBox){ errBox.textContent = (e?.code||'Erro ao enviar'); errBox.classList.remove('hidden'); } }
+        });
+      }
+      if (resendBtn){
+        resendBtn.addEventListener('click', async()=>{
+          try{
+            resendBtn.disabled=true; resendBtn.textContent='Reenviando…';
+            const phone = toBrazilE164(newPhoneInput?.value||'');
+            const verifier = await ensureRecaptchaChange();
+            confirmationPhoneChange = await signInWithPhoneNumber(auth, phone, verifier);
+          }catch(e){ if(errBox){ errBox.textContent = (e?.code||'Erro ao reenviar'); errBox.classList.remove('hidden'); } }
+          finally{ resendBtn.textContent='Reenviar código'; setTimeout(()=>{ if(resendBtn) resendBtn.disabled=false; },30000); }
+        });
+      }
+      if (btnConfirm){
+        btnConfirm.addEventListener('click', async()=>{
+          try{
+            if (errBox) errBox.classList.add('hidden');
+            const code = codeInput?.value?.trim(); if(!code) return;
+            const cred = await confirmationPhoneChange.confirm(code);
+            const user = auth.currentUser;
+            if (user && cred.user){
+              // phoneNumber já atualizado pelo Firebase; persiste no Firestore
+              await setDoc(doc(db, USERS_PATH, user.uid), { phone: user.phoneNumber }, { merge: true });
+              const view = document.getElementById('account-phone-view'); if(view) view.value = user.phoneNumber||'';
+              toast('Número atualizado com sucesso!');
+            }
+          }catch(e){ if(errBox){ errBox.textContent = (e?.code||'Código inválido'); errBox.classList.remove('hidden'); } }
+        });
+      }
+    })();
+
     // Removido cooldown local: permitir tentativas ilimitadas
 
     if (sendSmsBtn){
@@ -1951,16 +2041,27 @@ Excluir Conta
             };
           }
 
-          // Aguarda o usuário clicar em Registrar novamente após digitar código
+          // Aguarda o usuário clicar em Confirmar código
           await new Promise((resolve)=>{
             const handler = async()=>{
               const code = codeInput?.value?.trim();
               if (!code) return;
-              try{ cred = await confirmation.confirm(code); resolve(); }
-              catch(e){ const er=document.getElementById('err-register'); if(er){ er.textContent = (e?.code||'Código inválido'); er.classList.remove('hidden'); } }
+              try{ 
+                if (submitBtn){ submitBtn.disabled = true; submitBtn.textContent = 'Confirmando…'; }
+                cred = await confirmation.confirm(code); 
+                resolve(); 
+              }
+              catch(e){ 
+                const er=document.getElementById('err-register'); 
+                if(er){ er.textContent = (e?.code||'Código inválido'); er.classList.remove('hidden'); }
+              }
+              finally{
+                if (submitBtn){ submitBtn.disabled = false; submitBtn.textContent = 'Confirmar código'; }
+              }
             };
             if (submitBtn){
               submitBtn.classList.remove('hidden');
+              submitBtn.disabled = false;
               submitBtn.textContent = 'Confirmar código';
               submitBtn.onclick = (ev)=>{ ev.preventDefault(); handler(); };
             }
@@ -2789,6 +2890,15 @@ Excluir Conta
         $('#account-photo-preview').src = u.photoUrl || `https://placehold.co/64x64/f472b6/ffffff?text=${initials(u.name)}`;
         state.newProfilePhotoUrl = null;
         state.photoRemovalFlag = false; // Reset flag
+        // Mostrar bloco de troca de celular apenas para contas criadas com celular
+        const phoneBlock = document.getElementById('phone-change-block');
+        if (phoneBlock){
+          const hasPhoneProvider = Array.isArray(auth.currentUser?.providerData||[])
+            && auth.currentUser.providerData.some(p=>p?.providerId==='phone');
+          phoneBlock.classList.toggle('hidden', !hasPhoneProvider);
+          const view = document.getElementById('account-phone-view');
+          if (view) view.value = auth.currentUser?.phoneNumber || (u.phone || '');
+        }
         showView('#view-profile');
         loadFollowLists();
         renderMyProfileEventSections();
