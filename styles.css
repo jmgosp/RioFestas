@@ -481,19 +481,45 @@
     }
     
     /* NOVOS ESTILOS PARA FILTROS */
-    #filters-bar.filters-open #filters-chevron {
-        transform: rotate(180deg);
-    }
+    /* Redesign: Filtros como popover compacto, robusto e elegante */
+    #filters-bar { position: relative; }
+    #filters-bar.filters-open #filters-chevron { transform: rotate(180deg); }
     #filters-content {
-        display: grid;
-        grid-template-rows: 0fr;
-        transition: grid-template-rows 0.3s ease-out;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        margin-top: 8px;
+        background: #ffffff;
+        border: 1px solid #e5e7eb; /* gray-200 */
+        border-radius: 1rem; /* rounded-2xl */
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        z-index: 40;
+        opacity: 0;
+        transform: translateY(-4px) scale(0.98);
+        transition: opacity .18s ease-out, transform .18s ease-out;
+        pointer-events: none;
+        overflow: hidden;
+        max-height: 280px;
     }
     #filters-bar.filters-open #filters-content {
-        grid-template-rows: 1fr;
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
     }
     #filters-content > .inner-filter-content {
-        overflow: hidden;
+        overflow-y: auto;
+        max-height: 280px;
+        -webkit-overflow-scrolling: touch;
+    }
+    /* Dark theme popover */
+    [data-theme="dark"] #filters-content {
+        background: #0f1218; /* var(--rf-surface) prox */
+        border-color: var(--rf-border);
+        box-shadow: 0 16px 32px rgba(0,0,0,.45);
+    }
+    [data-theme="dark"] #filters-content > .inner-filter-content {
+        scrollbar-color: var(--rf-border) transparent;
     }
   
 /* === Fixes rápidos de mobile para Taxonomias + selects múltiplos === */

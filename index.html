@@ -180,7 +180,7 @@
 </div>
 </button>
 <!-- Conteúdo dos Filtros -->
-<div id="filters-content">
+<div id="filters-content" aria-hidden="true">
 <div class="inner-filter-content">
 <div class="px-3 pt-1 pb-3 border-t border-gray-100">
 <div class="mt-3 space-y-3">
@@ -305,21 +305,16 @@
 <div id="social-tab-notifs" class="hidden">
 <section>
 <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-<div class="flex items-center gap-3 cursor-pointer" id="notifications-toggle">
+<div class="flex items-center gap-3" id="notifications-toggle">
 <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Notificações</h2>
 <div class="hidden w-2 h-2 bg-red-500 rounded-full animate-pulse" id="notifications-badge"></div>
-<button class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-all duration-200 group" id="notifications-toggle-btn">
-<svg class="w-4 h-4 text-gray-600 transition-transform duration-200 group-hover:text-gray-800" id="notifications-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
- </svg>
- </button>
  </div>
  <div class="flex items-center gap-4 w-full md:w-auto" id="notifications-controls">
  <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer flex-1"><input class="h-4 w-4 cursor-pointer" id="account-notify-check" type="checkbox"/> Notificar quando meus amigos confirmarem em eventos</label>
  <button class="text-sm font-semibold text-red-600 hover:text-red-800 flex-shrink-0" id="clear-all-notifs-btn">Limpar Tudo</button>
  </div>
  </div>
- <div class="mt-4 space-y-3 overflow-hidden transition-all duration-300" id="notifications-content">
+ <div class="mt-4 space-y-3" id="notifications-content">
  <div class="space-y-3" id="notifications-list"></div>
  <div class="hidden mt-6 text-center text-gray-500" id="empty-notifications">Nenhuma notificação nova.</div>
  </div>
@@ -729,6 +724,22 @@ Excluir Conta
   Continuar com Google
 </button> -->
 </input></form>
+<div class="mt-4" id="login-sms-container">
+<div class="mb-3 grid grid-cols-2 gap-2 text-sm">
+<button type="button" class="rounded-full border border-gray-200 px-3 py-1.5 font-semibold bg-white text-gray-700" id="login-tab-email">E-mail</button>
+<button type="button" class="rounded-full border border-gray-200 px-3 py-1.5 font-semibold bg-white text-gray-700" id="login-tab-phone">SMS</button>
+</div>
+<form class="space-y-4 hidden" id="form-login-phone">
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="login-phone" placeholder="Celular (ex: +55 21 99999-9999)" type="tel"/>
+<div id="recaptcha-container-login" class="rounded-xl border border-gray-200 p-2 bg-gray-50"></div>
+<button class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90" id="send-sms-btn" type="button">Enviar código</button>
+<div class="hidden" id="sms-step-verify">
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="login-sms-code" placeholder="Código recebido" inputmode="numeric" pattern="[0-9]*"/>
+<button class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90" id="verify-sms-btn" type="button">Verificar e entrar</button>
+</div>
+<div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="err-login-phone"></div>
+</form>
+</div>
 </div>
 </div>
 <!-- MODAL: REGISTER (com opção de organizador) -->
@@ -746,8 +757,12 @@ Excluir Conta
 <div class="grid gap-3 md:grid-cols-2">
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-name" placeholder="Nome completo" required="" type="text"/>
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-username" placeholder="Nome de usuário (@exemplo)" required="" type="text"/>
-<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-email" placeholder="E-mail" required="" type="email"/>
-<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-pass" placeholder="Senha (mín. 6)" required="" type="password"/>
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-email" placeholder="E-mail (opcional se usar SMS)" type="email"/>
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-pass" placeholder="Senha (mín. 6, opcional para SMS)" type="password"/>
+</div>
+<div class="grid gap-3 md:grid-cols-2">
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-phone" placeholder="Celular (ex: +55 21 99999-9999)" type="tel"/>
+<div id="recaptcha-container-register" class="rounded-xl border border-gray-200 p-2 bg-gray-50"></div>
 </div>
 <label class="flex items-center gap-2 select-none text-sm"><input class="h-4 w-4" id="reg-organizer-check" type="checkbox"/> Sou organizador de eventos</label>
 <div class="hidden grid gap-3 md:grid-cols-2" id="reg-organizer-form">
@@ -1276,7 +1291,8 @@ Excluir Conta
       initializeAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, indexedDBLocalPersistence, signInAnonymously,
       onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
       updateProfile, sendPasswordResetEmail, signOut, GoogleAuthProvider, OAuthProvider,
-      signInWithPopup, signInWithRedirect, getRedirectResult, browserPopupRedirectResolver
+      signInWithPopup, signInWithRedirect, getRedirectResult, browserPopupRedirectResolver,
+      RecaptchaVerifier, signInWithPhoneNumber
     } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
     import {
       getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc,
@@ -1545,6 +1561,8 @@ Excluir Conta
     const closeLogin = ()=> { hide($('#auth-login')); document.body.classList.remove('modal-open'); };
     const closeRegister = ()=> { hide($('#auth-register')); document.body.classList.remove('modal-open'); };
 
+    // (removido) Inicialização antecipada do reCAPTCHA para evitar múltiplas instâncias
+
     $('#btn-open-login').addEventListener('click', openLogin);
     $('#btn-open-register').addEventListener('click', openRegister);
 
@@ -1634,6 +1652,129 @@ Excluir Conta
       finally{ btn.textContent=old; btn.disabled=false; }
     });
 
+    // ===== Login por SMS =====
+    const loginTabEmail = document.getElementById('login-tab-email');
+    const loginTabPhone = document.getElementById('login-tab-phone');
+    const formLogin = document.getElementById('form-login');
+    const formLoginPhone = document.getElementById('form-login-phone');
+    const errLoginPhone = document.getElementById('err-login-phone');
+    const smsVerifyStep = document.getElementById('sms-step-verify');
+    const sendSmsBtn = document.getElementById('send-sms-btn');
+    const verifySmsBtn = document.getElementById('verify-sms-btn');
+    let _smsConfirmation = null;
+
+    function switchLoginMode(mode){
+      if (!loginTabEmail || !loginTabPhone || !formLogin || !formLoginPhone) return;
+      const emailActive = mode === 'email';
+      formLogin.classList.toggle('hidden', !emailActive);
+      formLoginPhone.classList.toggle('hidden', emailActive);
+      loginTabEmail.classList.toggle('bg-pink-600', emailActive);
+      loginTabEmail.classList.toggle('text-white', emailActive);
+      loginTabEmail.classList.toggle('border-pink-600', emailActive);
+      loginTabPhone.classList.toggle('bg-pink-600', !emailActive);
+      loginTabPhone.classList.toggle('text-white', !emailActive);
+      loginTabPhone.classList.toggle('border-pink-600', !emailActive);
+      if (!emailActive) {
+        if (location.protocol !== 'http:' && location.protocol !== 'https:' && location.protocol !== 'chrome-extension:') {
+          const el = document.getElementById('err-login-phone');
+          if (el){ el.textContent = 'Login por SMS exige abrir via http(s). Use um servidor local (ex.: npx serve) ou seu domínio.'; el.classList.remove('hidden'); }
+          return;
+        }
+        ensureRecaptcha();
+      }
+    }
+    if (loginTabEmail && loginTabPhone){
+      loginTabEmail.addEventListener('click', ()=> switchLoginMode('email'));
+      loginTabPhone.addEventListener('click', ()=> switchLoginMode('phone'));
+      switchLoginMode('email');
+    }
+
+    // reCAPTCHA para login via SMS
+    let recaptchaVerifierLogin = null;
+    function ensureRecaptcha(){
+      try{
+        const container = document.getElementById('recaptcha-container-login');
+        if (!container) return null;
+        if (recaptchaVerifierLogin) return recaptchaVerifierLogin;
+        recaptchaVerifierLogin = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
+          size: 'invisible',
+          callback: () => {},
+          'expired-callback': () => {}
+        });
+        return recaptchaVerifierLogin;
+      }catch(e){ console.warn('recaptcha init failed', e); return null; }
+    }
+
+    function ensureRecaptchaVisible(){
+      try{
+        const container = document.getElementById('recaptcha-container-login');
+        if (!container) return null;
+        try{ recaptchaVerifierLogin?.clear(); }catch(e){}
+        recaptchaVerifierLogin = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
+          size: 'normal',
+          callback: () => {},
+          'expired-callback': () => {}
+        });
+        try { recaptchaVerifierLogin.render(); } catch(e) { /* no-op */ }
+        return recaptchaVerifierLogin;
+      }catch(e){ console.warn('recaptcha visible init failed', e); return null; }
+    }
+
+    function normalizePhone(raw){
+      if (!raw) return '';
+      // Mantém apenas dígitos e um '+' inicial
+      let p = String(raw).trim().replace(/\s+/g,'');
+      p = p.replace(/(?!^)\+/g, ''); // remove '+' extras
+      p = p.replace(/[^\d+]/g, '');
+      return p;
+    }
+
+    if (sendSmsBtn){
+      sendSmsBtn.addEventListener('click', async()=>{
+        try{
+          hide(errLoginPhone);
+          let phoneRaw = (document.getElementById('login-phone')?.value || '');
+          const phone = normalizePhone(phoneRaw);
+          if (!/^\+\d{10,15}$/.test(phone)) { errLoginPhone.textContent='Informe o celular no formato internacional (ex: +5521999999999).'; show(errLoginPhone); return; }
+          const verifier = ensureRecaptcha();
+          if (!verifier){ errLoginPhone.textContent='Falha ao iniciar verificação. Recarregue a página.'; show(errLoginPhone); return; }
+          sendSmsBtn.disabled = true; sendSmsBtn.textContent = 'Enviando…';
+          await setPersistence(auth, browserLocalPersistence);
+          _smsConfirmation = await signInWithPhoneNumber(auth, phone, verifier);
+          smsVerifyStep.classList.remove('hidden');
+          toast('Código enviado por SMS.');
+        }catch(err){
+          const code = err?.code || '';
+          // Fallback: se falha de reCAPTCHA/app credential, reconfigurar para visível
+          if (code.includes('captcha') || code.includes('app-credential')){
+            ensureRecaptchaVisible();
+            errLoginPhone.textContent = 'Não conseguimos verificar que você não é um robô. Resolva o reCAPTCHA visível e tente novamente.';
+          } else {
+            errLoginPhone.textContent = mapAuthErr(err);
+          }
+          show(errLoginPhone);
+        } finally {
+          sendSmsBtn.disabled = false; sendSmsBtn.textContent = 'Enviar código';
+        }
+      });
+    }
+
+    if (verifySmsBtn){
+      verifySmsBtn.addEventListener('click', async()=>{
+        try{
+          hide(errLoginPhone);
+          const code = (document.getElementById('login-sms-code')?.value || '').trim();
+          if (!_smsConfirmation || !code){ errLoginPhone.textContent='Informe o código recebido.'; show(errLoginPhone); return; }
+          verifySmsBtn.disabled = true; verifySmsBtn.textContent = 'Verificando…';
+          const res = await _smsConfirmation.confirm(code);
+          _smsConfirmation = null;
+          closeLogin();
+          toast('Login via SMS realizado!');
+        }catch(err){ errLoginPhone.textContent = mapAuthErr(err); show(errLoginPhone); }
+        finally { verifySmsBtn.disabled = false; verifySmsBtn.textContent = 'Verificar e entrar'; }
+      });
+    }
+
     // Recuperar senha
     $('#btn-forgot').addEventListener('click', async()=>{
       const email=$('#login-email').value.trim(); if(!email){ const b=$('#err-login'); b.textContent='Informe seu e-mail.'; b.classList.remove('hidden'); return; }
@@ -1649,6 +1790,7 @@ Excluir Conta
       const name=$('#reg-name').value.trim();
       const usernameRaw = $('#reg-username').value.trim();
       const email=$('#reg-email').value.trim(); const pass=$('#reg-pass').value; const isOrg=$('#reg-organizer-check').checked;
+      const phone=($('#reg-phone')?.value||'').trim();
       const btn=$('#submit-register'); const old=btn.textContent; btn.textContent='Registrando…'; btn.disabled=true;
       const errEl = $('#err-register'); hide(errEl);
       
@@ -1658,8 +1800,11 @@ Excluir Conta
       }
       const username = usernameRaw.toLowerCase().replace(/[^a-z0-9_]/g, '');
 
-      if (!username || !name || !email || pass.length < 6) {
-        errEl.textContent = 'Preencha todos os campos corretamente.'; show(errEl);
+      // Permitir cadastro por e-mail/senha OU por telefone (SMS)
+      const usingEmailPassword = !!email && pass.length >= 6;
+      const usingPhone = !!phone;
+      if (!username || !name || (!usingEmailPassword && !usingPhone)) {
+        errEl.textContent = 'Informe nome, usuário e (e-mail+senha) ou celular.'; show(errEl);
         btn.textContent=old; btn.disabled=false; return;
       }
 
@@ -1671,11 +1816,26 @@ Excluir Conta
           throw new Error(`Usuário @${username} já existe. Tente outro.`);
         }
 
-        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        let cred = null;
+        if (usingEmailPassword){
+          cred = await createUserWithEmailAndPassword(auth, email, pass);
+        } else {
+          // Cadastro por telefone: exige verificação SMS
+          // Inicializa visível para minimizar falhas de ambiente
+          let recaptcha;
+          try {
+            recaptcha = new RecaptchaVerifier(auth, 'recaptcha-container-register', { size: 'normal' });
+          } catch(e) { recaptcha = null; }
+          if (!recaptcha) throw new Error('Erro ao iniciar verificação do telefone.');
+          const confirmation = await signInWithPhoneNumber(auth, phone, recaptcha);
+          const code = window.prompt('Digite o código enviado por SMS:');
+          if (!code) throw new Error('Código não informado.');
+          cred = await confirmation.confirm(code);
+        }
         await updateProfile(cred.user, { displayName: name });
 
         const userData = {
-          admin: false, organizer: false, name, username, email,
+          admin: false, organizer: false, name, username, email: email || null,
           photoUrl: null, createdAt: serverTimestamp(), bio: '',
           followersCount: 0, followingCount: 0, isPrivate: false,
           settings: { notifyOnFriendGoing: true }
@@ -2275,15 +2435,21 @@ Excluir Conta
       window.scrollTo(0, 0);
       updateHeaderStyles(viewId); 
     }
+          // Destaque imediato (pointerdown) e navegação
+          $('#btn-home-header').addEventListener('pointerdown', () => { updateHeaderStyles('#home-view'); });
           $('#btn-home-header').addEventListener('click', () => {
+        updateHeaderStyles('#home-view');
         showView('#home-view');
         // Mostrar aviso apenas na home
         const warning = document.getElementById('development-warning');
         if (warning) warning.style.display = 'block';
       });
-    $('#btn-about-header').addEventListener('click', () => showView('#view-about'));
+    $('#btn-about-header').addEventListener('pointerdown', () => { updateHeaderStyles('#view-about'); });
+    $('#btn-about-header').addEventListener('click', () => { updateHeaderStyles('#view-about'); showView('#view-about'); });
     $('#btn-locations-view').addEventListener('click', () => showView('#view-locations'));
+    $('#btn-social-header').addEventListener('pointerdown', () => { updateHeaderStyles('#view-social'); });
     $('#btn-social-header').addEventListener('click', () => {
+      updateHeaderStyles('#view-social');
       if (auth.currentUser && !auth.currentUser.isAnonymous) {
         openSocialView();
       } else {
@@ -2308,18 +2474,31 @@ Excluir Conta
         if (warning) warning.style.display = 'none';
     });
 
+    // Destaque imediato na barra inferior da Rede (pointerdown)
+    document.addEventListener('pointerdown', (e)=>{
+      const forYouBtn = e.target.closest('#social-nav-foryou');
+      const friendsBtn = e.target.closest('#social-nav-friends');
+      const notifsBtn = e.target.closest('#social-nav-notifs');
+      const profileBtn = e.target.closest('#social-nav-profile');
+      if (forYouBtn) setSocialBottomActive('foryou');
+      if (friendsBtn) setSocialBottomActive('friends');
+      if (notifsBtn) setSocialBottomActive('notifs');
+      if (profileBtn) setSocialBottomActive('profile');
+    });
+
     // Navegação da barra inferior da Rede
     document.addEventListener('click', (e)=>{
       const forYouBtn = e.target.closest('#social-nav-foryou');
       const friendsBtn = e.target.closest('#social-nav-friends');
       const notifsBtn = e.target.closest('#social-nav-notifs');
       const profileBtn = e.target.closest('#social-nav-profile');
-      if (forYouBtn) { state.socialActive = true; activateSocialTab('foryou'); showView('#view-social'); }
-      if (friendsBtn) { state.socialActive = true; activateSocialTab('friends'); showView('#view-social'); }
-      if (notifsBtn) { state.socialActive = true; activateSocialTab('notifs'); showView('#view-social'); }
+      if (forYouBtn) { state.socialActive = true; setSocialBottomActive('foryou'); activateSocialTab('foryou'); showView('#view-social'); }
+      if (friendsBtn) { state.socialActive = true; setSocialBottomActive('friends'); activateSocialTab('friends'); showView('#view-social'); }
+      if (notifsBtn) { state.socialActive = true; setSocialBottomActive('notifs'); activateSocialTab('notifs'); showView('#view-social'); }
       if (profileBtn) {
         if (auth.currentUser && !auth.currentUser.isAnonymous) {
           state.socialActive = true; // perfil como subpágina da rede
+          setSocialBottomActive('profile');
           // usar fluxo completo para carregar dados do perfil
           openProfileView();
         } else {
@@ -5731,9 +5910,18 @@ try {
 
   // Toggle do menu recolhível
   if (toggleBtn && bar){
-    toggleBtn.addEventListener('click', ()=>{
-      bar.classList.toggle('filters-open');
+    function openFilters(){ bar.classList.add('filters-open'); bar.setAttribute('data-open','1'); const c=$('#filters-content'); if(c) c.setAttribute('aria-hidden','false'); }
+    function closeFilters(){ bar.classList.remove('filters-open'); bar.removeAttribute('data-open'); const c=$('#filters-content'); if(c) c.setAttribute('aria-hidden','true'); }
+    toggleBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if (bar.classList.contains('filters-open')) closeFilters(); else openFilters();
     });
+    // Fecha ao clicar fora
+    document.addEventListener('click', (e)=>{
+      if (!bar.contains(e.target)) closeFilters();
+    });
+    // Fecha com ESC
+    document.addEventListener('keydown', (e)=>{ if (e.key==='Escape') closeFilters(); });
   }
 
   // Garante estado inicial consistente
