@@ -2414,23 +2414,23 @@ body.modal-open {
     transition: all 0.2s ease;
     outline: none;
     text-decoration: none;
-    color: #dc2626;
+    color: #db2777; /* pink-600 para combinar com os demais links */
     font-weight: 600;
 }
 
 #switch-register-phone:hover {
     text-decoration: underline;
     opacity: 0.8;
-    color: #b91c1c;
+    color: #be185d; /* pink-700 no hover */
 }
 
 /* Modo escuro */
 [data-theme="dark"] #switch-register-phone {
-    color: #f87171;
+    color: #f9a8d4; /* pink-300 no dark */
 }
 
 [data-theme="dark"] #switch-register-phone:hover {
-    color: #ef4444;
+    color: #f472b6; /* pink-400 no hover */
 }
 
 /* Botões de método de registro */

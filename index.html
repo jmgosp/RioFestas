@@ -1786,33 +1786,20 @@ Reenviar em <span id="sms-countdown">60</span>s
           console.warn('reCAPTCHA container not found');
           return null;
         }
-        
-        // Verificar se o container está visível no DOM
         if (!document.body.contains(container)) {
           console.warn('reCAPTCHA container not in DOM');
           return null;
         }
-        
-        // Limpar instância anterior se existir
-        if (recaptchaVerifierLogin) {
-          try {
-            recaptchaVerifierLogin.clear();
-          } catch(e) {}
-          recaptchaVerifierLogin = null;
-        }
-        
-        // Criar nova instância
+        // Reutilizar se já existe
+        if (recaptchaVerifierLogin) return recaptchaVerifierLogin;
+        // Criar instância visível para estabilidade
         recaptchaVerifierLogin = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
-          size: 'invisible',
+          size: 'normal',
           callback: () => {},
           'expired-callback': () => {}
         });
-        
         return recaptchaVerifierLogin;
-      }catch(e){ 
-        console.warn('recaptcha init failed', e); 
-        return null; 
-      }
+      }catch(e){ console.warn('recaptcha init failed', e); return null; }
     }
     
     function ensureRecaptchaRegister(){
