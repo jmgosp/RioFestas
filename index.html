@@ -1592,8 +1592,36 @@ Excluir Conta
       }
     };
 
-    const openLogin = ()=> { show($('#auth-login')); document.body.classList.add('modal-open'); };
-    const openRegister = ()=> { show($('#auth-register')); document.body.classList.add('modal-open'); };
+    function resetLoginUI(){
+      try{
+        const phoneInput = document.getElementById('login-phone'); if (phoneInput) phoneInput.value='';
+        const codeInput = document.getElementById('login-sms-code'); if (codeInput) codeInput.value='';
+        const smsStep = document.getElementById('sms-step-verify'); if (smsStep) smsStep.classList.add('hidden');
+        const resendArea = document.getElementById('login-resend-area'); if (resendArea) resendArea.classList.add('hidden');
+        const resendBtn = document.getElementById('login-resend-btn'); if (resendBtn){ resendBtn.disabled=true; resendBtn.textContent='Reenviar código'; resendBtn.classList.add('disabled'); }
+        const resendTimer = document.getElementById('login-resend-timer'); if (resendTimer) resendTimer.textContent='';
+        const sendBtn = document.getElementById('send-sms-btn'); if (sendBtn){ sendBtn.classList.remove('hidden'); sendBtn.disabled=false; sendBtn.textContent='Enviar código'; }
+        const err = document.getElementById('err-login-phone'); if (err) err.classList.add('hidden');
+        const cap = document.getElementById('recaptcha-container-login'); if (cap) cap.classList.remove('hidden');
+        try{ _smsConfirmation = null; }catch(e){}
+      }catch(e){}
+    }
+    function resetRegisterUI(){
+      try{
+        const phone = document.getElementById('reg-phone'); if (phone) phone.value='';
+        const code = document.getElementById('reg-sms-code'); if (code) code.value='';
+        const step = document.getElementById('reg-sms-step'); if (step) step.classList.add('hidden');
+        const submit = document.getElementById('submit-register'); if (submit){ submit.classList.remove('hidden'); submit.textContent='Registrar'; submit.disabled=false; }
+        const err = document.getElementById('err-register'); if (err) err.classList.add('hidden');
+        const resendBtn = document.getElementById('reg-resend-btn'); if (resendBtn){ resendBtn.disabled=true; resendBtn.textContent='Reenviar código'; }
+        const resendTimer = document.getElementById('reg-resend-timer'); if (resendTimer) resendTimer.textContent='';
+        const mEmail = document.getElementById('reg-method-email'); const mPhone = document.getElementById('reg-method-phone');
+        if (mEmail && mPhone){ mEmail.checked=true; mEmail.dispatchEvent(new Event('change')); }
+      }catch(e){}
+    }
+
+    const openLogin = ()=> { resetLoginUI(); show($('#auth-login')); document.body.classList.add('modal-open'); };
+    const openRegister = ()=> { resetRegisterUI(); show($('#auth-register')); document.body.classList.add('modal-open'); };
     const closeLogin = ()=> { hide($('#auth-login')); document.body.classList.remove('modal-open'); };
     const closeRegister = ()=> { hide($('#auth-register')); document.body.classList.remove('modal-open'); };
 

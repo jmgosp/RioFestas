@@ -109,6 +109,9 @@
         opacity: 1;
         animation: ultraFadeIn 0.1s ease-out;
     }
+
+    /* Espaço extra entre input de código e botão */
+    #sms-step-verify input + button { margin-top: 10px; }
     
     @keyframes ultraFadeIn {
         from { opacity: 0; transform: scale(0.995); }
