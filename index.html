@@ -1809,33 +1809,20 @@ Reenviar em <span id="sms-countdown">60</span>s
           console.warn('reCAPTCHA register container not found');
           return null;
         }
-        
-        // Verificar se o container está visível no DOM
         if (!document.body.contains(container)) {
           console.warn('reCAPTCHA register container not in DOM');
           return null;
         }
-        
-        // Limpar instância anterior se existir
-        if (recaptchaVerifierRegister) {
-          try {
-            recaptchaVerifierRegister.clear();
-          } catch(e) {}
-          recaptchaVerifierRegister = null;
-        }
-        
-        // Criar nova instância visível para reduzir erros no registro por SMS
+        // Reutilizar instância se já existir
+        if (recaptchaVerifierRegister) return recaptchaVerifierRegister;
+        // Criar instância visível
         recaptchaVerifierRegister = new RecaptchaVerifier(auth, 'recaptcha-container-register', {
           size: 'normal',
           callback: () => {},
           'expired-callback': () => {}
         });
-        
         return recaptchaVerifierRegister;
-      }catch(e){ 
-        console.warn('recaptcha register init failed', e); 
-        return null; 
-      }
+      }catch(e){ console.warn('recaptcha register init failed', e); return null; }
     }
     
 
