@@ -727,7 +727,7 @@ Excluir Conta
 <div class="mt-4" id="login-sms-container">
 <div class="mb-3 grid grid-cols-2 gap-2 text-sm">
 <button type="button" class="rounded-full border border-gray-200 px-3 py-1.5 font-semibold bg-white text-gray-700" id="login-tab-email">E-mail</button>
-<button type="button" class="rounded-full border border-gray-200 px-3 py-1.5 font-semibold bg-white text-gray-700" id="login-tab-phone">SMS</button>
+<button type="button" class="rounded-full border border-gray-200 px-3 py-1.5 font-semibold bg-white text-gray-700" id="login-tab-phone">Celular</button>
 </div>
 <form class="space-y-4 hidden" id="form-login-phone">
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="login-phone" placeholder="Celular (ex: +55 21 99999-9999)" type="tel"/>
@@ -737,6 +737,7 @@ Excluir Conta
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="login-sms-code" placeholder="Código recebido" inputmode="numeric" pattern="[0-9]*"/>
 <button class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90" id="verify-sms-btn" type="button">Verificar e entrar</button>
 </div>
+<div class="flex items-center justify-between text-sm"><span></span><button class="text-pink-600 font-semibold" id="switch-register-from-phone" type="button">Registrar-se</button></div>
 <div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="err-login-phone"></div>
 </form>
 </div>
@@ -1668,12 +1669,8 @@ Excluir Conta
       const emailActive = mode === 'email';
       formLogin.classList.toggle('hidden', !emailActive);
       formLoginPhone.classList.toggle('hidden', emailActive);
-      loginTabEmail.classList.toggle('bg-pink-600', emailActive);
-      loginTabEmail.classList.toggle('text-white', emailActive);
-      loginTabEmail.classList.toggle('border-pink-600', emailActive);
-      loginTabPhone.classList.toggle('bg-pink-600', !emailActive);
-      loginTabPhone.classList.toggle('text-white', !emailActive);
-      loginTabPhone.classList.toggle('border-pink-600', !emailActive);
+      loginTabEmail.classList.toggle('is-active-tab', emailActive);
+      loginTabPhone.classList.toggle('is-active-tab', !emailActive);
       if (!emailActive) {
         if (location.protocol !== 'http:' && location.protocol !== 'https:' && location.protocol !== 'chrome-extension:') {
           const el = document.getElementById('err-login-phone');
@@ -1687,6 +1684,12 @@ Excluir Conta
       loginTabEmail.addEventListener('click', ()=> switchLoginMode('email'));
       loginTabPhone.addEventListener('click', ()=> switchLoginMode('phone'));
       switchLoginMode('email');
+    }
+
+    // Atalho "Registrar-se" na aba Celular
+    const switchRegPhone = document.getElementById('switch-register-from-phone');
+    if (switchRegPhone){
+      switchRegPhone.addEventListener('click', ()=>{ hide($('#auth-login')); show($('#auth-register')); });
     }
 
     // reCAPTCHA para login via SMS
@@ -1735,11 +1738,20 @@ Excluir Conta
           hide(errLoginPhone);
           let phoneRaw = (document.getElementById('login-phone')?.value || '');
           const phone = normalizePhone(phoneRaw);
-          if (!/^\+\d{10,15}$/.test(phone)) { errLoginPhone.textContent='Informe o celular no formato internacional (ex: +5521999999999).'; show(errLoginPhone); return; }
+          if (!phone) { errLoginPhone.textContent='Informe seu celular com DDD (ex: 21 99999-9999).'; show(errLoginPhone); return; }
           const verifier = ensureRecaptcha();
           if (!verifier){ errLoginPhone.textContent='Falha ao iniciar verificação. Recarregue a página.'; show(errLoginPhone); return; }
           sendSmsBtn.disabled = true; sendSmsBtn.textContent = 'Enviando…';
           await setPersistence(auth, browserLocalPersistence);
+          // Verificar se a conta já existe (bloquear login por SMS sem cadastro):
+          try {
+            const userDoc = await getDoc(doc(db, USERS_PATH, ('phone:' + phone)));
+            if (!userDoc.exists()) { throw new Error('auth/user-not-found'); }
+          } catch(e) {
+            errLoginPhone.textContent = 'Este celular ainda não está cadastrado. Crie sua conta primeiro.';
+            show(errLoginPhone);
+            return;
+          }
           _smsConfirmation = await signInWithPhoneNumber(auth, phone, verifier);
           smsVerifyStep.classList.remove('hidden');
           toast('Código enviado por SMS.');
@@ -1801,10 +1813,10 @@ Excluir Conta
       const username = usernameRaw.toLowerCase().replace(/[^a-z0-9_]/g, '');
 
       // Permitir cadastro por e-mail/senha OU por telefone (SMS)
-      const usingEmailPassword = !!email && pass.length >= 6;
-      const usingPhone = !!phone;
+      const usingEmailPassword = !!email && pass.length >= 6 && !phone;
+      const usingPhone = !!phone && !email && !pass;
       if (!username || !name || (!usingEmailPassword && !usingPhone)) {
-        errEl.textContent = 'Informe nome, usuário e (e-mail+senha) ou celular.'; show(errEl);
+        errEl.textContent = 'Escolha APENAS um: (e-mail + senha) OU celular com DDD.'; show(errEl);
         btn.textContent=old; btn.disabled=false; return;
       }
 
