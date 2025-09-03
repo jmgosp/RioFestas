@@ -1729,7 +1729,7 @@ Excluir Conta
         if (!container) return null;
         if (recaptchaVerifierLogin) return recaptchaVerifierLogin;
         recaptchaVerifierLogin = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
-          size: 'normal',
+          size: 'invisible',
           callback: () => {},
           'expired-callback': () => {}
         });
@@ -1902,7 +1902,7 @@ Excluir Conta
 
           let recaptchaReg = null;
           try {
-            recaptchaReg = new RecaptchaVerifier(auth, 'recaptcha-container-register', { size: 'normal' });
+            recaptchaReg = new RecaptchaVerifier(auth, 'recaptcha-container-register', { size: 'invisible' });
             try { await recaptchaReg.render(); } catch(e) {}
           } catch(e) { recaptchaReg = null; }
 
