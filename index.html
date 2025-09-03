@@ -489,16 +489,7 @@
 <label class="text-sm font-medium text-gray-700">Sua Bio</label>
 <textarea class="mt-1 w-full min-h-[80px] rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="account-bio" placeholder="Fale um pouco sobre você..."></textarea>
 </div>
-<div>
-<label class="text-sm font-medium text-gray-700">Celular</label>
-<div class="phone-input-group">
-<div class="phone-input-wrapper">
-<span class="phone-country-code">+55</span>
-<input class="phone-input" id="account-phone" placeholder="Celular (DDD + Número)" type="tel"/>
-</div>
-</div>
-<p class="text-xs text-gray-500 mt-1">Deixe em branco se não quiser cadastrar um celular.</p>
-</div>
+
 <div class="flex items-center justify-between rounded-2xl bg-gray-50 p-3 ring-subtle">
 <label class="text-sm font-medium text-gray-700" for="account-private">Tornar perfil privado</label>
 <label class="relative inline-flex items-center cursor-pointer">
@@ -507,28 +498,7 @@
 </div>
 </div>
 
-<!-- Verificação de telefone no perfil -->
-<div class="hidden" id="profile-phone-verify-container">
-<div class="rounded-2xl bg-blue-50 border border-blue-200 p-4">
-<div class="flex items-center gap-3 mb-3">
-<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-</svg>
-<span class="text-sm font-medium text-blue-800">Verificação de telefone necessária</span>
-</div>
-<p class="text-sm text-blue-700 mb-3">Enviamos um código SMS para confirmar seu novo número.</p>
-<div class="space-y-3">
-<input class="w-full rounded-xl border border-blue-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-600/35" id="profile-phone-code" placeholder="Código recebido" inputmode="numeric" pattern="[0-9]*"/>
-<div class="flex gap-2">
-<button class="flex-1 rounded-xl bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700" id="profile-send-sms-btn" type="button">Reenviar código</button>
-<button class="flex-1 rounded-xl bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700" id="profile-verify-sms-btn" type="button">Verificar</button>
-</div>
-</div>
-</div>
-</div>
 
-<!-- reCAPTCHA invisível para verificação de telefone -->
-<div id="recaptcha-container-profile" class="phone-recaptcha-container"></div>
 
 <div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="account-error"></div>
 <div class="flex justify-between items-center">
@@ -1598,7 +1568,7 @@ Reenviar em <span id="sms-countdown">60</span>s
 
 
     // ===== Sessão & roles =====
-    const state = { baseEvents: [], events:[], pending:[], users:{}, recurringEvents: [], settings: {}, eventExceptions: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, deleteNotificationTarget: null, removeFollowerTarget: null, resetRatingsTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, photoRemovalFlag: false, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} }, adminEventsView: 'active', selectedBairros: new Set(), selectedGeneros: new Set(), socialActive: false, currentSocialTab: 'foryou', profilePhoneConfirmation: null, pendingPhoneUpdate: null };
+    const state = { baseEvents: [], events:[], pending:[], users:{}, recurringEvents: [], settings: {}, eventExceptions: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, deleteNotificationTarget: null, removeFollowerTarget: null, resetRatingsTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, photoRemovalFlag: false, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} }, adminEventsView: 'active', selectedBairros: new Set(), selectedGeneros: new Set(), socialActive: false, currentSocialTab: 'foryou' };
     let _unsubRole = null, _unsubEvents=null, _unsubPending=null, _unsubGoingTo=null, _unsubFollowing=null, _unsubFollowers=null, _unsubOutgoingRequests=null, _unsubIncomingRequests=null, _unsubNotifications=null, _unsubRecurring=null, _unsubSettings=null, _unsubExceptions=null;
 
     const renderHeader = ()=>{
@@ -1808,7 +1778,6 @@ Reenviar em <span id="sms-countdown">60</span>s
     // reCAPTCHA para login via SMS
     let recaptchaVerifierLogin = null;
     let recaptchaVerifierRegister = null;
-    let recaptchaVerifierProfile = null;
     
     function ensureRecaptcha(){
       try{
@@ -1882,41 +1851,7 @@ Reenviar em <span id="sms-countdown">60</span>s
       }
     }
     
-    function ensureRecaptchaProfile(){
-      try{
-        const container = document.getElementById('recaptcha-container-profile');
-        if (!container) {
-          console.warn('reCAPTCHA profile container not found');
-          return null;
-        }
-        
-        // Verificar se o container está visível no DOM
-        if (!document.body.contains(container)) {
-          console.warn('reCAPTCHA profile container not in DOM');
-          return null;
-        }
-        
-        // Limpar instância anterior se existir
-        if (recaptchaVerifierProfile) {
-          try {
-            recaptchaVerifierProfile.clear();
-          } catch(e) {}
-          recaptchaVerifierProfile = null;
-        }
-        
-        // Criar nova instância
-        recaptchaVerifierProfile = new RecaptchaVerifier(auth, 'recaptcha-container-profile', {
-          size: 'invisible',
-          callback: () => {},
-          'expired-callback': () => {}
-        });
-        
-        return recaptchaVerifierProfile;
-      }catch(e){ 
-        console.warn('reCAPTCHA profile init failed', e); 
-        return null; 
-      }
-    }
+
 
     function ensureRecaptchaVisible(){
       try{
