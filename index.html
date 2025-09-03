@@ -91,8 +91,14 @@
 </div>
 <!-- AJUSTE: Aumentado o espaçamento (gap) e ajustado o tamanho dos botões para mobile -->
 <nav class="flex items-center gap-2 sm:gap-3">
-<button class="inline-flex items-center rounded-full bg-gray-100 border border-gray-200 px-5 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-200 sm:px-5 sm:py-2.5 sm:text-sm" id="btn-about-header">Sobre</button>
-<button class="inline-flex items-center rounded-full bg-pink-600/5 border border-pink-600/20 px-5 py-2.5 text-xs font-semibold text-pink-700 hover:bg-pink-600/10 sm:px-5 sm:py-2.5 sm:text-sm" id="btn-social-header">Rede</button>
+<button class="inline-flex flex-col items-center justify-center w-12 h-12 sm:w-12 sm:h-12 text-[10px] font-medium text-gray-600 hover:text-gray-800" id="btn-about-header">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+<span class="mt-1">Sobre</span>
+</button>
+<button class="inline-flex flex-col items-center justify-center w-12 h-12 sm:w-12 sm:h-12 text-[10px] font-medium text-gray-600 hover:text-gray-800" id="btn-social-header">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+<span class="mt-1">Rede</span>
+</button>
 <button class="inline-flex items-center justify-center h-10 w-10 rounded-full border border-gray-200 bg-white text-gray-700 hover:bg-gray-50" id="btn-theme" title="Alternar tema">
 <svg fill="none" height="18" id="icon-sun" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
 <circle cx="12" cy="12" r="5"></circle>
@@ -294,6 +300,9 @@
 <!-- PÁGINA SOCIAL -->
 <section class="hidden max-w-6xl mx-auto px-4 pb-28" id="view-social">
 <main class="space-y-12">
+
+<!-- TAB: NOTIFICAÇÕES -->
+<div id="social-tab-notifs" class="hidden">
 <section>
 <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
 <div class="flex items-center gap-3 cursor-pointer" id="notifications-toggle">
@@ -302,19 +311,22 @@
 <button class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-all duration-200 group" id="notifications-toggle-btn">
 <svg class="w-4 h-4 text-gray-600 transition-transform duration-200 group-hover:text-gray-800" id="notifications-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-</svg>
-</button>
+ </svg>
+ </button>
+ </div>
+ <div class="flex items-center gap-4 w-full md:w-auto" id="notifications-controls">
+ <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer flex-1"><input class="h-4 w-4 cursor-pointer" id="account-notify-check" type="checkbox"/> Notificar quando meus amigos confirmarem em eventos</label>
+ <button class="text-sm font-semibold text-red-600 hover:text-red-800 flex-shrink-0" id="clear-all-notifs-btn">Limpar Tudo</button>
+ </div>
+ </div>
+ <div class="mt-4 space-y-3 overflow-hidden transition-all duration-300" id="notifications-content">
+ <div class="space-y-3" id="notifications-list"></div>
+ <div class="hidden mt-6 text-center text-gray-500" id="empty-notifications">Nenhuma notificação nova.</div>
+ </div>
+ </section>
 </div>
-<div class="flex items-center gap-4 w-full md:w-auto" id="notifications-controls">
-<label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer flex-1"><input class="h-4 w-4 cursor-pointer" id="account-notify-check" type="checkbox"/> Notificar quando meus amigos confirmarem em eventos</label>
-<button class="text-sm font-semibold text-red-600 hover:text-red-800 flex-shrink-0" id="clear-all-notifs-btn">Limpar Tudo</button>
-</div>
-</div>
-<div class="mt-4 space-y-3 overflow-hidden transition-all duration-300" id="notifications-content">
-<div class="space-y-3" id="notifications-list"></div>
-<div class="hidden mt-6 text-center text-gray-500" id="empty-notifications">Nenhuma notificação nova.</div>
-</div>
-</section>
+<!-- TAB: AMIGOS -->
+<div id="social-tab-friends" class="hidden">
 <section>
 <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Encontre Pessoas</h2>
 <div class="mt-4">
@@ -322,18 +334,77 @@
 </div>
 <div class="mt-6 grid gap-4" id="user-search-results"></div>
 </section>
-<section>
+<section class="mt-10">
 <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos que seus amigos vão</h2>
 <div class="mt-4 flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-friends-popular"></div>
 <div class="hidden mt-6 text-center text-gray-500" id="empty-friends-popular">Ninguém que você segue confirmou presença ainda.</div>
 </section>
-<section>
-<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Eventos mais populares da rede</h2>
-<div class="mt-4 flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-social-popular"></div>
-<div class="hidden mt-6 text-center text-gray-500" id="empty-social-popular">Nenhum evento com confirmações ainda.</div>
-</section>
+</div>
+<!-- TAB: PARA VOCÊ -->
+<div id="social-tab-foryou" class="">
+  <section>
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl md:text-4xl font-extrabold tracking-tight whitespace-nowrap">
+        <span class="bg-gradient-to-r from-pink-500 via-fuchsia-500 to-purple-600 bg-clip-text text-transparent">Para você</span>
+      </h2>
+      <div class="w-full md:w-80 ml-4">
+        <input id="foryou-search" class="w-full rounded-full border border-gray-200 bg-white px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-600/30" placeholder="Buscar eventos..." />
+      </div>
+    </div>
+
+    <!-- Amigos vão -->
+    <div class="mt-6">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg md:text-xl font-semibold">Eventos que seus amigos vão</h3>
+      </div>
+      <div class="mt-3 flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-friends-in-foryou"></div>
+      <div class="hidden mt-2 text-center text-gray-500" id="empty-friends-in-foryou">Ainda não há confirmações dos seus amigos.</div>
+    </div>
+
+    <!-- Rede popular -->
+    <div class="mt-8">
+      <h3 class="text-lg md:text-xl font-semibold">Populares na rede</h3>
+      <div class="mt-3 flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-social-popular"></div>
+      <div class="hidden mt-2 text-center text-gray-500" id="empty-social-popular">Nenhum evento com confirmações ainda.</div>
+    </div>
+
+    <!-- Outros eventos (todos por data) -->
+    <div class="mt-8">
+      <h3 class="text-lg md:text-xl font-semibold">Outros eventos</h3>
+      <div class="mt-3 flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4" id="carousel-foryou-others"></div>
+      <div class="hidden mt-2 text-center text-gray-500" id="empty-foryou-others">Sem eventos disponíveis.</div>
+    </div>
+  </section>
+</div>
+
 </main>
 </section>
+
+<!-- Barra inferior fixa exclusiva da Rede -->
+<div id="social-bottom-bar" class="hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur border-t border-gray-200 shadow-lg">
+  <div class="max-w-6xl mx-auto px-6">
+    <nav class="grid grid-cols-4 gap-2 py-2">
+      <button id="social-nav-foryou" class="flex flex-col items-center justify-center text-gray-500 hover:text-gray-700">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span class="text-[10px] mt-1">Para você</span>
+      </button>
+      <button id="social-nav-friends" class="flex flex-col items-center justify-center text-gray-500 hover:text-gray-700">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <span class="text-[10px] mt-1">Amigos</span>
+      </button>
+      <button id="social-nav-notifs" class="flex flex-col items-center justify-center text-gray-500 hover:text-gray-700">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span class="text-[10px] mt-1">Notificações</span>
+      </button>
+      <button id="social-nav-profile" class="flex flex-col items-center justify-center text-gray-500 hover:text-gray-700">
+        <span class="relative inline-flex items-center justify-center h-6 w-6 rounded-full overflow-hidden">
+          <img id="social-avatar-img" class="h-6 w-6 object-cover" src="https://placehold.co/64x64/f472b6/ffffff?text=U" alt=""/>
+        </span>
+        <span class="text-[10px] mt-1">Perfil</span>
+      </button>
+    </nav>
+  </div>
+</div>
 <!-- PÁGINA DO ORGANIZADOR -->
 <section class="hidden max-w-6xl mx-auto px-4 pb-28" id="view-organizer">
 <div class="flex items-center justify-between">
@@ -599,7 +670,6 @@ Excluir Conta
 <div class="px-4 pt-4 hidden" id="active-events-search-container">
 <input class="w-full rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5" id="active-events-search" placeholder="Buscar eventos ativos por nome, local ou gênero."/>
 </div>
-
 <div class="admin-table-container max-h-[60vh] md:overflow-auto p-4 md:p-0">
 <table class="min-w-full">
 <thead class="bg-gray-50/60" id="admin-events-thead">
@@ -1288,7 +1358,6 @@ Excluir Conta
       document.body.classList.remove('modal-open');
   }
 };
-    
     // Listener para o botão de voltar do navegador
     window.addEventListener('popstate', (event) => {
       // Se o modal estiver aberto, fechá-lo e restaurar posição
@@ -1433,7 +1502,7 @@ Excluir Conta
 
 
     // ===== Sessão & roles =====
-    const state = { baseEvents: [], events:[], pending:[], users:{}, recurringEvents: [], settings: {}, eventExceptions: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, deleteNotificationTarget: null, removeFollowerTarget: null, resetRatingsTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, photoRemovalFlag: false, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} }, adminEventsView: 'active', selectedBairros: new Set(), selectedGeneros: new Set() };
+    const state = { baseEvents: [], events:[], pending:[], users:{}, recurringEvents: [], settings: {}, eventExceptions: {}, isAdmin:false, isOrganizer:false, byDayOffset:0, deleteTarget: null, deleteNotificationTarget: null, removeFollowerTarget: null, resetRatingsTarget: null, userGoingTo: new Set(), userFollowing: new Set(), userFollowers: new Set(), userOutgoingRequests: new Set(), incomingFollowRequests: new Set(), currentViewEvent: null, currentUserData: null, friendsGoingMap: new Map(), editingRecurringEventId: null, newProfilePhotoUrl: null, photoRemovalFlag: false, eventForm: { imageUrls: [], uploadTasks: {} }, orgEventForm: { imageUrls: [], uploadTasks: {} }, adminEventsView: 'active', selectedBairros: new Set(), selectedGeneros: new Set(), socialActive: false, currentSocialTab: 'foryou' };
     let _unsubRole = null, _unsubEvents=null, _unsubPending=null, _unsubGoingTo=null, _unsubFollowing=null, _unsubFollowers=null, _unsubOutgoingRequests=null, _unsubIncomingRequests=null, _unsubNotifications=null, _unsubRecurring=null, _unsubSettings=null, _unsubExceptions=null;
 
     const renderHeader = ()=>{
@@ -1449,6 +1518,16 @@ Excluir Conta
         } else {
           hide($('#user-avatar-img')); show($('#user-avatar-text'));
           $('#user-avatar-text').textContent = initials(user?.name || auth.currentUser.displayName || auth.currentUser.email);
+        }
+        // Atualiza avatar na barra social, se existir
+        const socialImg = $('#social-avatar-img');
+        if (socialImg) {
+          if (user?.photoUrl) {
+            socialImg.src = user.photoUrl;
+            socialImg.onerror = () => { socialImg.src = 'https://placehold.co/64x64/f472b6/ffffff?text='+initials(user.name); };
+          } else {
+            socialImg.src = 'https://placehold.co/64x64/f472b6/ffffff?text='+initials(user?.name || auth.currentUser.displayName || auth.currentUser.email);
+          }
         }
         goAdmin.classList.toggle('hidden', !state.isAdmin);
         goOrg.classList.toggle('hidden', !state.isOrganizer);
@@ -1619,12 +1698,10 @@ Excluir Conta
         btn.textContent=old; btn.disabled=false;
       }
     });
-
     // ===== Autenticação com Google =====
     const googleProvider = new GoogleAuthProvider();
     googleProvider.addScope('email');
     googleProvider.addScope('profile');
-
     // Função para login/registro com Google
     const signInWithGoogle = async (isRegistration = false) => {
       try {
@@ -1976,7 +2053,6 @@ Excluir Conta
         }
       }
     }
-    
     // Verificar se o usuário retornou de um login com Apple/Google e não foi processado
     function checkForUnprocessedAuth() {
       const appleAuthState = localStorage.getItem('apple_auth_state');
@@ -2171,19 +2247,21 @@ Excluir Conta
     function updateHeaderStyles(activeViewId) {
         const buttons = {
             home: { el: $('#btn-home-header'), view: '#home-view', default: 'bg-white', active: 'bg-gray-100' },
-            about: { el: $('#btn-about-header'), view: '#view-about', default: 'bg-gray-100', active: 'bg-gray-200' },
-            social: { el: $('#btn-social-header'), view: '#view-social', default: 'bg-pink-600/5', active: 'bg-pink-600/10' }
+            // minimalista: apenas cor no texto/ícone, sem background
+            about: { el: $('#btn-about-header'), view: '#view-about', default: 'text-gray-600', active: 'text-pink-600' },
+            social: { el: $('#btn-social-header'), view: '#view-social', default: 'text-gray-600', active: 'text-pink-600' }
         };
 
-        const currentView = (activeViewId === '#hero-section') ? '#home-view' : activeViewId;
+        const currentView = (activeViewId === '#hero-section') ? '#home-view' : (activeViewId === '#view-profile' && state.socialActive ? '#view-social' : activeViewId);
 
         Object.values(buttons).forEach(btn => {
+            if (!btn.el) return;
             btn.el.classList.remove(btn.active);
             btn.el.classList.add(btn.default);
         });
 
         const activeButton = Object.values(buttons).find(btn => btn.view === currentView);
-        if (activeButton) {
+        if (activeButton && activeButton.el) {
             activeButton.el.classList.remove(activeButton.default);
             activeButton.el.classList.add(activeButton.active);
         }
@@ -2214,6 +2292,8 @@ Excluir Conta
     });
     $('#go-profile').addEventListener('click', () => {
         if (auth.currentUser && !auth.currentUser.isAnonymous) {
+            state.socialActive = false; // perfil fora do contexto da Rede
+            const bar = $('#social-bottom-bar'); if (bar) bar.classList.add('hidden');
             openProfileView();
         } else {
             openLogin();
@@ -2226,6 +2306,26 @@ Excluir Conta
         // Esconder aviso na página admin
         const warning = document.getElementById('development-warning');
         if (warning) warning.style.display = 'none';
+    });
+
+    // Navegação da barra inferior da Rede
+    document.addEventListener('click', (e)=>{
+      const forYouBtn = e.target.closest('#social-nav-foryou');
+      const friendsBtn = e.target.closest('#social-nav-friends');
+      const notifsBtn = e.target.closest('#social-nav-notifs');
+      const profileBtn = e.target.closest('#social-nav-profile');
+      if (forYouBtn) { state.socialActive = true; activateSocialTab('foryou'); showView('#view-social'); }
+      if (friendsBtn) { state.socialActive = true; activateSocialTab('friends'); showView('#view-social'); }
+      if (notifsBtn) { state.socialActive = true; activateSocialTab('notifs'); showView('#view-social'); }
+      if (profileBtn) {
+        if (auth.currentUser && !auth.currentUser.isAnonymous) {
+          state.socialActive = true; // perfil como subpágina da rede
+          // usar fluxo completo para carregar dados do perfil
+          openProfileView();
+        } else {
+          openLogin();
+        }
+      }
     });
     
     $('#go-organizer').addEventListener('click', ()=>{ 
@@ -2260,13 +2360,57 @@ Excluir Conta
                 if (warning) warning.style.display = 'block';
             }
         }
+
+        // Mostrar/ocultar barra social apenas quando dentro da Rede
+        const bar = document.getElementById('social-bottom-bar');
+        if (bar) {
+          if (viewId === '#view-social' || (viewId === '#view-profile' && state.socialActive)) {
+            bar.classList.remove('hidden');
+          } else {
+            bar.classList.add('hidden');
+            // ao sair da Rede, limpar flag
+            if (viewId !== '#view-profile') state.socialActive = false;
+          }
+        }
     };
     
     function openSocialView() {
         if (!state.currentUserData) return;
+        state.socialActive = true;
+        const bar = $('#social-bottom-bar'); if (bar) bar.classList.remove('hidden');
         $('#account-notify-check').checked = state.currentUserData.settings?.notifyOnFriendGoing ?? true;
+        activateSocialTab(state.currentSocialTab || 'foryou');
         showView('#view-social');
         renderSocialFeeds();
+        const u = state.currentUserData;
+        const img = $('#social-avatar-img');
+        if (img && u) {
+          if (u.photoUrl) { img.src = u.photoUrl; }
+          else { img.src = 'https://placehold.co/64x64/f472b6/ffffff?text='+initials(u.name || auth.currentUser?.displayName || auth.currentUser?.email); }
+        }
+    }
+    function setSocialBottomActive(key){
+      const map = {
+        foryou: $('#social-nav-foryou'),
+        friends: $('#social-nav-friends'),
+        notifs: $('#social-nav-notifs'),
+        profile: $('#social-nav-profile')
+      };
+      Object.entries(map).forEach(([k, el])=>{
+        if(!el) return;
+        el.classList.toggle('text-pink-600', k===key);
+        el.classList.toggle('text-gray-500', k!==key);
+      });
+    }
+    function activateSocialTab(tab){
+      state.currentSocialTab = tab;
+      const foryou = $('#social-tab-foryou');
+      const friends = $('#social-tab-friends');
+      const notifs = $('#social-tab-notifs');
+      if (foryou) foryou.classList.toggle('hidden', tab!=='foryou');
+      if (friends) friends.classList.toggle('hidden', tab!=='friends');
+      if (notifs) notifs.classList.toggle('hidden', tab!=='notifs');
+      setSocialBottomActive(tab);
     }
     
     // ===== Meu Perfil: Eventos confirmados (próximos) =====
@@ -2873,7 +3017,6 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             wrap.appendChild(remainingFragment);
         }
     }
-
     function buildNext7Menu(){ const menu=$('#weekday-menu'); menu.innerHTML=''; const today=startOfToday(); const labels=[]; for(let i=0;i<7;i++){ const d=new Date(today); d.setDate(today.getDate()+i); labels.push({date:d,label:weekdayLong[d.getDay()]}); } labels.forEach((it,idx)=>{ const b=document.createElement('button'); b.className='flex-shrink-0 rounded-full border px-4 py-2 text-sm '+(idx===state.byDayOffset? 'bg-pink-600 text-white border-pink-600':'bg-white border-gray-200 hover:bg-gray-50'); b.textContent=it.label; b.addEventListener('click', ()=>{ state.byDayOffset=idx; applyFiltersAndRender().catch(console.error); }); menu.appendChild(b); }); }
 
     async function renderAllHome(filteredEvents){
@@ -3190,7 +3333,6 @@ async function deleteRecurringInstance(eventInstance) {
             show(adminPlaceholder);
             return;
         }
-
         activeEvents.forEach(ev => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -3513,7 +3655,6 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         hide($('#event-modal')); 
       }catch(err){ console.error(err); errorEl.textContent = err?.message||'Falha ao salvar.'; show(errorEl); } 
     }
-
     // ===== Visualização =====
     async function openViewModal(ev){
       // Preservar posição de scroll atual
@@ -3838,14 +3979,76 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             confirmRemoveFollower();
         }
     });
-
     // ===== Social: Feeds =====
     async function renderSocialFeeds() {
-        const popular = [...state.events].filter(isEventActive).filter(ev => ev.goingCount > 0).sort((a, b) => (b.goingCount || 0) - (a.goingCount || 0)).slice(0, 10);
+        // Skeleton imediato para carrosséis de amigos
+        const makeSkeleton = () => {
+          const card = (idx)=>`<div class=\"min-w-[220px] md:min-w-[280px] rounded-2xl bg-white/5 border border-gray-200/30 p-3 md:p-4 animate-pulse\">
+              <div class=\"h-28 md:h-44 w-full rounded-xl bg-gray-300/50\"></div>
+              <div class=\"mt-3 h-4 w-3/4 rounded bg-gray-300/50\"></div>
+              <div class=\"mt-2 h-3 w-1/2 rounded bg-gray-300/40\"></div>
+            </div>`;
+          return card(1)+card(2)+card(3);
+        };
+        const cf1 = $('#carousel-friends-popular'); if (cf1) { cf1.innerHTML = makeSkeleton(); show(cf1); }
+        const cf2 = $('#carousel-friends-in-foryou'); if (cf2) { cf2.innerHTML = makeSkeleton(); show(cf2); }
+        // Populares da rede (ranking por goingCount)
+        const popular = [...state.events]
+          .filter(isEventActive)
+          .filter(ev => (ev.goingCount || 0) > 0)
+          .sort((a, b) => (b.goingCount || 0) - (a.goingCount || 0))
+          .slice(0, 12);
         renderCarousel('carousel-social-popular', popular, 'empty-social-popular');
 
+        // Amigos (ranking por quantidade de amigos confirmados)
         const friendsEvents = await getFriendsEvents();
         renderCarousel('carousel-friends-popular', friendsEvents, 'empty-friends-popular');
+        // Também renderizar na aba Para você
+        renderCarousel('carousel-friends-in-foryou', friendsEvents, 'empty-friends-in-foryou');
+
+        // Outros eventos: todos os ativos ordenados por data
+        const others = [...state.events]
+          .filter(isEventActive)
+          .sort((a,b)=>{
+            const ad = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+            const bd = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+            return ad - bd;
+          });
+        renderForyouOthers(others);
+
+        // Filtro de busca na aba Para você (aplica nas três listas)
+        const search = $('#foryou-search');
+        if (search && !search._bound) {
+          search._bound = true;
+          search.addEventListener('input', () => {
+            const q = (search.value || '').toLowerCase().trim();
+            const filterFn = (arr) => arr.filter(ev => {
+              const name = (ev.name || '').toLowerCase();
+              const local = (ev.local || ev.bairroName || ev.address || ev.location || ev.venue || '').toLowerCase();
+              const stylesArr = Array.isArray(ev.styles) ? ev.styles : (ev.style ? [ev.style] : []);
+              const inStyle = stylesArr.some(s => (s || '').toLowerCase().includes(q));
+              return name.includes(q) || local.includes(q) || inStyle;
+            });
+            if (!q) {
+              renderForyouOthers(others);
+              renderCarousel('carousel-social-popular', popular, 'empty-social-popular');
+              renderCarousel('carousel-friends-in-foryou', friendsEvents, 'empty-friends-in-foryou');
+            } else {
+              renderForyouOthers(filterFn(others));
+              renderCarousel('carousel-social-popular', filterFn(popular), 'empty-social-popular');
+              renderCarousel('carousel-friends-in-foryou', filterFn(friendsEvents), 'empty-friends-in-foryou');
+            }
+          });
+        }
+    }
+
+    function renderForyouOthers(list){
+        const wrap = $('#carousel-foryou-others');
+        const empty = $('#empty-foryou-others');
+        if (!wrap) return;
+        wrap.innerHTML = '';
+        if (!list || list.length === 0) { show(empty); hide(wrap); return; } else { hide(empty); show(wrap); }
+        renderCarousel('carousel-foryou-others', list, 'empty-foryou-others');
     }
     
     async function updateFriendsGoingMap() {
@@ -4124,7 +4327,6 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         </div>
       `).join('');
     }
-    
     document.addEventListener('click', (e) => {
         const card = e.target.closest('[data-event-id]');
         if (card) {
@@ -4429,7 +4631,6 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             }
         }
     }
-    
     async function handleFollowRequest(requesterId, accept, bannerSelector = null) {
         const currentUser = auth.currentUser;
         if (!currentUser) return;
@@ -4776,7 +4977,6 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
 
         return el;
     }
-
     // Global event delegation for removing follower buttons
     document.body.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-remove-follower-id]');
@@ -5453,9 +5653,6 @@ try {
         if (selG && state.generos) { const ids = Array.isArray(ev?.generoIds) ? ev.generoIds : (ev?.generoId ? [ev.generoId] : []); Array.from(selG.options).forEach(o=> o.selected = ids.includes(o.value)); }
       }, 10);
     };
-
-
-
 // === PATCH: Corrige menu de filtros recolhível e aplica filtros nos carrosséis ===
 (function(){
   const $ = (sel)=> document.querySelector(sel);
@@ -5794,7 +5991,6 @@ async function handlePrivateEventRequest(eventId, userId, action) {
         toast('Erro ao processar solicitação.', 'error');
     }
 }
-
 // Renderiza solicitações de eventos privados para organizadores
 async function renderOrganizerPrivateEventRequests() {
     const container = $('#private-events-requests');
@@ -6141,7 +6337,6 @@ async function removePrivateEventAccess(eventId, userId) {
         toast('Erro ao remover acesso.', 'error');
     }
 }
-
 // Renderiza pessoas aprovadas para organizadores
 async function renderOrganizerPrivateEventApproved() {
     const container = $('#private-events-approved');
@@ -6493,7 +6688,6 @@ function expandNotificationsIfNew() {
         controls.style.pointerEvents = 'auto';
     }
 }
-
 // Função para detectar se é dispositivo móvel
 function isMobileDevice() {
     return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
