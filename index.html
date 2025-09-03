@@ -1754,11 +1754,10 @@ Reenviar em <span id="sms-countdown">60</span>s
       const emailActive = mode === 'email';
       formLogin.classList.toggle('hidden', !emailActive);
       formLoginPhone.classList.toggle('hidden', emailActive);
+      // Destaque visual apenas com fundo/borda, mantendo texto sempre escuro/claro via CSS
       loginTabEmail.classList.toggle('bg-pink-600', emailActive);
-      loginTabEmail.classList.toggle('text-white', emailActive);
       loginTabEmail.classList.toggle('border-pink-600', emailActive);
       loginTabPhone.classList.toggle('bg-pink-600', !emailActive);
-      loginTabPhone.classList.toggle('text-white', !emailActive);
       loginTabPhone.classList.toggle('border-pink-600', !emailActive);
       if (!emailActive) {
         if (location.protocol !== 'http:' && location.protocol !== 'https:' && location.protocol !== 'chrome-extension:') {
@@ -1863,7 +1862,7 @@ Reenviar em <span id="sms-countdown">60</span>s
           callback: () => {},
           'expired-callback': () => {}
         });
-        try { recaptchaVerifierLogin.render(); } catch(e) { /* no-op */ }
+        // reCAPTCHA visível (normal) não precisa de render manual aqui
         return recaptchaVerifierLogin;
       }catch(e){ console.warn('recaptcha visible init failed', e); return null; }
     }
@@ -1937,12 +1936,7 @@ Reenviar em <span id="sms-countdown">60</span>s
           const verifier = ensureRecaptcha();
           if (!verifier){ errLoginPhone.textContent='Falha ao iniciar verificação. Recarregue a página.'; show(errLoginPhone); return; }
           
-          // Garantir que o reCAPTCHA seja renderizado
-          try {
-            await verifier.render();
-          } catch(e) {
-            console.warn('reCAPTCHA render failed, trying to continue:', e);
-          }
+          // Caixinha visível: sem render manual para evitar erros de instância já renderizada
           
           sendSmsBtn.disabled = true; sendSmsBtn.textContent = 'Enviando…';
           await setPersistence(auth, browserLocalPersistence);
@@ -2093,12 +2087,7 @@ Reenviar em <span id="sms-countdown">60</span>s
           const recaptcha = ensureRecaptchaRegister();
           if (!recaptcha) throw new Error('Erro ao iniciar verificação do telefone.');
           
-          // Garantir que o reCAPTCHA seja renderizado
-          try {
-            await recaptcha.render();
-          } catch(e) {
-            console.warn('reCAPTCHA register render failed, trying to continue:', e);
-          }
+          // Caixinha visível: sem render manual para evitar erros de instância já renderizada
           
           const confirmation = await signInWithPhoneNumber(auth, phone, recaptcha);
           const code = window.prompt('Digite o código enviado por SMS:');
@@ -2925,7 +2914,7 @@ Reenviar em <span id="sms-countdown">60</span>s
         $('#account-username').value = u.username || '';
         $('#account-bio').value = u.bio || '';
         $('#account-private').checked = u.isPrivate || false;
-        $('#account-phone').value = u.phone ? u.phone.replace('+55', '') : '';
+        // telefone removido do perfil
         $('#account-photo-preview').src = u.photoUrl || `https://placehold.co/64x64/f472b6/ffffff?text=${initials(u.name)}`;
         state.newProfilePhotoUrl = null;
         state.photoRemovalFlag = false; // Reset flag
@@ -4851,14 +4840,11 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       const name = $('#account-name').value.trim();
       const bio = $('#account-bio').value.trim();
       const isPrivate = $('#account-private').checked;
-      const phoneRaw = $('#account-phone').value.trim();
-      const phone = phoneRaw ? normalizePhone(phoneRaw) : null;
+      // telefone removido do perfil
       const errEl = $('#account-error');
       hide(errEl);
 
-      // Verificar se o telefone mudou
-      const currentPhone = state.currentUserData?.phone;
-      const phoneChanged = phone !== currentPhone;
+      // telefone removido do perfil
 
       const updateData = { name, bio, isPrivate };
       if (state.photoRemovalFlag) {
@@ -4868,36 +4854,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       }
 
       try {
-        // Se o telefone mudou, iniciar verificação SMS
-        if (phoneChanged && phone) {
-          const recaptcha = ensureRecaptchaProfile();
-          if (!recaptcha) {
-            errEl.textContent = 'Erro ao iniciar verificação do telefone.';
-            show(errEl);
-            return;
-          }
-          
-          // Garantir que o reCAPTCHA seja renderizado
-          try {
-            await recaptcha.render();
-          } catch(e) {
-            console.warn('reCAPTCHA profile render failed, trying to continue:', e);
-          }
-          
-          try {
-            const confirmation = await signInWithPhoneNumber(auth, phone, recaptcha);
-            // Mostrar interface de verificação
-            $('#profile-phone-verify-container').classList.remove('hidden');
-            state.profilePhoneConfirmation = confirmation;
-            state.pendingPhoneUpdate = phone;
-            toast('Código SMS enviado para verificar o novo número.');
-            return; // Parar aqui até verificação
-          } catch (err) {
-            errEl.textContent = 'Erro ao enviar SMS. Tente novamente.';
-            show(errEl);
-            return;
-          }
-        }
+        // telefone removido do perfil
 
         // Atualizar dados (sem telefone por enquanto)
         await updateDoc(doc(db, USERS_PATH, user.uid), updateData);
@@ -4915,64 +4872,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       }
     });
 
-    // ===== Verificação de telefone no perfil =====
-    if (document.getElementById('profile-send-sms-btn')) {
-      document.getElementById('profile-send-sms-btn').addEventListener('click', async () => {
-        const phone = state.pendingPhoneUpdate;
-        if (!phone) return;
-        
-        try {
-          const recaptcha = ensureRecaptchaProfile();
-          if (!recaptcha) {
-            toast('Erro ao iniciar verificação.', 'error');
-            return;
-          }
-          
-          const confirmation = await signInWithPhoneNumber(auth, phone, recaptcha);
-          state.profilePhoneConfirmation = confirmation;
-          toast('Código reenviado por SMS.');
-        } catch (err) {
-          toast('Erro ao reenviar SMS.', 'error');
-        }
-      });
-    }
-    
-    if (document.getElementById('profile-verify-sms-btn')) {
-      document.getElementById('profile-verify-sms-btn').addEventListener('click', async () => {
-        const code = document.getElementById('profile-phone-code').value.trim();
-        if (!code) {
-          toast('Digite o código recebido.', 'error');
-          return;
-        }
-        
-        try {
-          const confirmation = state.profilePhoneConfirmation;
-          if (!confirmation) {
-            toast('Sessão expirada. Tente novamente.', 'error');
-            return;
-          }
-          
-          await confirmation.confirm(code);
-          
-          // Atualizar telefone no banco
-          const user = auth.currentUser;
-          if (user && state.pendingPhoneUpdate) {
-            await updateDoc(doc(db, USERS_PATH, user.uid), { phone: state.pendingPhoneUpdate });
-            state.currentUserData.phone = state.pendingPhoneUpdate;
-            state.pendingPhoneUpdate = null;
-            state.profilePhoneConfirmation = null;
-            
-            // Esconder interface de verificação
-            $('#profile-phone-verify-container').classList.add('hidden');
-            document.getElementById('profile-phone-code').value = '';
-            
-            toast('Telefone verificado e atualizado com sucesso!');
-          }
-        } catch (err) {
-          toast('Código inválido. Tente novamente.', 'error');
-        }
-      });
-    }
+    // ===== Verificação de telefone no perfil (removida) =====
 
     // ===== Social: Lista de amigos que vão no evento =====
     async function renderFriendsGoing(eventId) {

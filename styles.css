@@ -2483,6 +2483,17 @@ body.modal-open {
     color: #9ca3af !important;
 }
 
+/* Garantir texto sempre visível nos botões de troca de login */
+#login-tab-email,
+#login-tab-phone {
+    color: #111827 !important;
+}
+
+[data-theme="dark"] #login-tab-email,
+[data-theme="dark"] #login-tab-phone {
+    color: #f9fafb !important;
+}
+
 /* Campos específicos para cada método */
 .reg-email-fields,
 .reg-phone-fields {
