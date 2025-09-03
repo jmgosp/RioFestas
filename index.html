@@ -489,7 +489,6 @@
 <label class="text-sm font-medium text-gray-700">Sua Bio</label>
 <textarea class="mt-1 w-full min-h-[80px] rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3" id="account-bio" placeholder="Fale um pouco sobre você..."></textarea>
 </div>
-
 <div class="flex items-center justify-between rounded-2xl bg-gray-50 p-3 ring-subtle">
 <label class="text-sm font-medium text-gray-700" for="account-private">Tornar perfil privado</label>
 <label class="relative inline-flex items-center cursor-pointer">
@@ -497,9 +496,6 @@
 <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-600"></div>
 </div>
 </div>
-
-
-
 <div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="account-error"></div>
 <div class="flex justify-between items-center">
 <button class="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-100" type="button" id="btn-delete-account">
@@ -734,23 +730,14 @@ Excluir Conta
 <button type="button" class="rounded-full border border-gray-200 px-3 py-1.5 font-semibold bg-white text-gray-700" id="login-tab-phone">SMS</button>
 </div>
 <form class="space-y-4 hidden" id="form-login-phone">
-<div class="phone-input-group">
-<div class="phone-input-wrapper">
-<span class="phone-country-code">+55</span>
-<input class="phone-input" id="login-phone" placeholder="Celular (DDD + Número)" type="tel"/>
-</div>
-<button class="phone-action-button" id="send-sms-btn" type="button">Enviar código</button>
-</div>
-<div class="phone-cooldown-timer hidden" id="sms-cooldown-timer">
-Reenviar em <span id="sms-countdown">60</span>s
-</div>
-<div id="recaptcha-container-login" class="phone-recaptcha-container"></div>
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="login-phone" placeholder="Celular (ex: +55 21 99999-9999)" type="tel"/>
+<div id="recaptcha-container-login" class="rounded-xl border border-gray-200 p-2 bg-gray-50"></div>
+<button class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90" id="send-sms-btn" type="button">Enviar código</button>
 <div class="hidden" id="sms-step-verify">
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="login-sms-code" placeholder="Código recebido" inputmode="numeric" pattern="[0-9]*"/>
 <button class="w-full inline-flex items-center justify-center rounded-2xl bg-pink-600 px-5 py-3 text-[15px] font-semibold text-white hover:opacity-90" id="verify-sms-btn" type="button">Verificar e entrar</button>
 </div>
-<div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700 phone-error-message" id="err-login-phone"></div>
-<button class="text-pink-600 font-semibold text-sm hover:underline transition-colors" id="switch-register-phone" type="button">Não tem conta? Registre-se</button>
+<div class="hidden rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" id="err-login-phone"></div>
 </form>
 </div>
 </div>
@@ -767,52 +754,15 @@ Reenviar em <span id="sms-countdown">60</span>s
 <button aria-label="Fechar" class="rounded-full p-2 hover:bg-gray-100" data-close="auth-register">✕</button>
 </div>
 <form class="px-6 pb-3 overflow-y-auto space-y-4 mt-4" id="form-register">
-<!-- Seleção do método de registro -->
-<div class="mb-4">
-<div class="text-sm font-medium text-gray-700 mb-3">Escolha como se registrar:</div>
-<div class="grid grid-cols-2 gap-3">
-<button type="button" class="reg-method-btn active" data-method="email" id="reg-method-email">
-<div class="flex flex-col items-center p-4 rounded-2xl border-2 border-pink-200 bg-pink-50">
-<svg class="w-6 h-6 text-pink-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-</svg>
-<span class="text-sm font-semibold text-pink-700">E-mail & Senha</span>
-</div>
-</button>
-<button type="button" class="reg-method-btn" data-method="phone" id="reg-method-phone">
-<div class="flex flex-col items-center p-4 rounded-2xl border-2 border-gray-200 bg-gray-50">
-<svg class="w-6 h-6 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-</svg>
-<span class="text-sm font-semibold text-gray-500">SMS</span>
-</div>
-</button>
-</div>
-</div>
-
-<!-- Campos comuns -->
 <div class="grid gap-3 md:grid-cols-2">
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-name" placeholder="Nome completo" required="" type="text"/>
 <input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-username" placeholder="Nome de usuário (@exemplo)" required="" type="text"/>
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-email" placeholder="E-mail (opcional se usar SMS)" type="email"/>
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-pass" placeholder="Senha (mín. 6, opcional para SMS)" type="password"/>
 </div>
-
-<!-- Campos específicos para email/senha -->
-<div class="reg-email-fields space-y-3">
 <div class="grid gap-3 md:grid-cols-2">
-<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-email" placeholder="E-mail" type="email"/>
-<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-pass" placeholder="Senha (mín. 6 caracteres)" type="password"/>
-</div>
-</div>
-
-<!-- Campos específicos para telefone -->
-<div class="reg-phone-fields hidden space-y-3">
-<div class="phone-input-group">
-<div class="phone-input-wrapper">
-<span class="phone-country-code">+55</span>
-<input class="phone-input" id="reg-phone" placeholder="Celular (DDD + Número)" type="tel"/>
-</div>
-</div>
-<div id="recaptcha-container-register" class="phone-recaptcha-container"></div>
+<input class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-pink-600/35" id="reg-phone" placeholder="Celular (ex: +55 21 99999-9999)" type="tel"/>
+<div id="recaptcha-container-register" class="rounded-xl border border-gray-200 p-2 bg-gray-50"></div>
 </div>
 <label class="flex items-center gap-2 select-none text-sm"><input class="h-4 w-4" id="reg-organizer-check" type="checkbox"/> Sou organizador de eventos</label>
 <div class="hidden grid gap-3 md:grid-cols-2" id="reg-organizer-form">
@@ -1608,44 +1558,8 @@ Reenviar em <span id="sms-countdown">60</span>s
 
     const openLogin = ()=> { show($('#auth-login')); document.body.classList.add('modal-open'); };
     const openRegister = ()=> { show($('#auth-register')); document.body.classList.add('modal-open'); };
-    const closeLogin = ()=> { 
-      hide($('#auth-login')); 
-      document.body.classList.remove('modal-open'); 
-      
-      // Limpar reCAPTCHA
-      if (recaptchaVerifierLogin) {
-        try {
-          recaptchaVerifierLogin.clear();
-          recaptchaVerifierLogin = null;
-        } catch(e) {}
-      }
-      
-      // Limpar campos SMS
-      if (document.getElementById('login-phone')) document.getElementById('login-phone').value = '';
-      if (document.getElementById('login-sms-code')) document.getElementById('login-sms-code').value = '';
-      if (document.getElementById('sms-step-verify')) document.getElementById('sms-step-verify').classList.add('hidden');
-      if (document.getElementById('sms-cooldown-timer')) document.getElementById('sms-cooldown-timer').classList.add('hidden');
-      if (document.getElementById('send-sms-btn')) {
-        document.getElementById('send-sms-btn').classList.remove('hidden');
-        document.getElementById('send-sms-btn').textContent = 'Enviar código';
-      }
-      if (_resendTimer) {
-        clearInterval(_resendTimer);
-        _resendTimer = null;
-      }
-    };
-    const closeRegister = ()=> { 
-      hide($('#auth-register')); 
-      document.body.classList.remove('modal-open'); 
-      
-      // Limpar reCAPTCHA
-      if (recaptchaVerifierRegister) {
-        try {
-          recaptchaVerifierRegister.clear();
-          recaptchaVerifierRegister = null;
-        } catch(e) {}
-      }
-    };
+    const closeLogin = ()=> { hide($('#auth-login')); document.body.classList.remove('modal-open'); };
+    const closeRegister = ()=> { hide($('#auth-register')); document.body.classList.remove('modal-open'); };
 
     // (removido) Inicialização antecipada do reCAPTCHA para evitar múltiplas instâncias
 
@@ -1754,10 +1668,11 @@ Reenviar em <span id="sms-countdown">60</span>s
       const emailActive = mode === 'email';
       formLogin.classList.toggle('hidden', !emailActive);
       formLoginPhone.classList.toggle('hidden', emailActive);
-      // Destaque visual apenas com fundo/borda, mantendo texto sempre escuro/claro via CSS
       loginTabEmail.classList.toggle('bg-pink-600', emailActive);
+      loginTabEmail.classList.toggle('text-white', emailActive);
       loginTabEmail.classList.toggle('border-pink-600', emailActive);
       loginTabPhone.classList.toggle('bg-pink-600', !emailActive);
+      loginTabPhone.classList.toggle('text-white', !emailActive);
       loginTabPhone.classList.toggle('border-pink-600', !emailActive);
       if (!emailActive) {
         if (location.protocol !== 'http:' && location.protocol !== 'https:' && location.protocol !== 'chrome-extension:') {
@@ -1765,8 +1680,7 @@ Reenviar em <span id="sms-countdown">60</span>s
           if (el){ el.textContent = 'Login por SMS exige abrir via http(s). Use um servidor local (ex.: npx serve) ou seu domínio.'; el.classList.remove('hidden'); }
           return;
         }
-        // Caixinha visível do reCAPTCHA para SMS
-        ensureRecaptchaVisible();
+        ensureRecaptcha();
       }
     }
     if (loginTabEmail && loginTabPhone){
@@ -1777,55 +1691,19 @@ Reenviar em <span id="sms-countdown">60</span>s
 
     // reCAPTCHA para login via SMS
     let recaptchaVerifierLogin = null;
-    let recaptchaVerifierRegister = null;
-    
     function ensureRecaptcha(){
       try{
         const container = document.getElementById('recaptcha-container-login');
-        if (!container) {
-          console.warn('reCAPTCHA container not found');
-          return null;
-        }
-        if (!document.body.contains(container)) {
-          console.warn('reCAPTCHA container not in DOM');
-          return null;
-        }
-        // Reutilizar se já existe
+        if (!container) return null;
         if (recaptchaVerifierLogin) return recaptchaVerifierLogin;
-        // Criar instância visível para estabilidade
         recaptchaVerifierLogin = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
-          size: 'normal',
+          size: 'invisible',
           callback: () => {},
           'expired-callback': () => {}
         });
         return recaptchaVerifierLogin;
       }catch(e){ console.warn('recaptcha init failed', e); return null; }
     }
-    
-    function ensureRecaptchaRegister(){
-      try{
-        const container = document.getElementById('recaptcha-container-register');
-        if (!container) {
-          console.warn('reCAPTCHA register container not found');
-          return null;
-        }
-        if (!document.body.contains(container)) {
-          console.warn('reCAPTCHA register container not in DOM');
-          return null;
-        }
-        // Reutilizar instância se já existir
-        if (recaptchaVerifierRegister) return recaptchaVerifierRegister;
-        // Criar instância visível
-        recaptchaVerifierRegister = new RecaptchaVerifier(auth, 'recaptcha-container-register', {
-          size: 'normal',
-          callback: () => {},
-          'expired-callback': () => {}
-        });
-        return recaptchaVerifierRegister;
-      }catch(e){ console.warn('recaptcha register init failed', e); return null; }
-    }
-    
-
 
     function ensureRecaptchaVisible(){
       try{
@@ -1837,50 +1715,18 @@ Reenviar em <span id="sms-countdown">60</span>s
           callback: () => {},
           'expired-callback': () => {}
         });
-        // reCAPTCHA visível (normal) não precisa de render manual aqui
+        try { recaptchaVerifierLogin.render(); } catch(e) { /* no-op */ }
         return recaptchaVerifierLogin;
       }catch(e){ console.warn('recaptcha visible init failed', e); return null; }
     }
 
     function normalizePhone(raw){
       if (!raw) return '';
-      // Para BR: aceitar DDD+numero e prefixar +55
-      let digits = String(raw).replace(/\D/g,'');
-      // remove zero à esquerda do DDD, se houver
-      if (digits.length >= 11 && digits[0] === '0') digits = digits.slice(1);
-      // Validação mais rigorosa para números brasileiros
-      if (!/^\d{10,11}$/.test(digits)) return '';
-      // DDD deve ser válido (11-99)
-      const ddd = parseInt(digits.substring(0, 2));
-      if (ddd < 11 || ddd > 99) return '';
-      return '+55' + digits;
-    }
-
-    let _resendTimer = null;
-    function startResendCountdown(){
-      const btn = sendSmsBtn; if (!btn) return;
-      let remaining = 60;
-      btn.classList.add('hidden');
-      
-      // Mostrar o timer de cooldown
-      const cooldownTimer = document.getElementById('sms-cooldown-timer');
-      const countdownSpan = document.getElementById('sms-countdown');
-      if (cooldownTimer && countdownSpan) {
-        cooldownTimer.classList.remove('hidden');
-        countdownSpan.textContent = remaining;
-      }
-      
-      _resendTimer = setInterval(()=>{
-        remaining -= 1;
-        if (remaining <= 0){
-          clearInterval(_resendTimer); _resendTimer = null;
-          if (cooldownTimer) cooldownTimer.classList.add('hidden');
-          btn.classList.remove('hidden');
-          btn.textContent = 'Reenviar código';
-        } else if (countdownSpan) {
-          countdownSpan.textContent = remaining;
-        }
-      }, 1000);
+      // Mantém apenas dígitos e um '+' inicial
+      let p = String(raw).trim().replace(/\s+/g,'');
+      p = p.replace(/(?!^)\+/g, ''); // remove '+' extras
+      p = p.replace(/[^\d+]/g, '');
+      return p;
     }
 
     if (sendSmsBtn){
@@ -1889,36 +1735,14 @@ Reenviar em <span id="sms-countdown">60</span>s
           hide(errLoginPhone);
           let phoneRaw = (document.getElementById('login-phone')?.value || '');
           const phone = normalizePhone(phoneRaw);
-          if (!phone) { errLoginPhone.textContent='Informe seu celular com DDD (ex: 21 99999-9999).'; show(errLoginPhone); return; }
-          
-          // Verificar se o usuário existe antes de enviar SMS
-          const phoneQuery = query(collection(db, USERS_PATH), where('phone', '==', phone));
-          const phoneDocs = await getDocs(phoneQuery);
-          if (phoneDocs.empty) {
-            errLoginPhone.textContent = 'Nenhuma conta encontrada com este número. Registre-se primeiro.';
-            show(errLoginPhone);
-            return;
-          }
-          
-          // Verificar se o usuário não foi excluído
-          const userDoc = phoneDocs.docs[0];
-          if (!userDoc.exists() || userDoc.data().deleted) {
-            errLoginPhone.textContent = 'Conta não encontrada ou foi excluída.';
-            show(errLoginPhone);
-            return;
-          }
-          
+          if (!/^\+\d{10,15}$/.test(phone)) { errLoginPhone.textContent='Informe o celular no formato internacional (ex: +5521999999999).'; show(errLoginPhone); return; }
           const verifier = ensureRecaptcha();
           if (!verifier){ errLoginPhone.textContent='Falha ao iniciar verificação. Recarregue a página.'; show(errLoginPhone); return; }
-          
-          // Caixinha visível: sem render manual para evitar erros de instância já renderizada
-          
           sendSmsBtn.disabled = true; sendSmsBtn.textContent = 'Enviando…';
           await setPersistence(auth, browserLocalPersistence);
           _smsConfirmation = await signInWithPhoneNumber(auth, phone, verifier);
           smsVerifyStep.classList.remove('hidden');
           toast('Código enviado por SMS.');
-          startResendCountdown();
         }catch(err){
           const code = err?.code || '';
           // Fallback: se falha de reCAPTCHA/app credential, reconfigurar para visível
@@ -1950,14 +1774,6 @@ Reenviar em <span id="sms-countdown">60</span>s
         finally { verifySmsBtn.disabled = false; verifySmsBtn.textContent = 'Verificar e entrar'; }
       });
     }
-    
-    // Botão de registro no login por SMS
-    if (document.getElementById('switch-register-phone')) {
-      document.getElementById('switch-register-phone').addEventListener('click', () => {
-        closeLogin();
-        openRegister();
-      });
-    }
 
     // Recuperar senha
     $('#btn-forgot').addEventListener('click', async()=>{
@@ -1967,49 +1783,6 @@ Reenviar em <span id="sms-countdown">60</span>s
     });
 
     $('#reg-organizer-check').addEventListener('change', (e)=> $('#reg-organizer-form').classList.toggle('hidden', !e.target.checked) );
-    
-    // Alternar entre métodos de registro
-    $('#reg-method-email').addEventListener('click', () => {
-      document.querySelectorAll('.reg-method-btn').forEach(btn => {
-        btn.querySelector('div').classList.remove('border-pink-200', 'bg-pink-50');
-        btn.querySelector('div').classList.add('border-gray-200', 'bg-gray-50');
-        btn.querySelector('svg').classList.remove('text-pink-600');
-        btn.querySelector('svg').classList.add('text-gray-500');
-        btn.querySelector('span').classList.remove('text-pink-700');
-        btn.querySelector('span').classList.add('text-gray-500');
-      });
-      
-      $('#reg-method-email').querySelector('div').classList.remove('border-gray-200', 'bg-gray-50');
-      $('#reg-method-email').querySelector('div').classList.add('border-pink-200', 'bg-pink-50');
-      $('#reg-method-email').querySelector('svg').classList.remove('text-gray-500');
-      $('#reg-method-email').querySelector('svg').classList.add('text-pink-600');
-      $('#reg-method-email').querySelector('span').classList.remove('text-gray-500');
-      $('#reg-method-email').querySelector('span').classList.add('text-pink-700');
-      
-      $('.reg-email-fields').classList.remove('hidden');
-      $('.reg-phone-fields').classList.add('hidden');
-    });
-    
-    $('#reg-method-phone').addEventListener('click', () => {
-      document.querySelectorAll('.reg-method-btn').forEach(btn => {
-        btn.querySelector('div').classList.remove('border-pink-200', 'bg-pink-50');
-        btn.querySelector('div').classList.add('border-gray-200', 'bg-gray-50');
-        btn.querySelector('svg').classList.remove('text-pink-600');
-        btn.querySelector('svg').classList.add('text-gray-500');
-        btn.querySelector('span').classList.remove('text-pink-700');
-        btn.querySelector('span').classList.add('text-gray-500');
-      });
-      
-      $('#reg-method-phone').querySelector('div').classList.remove('border-gray-200', 'bg-gray-50');
-      $('#reg-method-phone').querySelector('div').classList.add('border-pink-200', 'bg-pink-50');
-      $('#reg-method-phone').querySelector('svg').classList.remove('text-gray-500');
-      $('#reg-method-phone').querySelector('svg').classList.add('text-pink-600');
-      $('#reg-method-phone').querySelector('span').classList.remove('text-gray-500');
-      $('#reg-method-phone').querySelector('span').classList.add('text-pink-700');
-      
-      $('.reg-phone-fields').classList.remove('hidden');
-      $('.reg-email-fields').classList.add('hidden');
-    });
 
     // Registro
     $('#form-register').addEventListener('submit', async (e)=>{
@@ -2027,22 +1800,11 @@ Reenviar em <span id="sms-countdown">60</span>s
       }
       const username = usernameRaw.toLowerCase().replace(/[^a-z0-9_]/g, '');
 
-      // Permitir cadastro por e-mail/senha OU por telefone (SMS), não ambos
+      // Permitir cadastro por e-mail/senha OU por telefone (SMS)
       const usingEmailPassword = !!email && pass.length >= 6;
       const usingPhone = !!phone;
-      
-      if (!username || !name) {
-        errEl.textContent = 'Informe nome e nome de usuário.'; show(errEl);
-        btn.textContent=old; btn.disabled=false; return;
-      }
-      
-      if (!usingEmailPassword && !usingPhone) {
-        errEl.textContent = 'Escolha entre e-mail+senha OU celular para se registrar.'; show(errEl);
-        btn.textContent=old; btn.disabled=false; return;
-      }
-      
-      if (usingEmailPassword && usingPhone) {
-        errEl.textContent = 'Escolha apenas um método: e-mail+senha OU celular.'; show(errEl);
+      if (!username || !name || (!usingEmailPassword && !usingPhone)) {
+        errEl.textContent = 'Informe nome, usuário e (e-mail+senha) ou celular.'; show(errEl);
         btn.textContent=old; btn.disabled=false; return;
       }
 
@@ -2059,11 +1821,12 @@ Reenviar em <span id="sms-countdown">60</span>s
           cred = await createUserWithEmailAndPassword(auth, email, pass);
         } else {
           // Cadastro por telefone: exige verificação SMS
-          const recaptcha = ensureRecaptchaRegister();
+          // Inicializa visível para minimizar falhas de ambiente
+          let recaptcha;
+          try {
+            recaptcha = new RecaptchaVerifier(auth, 'recaptcha-container-register', { size: 'normal' });
+          } catch(e) { recaptcha = null; }
           if (!recaptcha) throw new Error('Erro ao iniciar verificação do telefone.');
-          
-          // Caixinha visível: sem render manual para evitar erros de instância já renderizada
-          
           const confirmation = await signInWithPhoneNumber(auth, phone, recaptcha);
           const code = window.prompt('Digite o código enviado por SMS:');
           if (!code) throw new Error('Código não informado.');
@@ -2072,11 +1835,10 @@ Reenviar em <span id="sms-countdown">60</span>s
         await updateProfile(cred.user, { displayName: name });
 
         const userData = {
-          admin: false, organizer: false, name, username, email: email || null, phone: usingPhone ? phone : null,
+          admin: false, organizer: false, name, username, email: email || null,
           photoUrl: null, createdAt: serverTimestamp(), bio: '',
           followersCount: 0, followingCount: 0, isPrivate: false,
-          settings: { notifyOnFriendGoing: true },
-          deleted: false
+          settings: { notifyOnFriendGoing: true }
         };
         await setDoc(doc(db, USERS_PATH, cred.user.uid), userData);
         await setDoc(usernameRef, { uid: cred.user.uid }); // Reserva o username
@@ -2889,7 +2651,6 @@ Reenviar em <span id="sms-countdown">60</span>s
         $('#account-username').value = u.username || '';
         $('#account-bio').value = u.bio || '';
         $('#account-private').checked = u.isPrivate || false;
-        // telefone removido do perfil
         $('#account-photo-preview').src = u.photoUrl || `https://placehold.co/64x64/f472b6/ffffff?text=${initials(u.name)}`;
         state.newProfilePhotoUrl = null;
         state.photoRemovalFlag = false; // Reset flag
@@ -4815,11 +4576,8 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       const name = $('#account-name').value.trim();
       const bio = $('#account-bio').value.trim();
       const isPrivate = $('#account-private').checked;
-      // telefone removido do perfil
       const errEl = $('#account-error');
       hide(errEl);
-
-      // telefone removido do perfil
 
       const updateData = { name, bio, isPrivate };
       if (state.photoRemovalFlag) {
@@ -4829,11 +4587,8 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
       }
 
       try {
-        // telefone removido do perfil
-
-        // Atualizar dados (sem telefone por enquanto)
         await updateDoc(doc(db, USERS_PATH, user.uid), updateData);
-        if (updateData.photoUrl !== undefined) {
+        if (updateData.photoUrl !== undefined) { // Se photoUrl foi modificado (adicionado ou removido)
             await updateProfile(user, { photoURL: updateData.photoUrl });
         }
         await updateProfile(user, { displayName: name });
@@ -4846,8 +4601,6 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         show(errEl);
       }
     });
-
-    // ===== Verificação de telefone no perfil (removida) =====
 
     // ===== Social: Lista de amigos que vão no evento =====
     async function renderFriendsGoing(eventId) {
@@ -4936,47 +4689,27 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
         btn.disabled = true;
 
         try {
-            // 1. Marcar usuário como excluído (soft delete) e depois excluir completamente
-            await updateDoc(doc(db, USERS_PATH, user.uid), { deleted: true, deletedAt: serverTimestamp() });
-            
-            // 1.1. Excluir telefone se existir
-            if (state.currentUserData?.phone) {
-                try {
-                    // Buscar e excluir qualquer documento que referencie este telefone
-                    const phoneQuery = query(collection(db, USERS_PATH), where('phone', '==', state.currentUserData.phone));
-                    const phoneDocs = await getDocs(phoneQuery);
-                    const deletePhonePromises = phoneDocs.docs.map(doc => deleteDoc(doc.ref));
-                    await Promise.all(deletePhonePromises);
-                } catch (e) {
-                    console.warn('Telefone já removido ou não existe:', e);
-                }
-            }
+            // 1. Excluir dados do usuário do Firestore
+            await deleteDoc(doc(db, USERS_PATH, user.uid));
             
             // 2. Excluir username do registro
             if (state.currentUserData?.username) {
-                try {
-                    await deleteDoc(doc(db, USERNAMES_PATH, state.currentUserData.username));
-                } catch (e) {
-                    console.warn('Username já removido ou não existe:', e);
-                }
+                await deleteDoc(doc(db, USERNAMES_PATH, state.currentUserData.username));
             }
-            
-            // 3. Excluir completamente o documento do usuário
-            await deleteDoc(doc(db, USERS_PATH, user.uid));
 
-            // 4. Excluir dados de organizador se existir
+            // 3. Excluir dados de organizador se existir
             const orgQuery = query(collection(db, ORG_PATH), where('uid', '==', user.uid));
             const orgDocs = await getDocs(orgQuery);
             const deleteOrgPromises = orgDocs.docs.map(doc => deleteDoc(doc.ref));
             await Promise.all(deleteOrgPromises);
 
-            // 5. Excluir eventos criados pelo usuário
+            // 4. Excluir eventos criados pelo usuário
             const userEventsQuery = query(collection(db, EVENTS_PATH), where('createdBy', '==', user.uid));
             const userEventsDocs = await getDocs(userEventsQuery);
             const deleteEventPromises = userEventsDocs.docs.map(doc => deleteDoc(doc.ref));
             await Promise.all(deleteEventPromises);
 
-            // 6. Excluir presenças confirmadas do usuário
+            // 5. Excluir presenças confirmadas do usuário
             const allEventsQuery = query(collection(db, EVENTS_PATH));
             const allEventsDocs = await getDocs(allEventsQuery);
             const deleteAttendancePromises = allEventsDocs.docs.map(eventDoc => 
@@ -4984,14 +4717,14 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             );
             await Promise.all(deleteAttendancePromises);
 
-            // 7. Excluir avaliações do usuário
+            // 6. Excluir avaliações do usuário
             const allEventsForRatings = await getDocs(collection(db, EVENTS_PATH));
             const deleteRatingPromises = allEventsForRatings.docs.map(eventDoc => 
                 deleteDoc(doc(db, `${EVENTS_PATH}/${eventDoc.id}/ratings`, user.uid))
             );
             await Promise.all(deleteRatingPromises);
 
-            // 8. Excluir relacionamentos de seguidores/seguindo
+            // 7. Excluir relacionamentos de seguidores/seguindo
             const followersQuery = query(collection(db, USERS_PATH), where('following', 'array-contains', user.uid));
             const followersDocs = await getDocs(followersQuery);
             const updateFollowersPromises = followersDocs.docs.map(doc => 
@@ -4999,7 +4732,7 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             );
             await Promise.all(updateFollowersPromises);
 
-            // 9. Excluir solicitações de amizade
+            // 8. Excluir solicitações de amizade
             const requestsQuery = query(collection(db, USERS_PATH), where('incomingRequests', 'array-contains', user.uid));
             const requestsDocs = await getDocs(requestsQuery);
             const updateRequestsPromises = requestsDocs.docs.map(doc => 
@@ -5007,22 +4740,17 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             );
             await Promise.all(updateRequestsPromises);
 
-            // 10. Excluir conta do Firebase Auth
+            // 9. Excluir conta do Firebase Auth
             await user.delete();
 
-            // 11. Fazer logout
+            // 10. Fazer logout
             await signOut(auth);
 
-            // 12. Limpar estado local
-            state.currentUserData = null;
-            state.profilePhoneConfirmation = null;
-            state.pendingPhoneUpdate = null;
-
-            // 13. Fechar modal e mostrar mensagem
+            // 11. Fechar modal e mostrar mensagem
             hide($('#delete-account-modal'));
             toast('Conta excluída com sucesso. Obrigado por usar o RioFestas!', 'info');
 
-            // 14. Redirecionar para home
+            // 12. Redirecionar para home
             setTimeout(() => {
                 show($('#home-section'));
                 hide($('#view-profile'));
