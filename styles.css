@@ -2193,12 +2193,12 @@ body.modal-open {
     position: relative;
     display: flex;
     align-items: center;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
     border-radius: 1rem;
     overflow: hidden;
     transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .phone-input-wrapper:focus-within {
@@ -2206,6 +2206,18 @@ body.modal-open {
     box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1), 0 4px 6px rgba(0, 0, 0, 0.1);
     background: white;
     transform: translateY(-1px);
+}
+
+/* Modo escuro */
+[data-theme="dark"] .phone-input-wrapper {
+    background: #374151;
+    border-color: #6b7280;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .phone-input-wrapper:focus-within {
+    background: #4b5563;
+    border-color: #ec4899;
 }
 
 /* Código do país */
@@ -2216,11 +2228,18 @@ body.modal-open {
     min-width: 3rem;
     padding: 0.75rem 0.5rem;
     background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-    color: #4b5563;
+    color: #1f2937;
     font-weight: 700;
     font-size: 0.875rem;
     border-right: 1px solid #e5e7eb;
     position: relative;
+}
+
+/* Modo escuro */
+[data-theme="dark"] .phone-country-code {
+    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+    color: #f9fafb;
+    border-right-color: #6b7280;
 }
 
 .phone-country-code::after {
@@ -2242,10 +2261,19 @@ body.modal-open {
     padding: 0.75rem 1rem;
     font-size: 0.875rem;
     outline: none;
-    color: #374151;
+    color: #111827;
 }
 
 .phone-input::placeholder {
+    color: #6b7280;
+}
+
+/* Modo escuro */
+[data-theme="dark"] .phone-input {
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .phone-input::placeholder {
     color: #9ca3af;
 }
 
@@ -2306,12 +2334,20 @@ body.modal-open {
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     border: 1px solid #e2e8f0;
     border-radius: 0.75rem;
-    color: #475569;
+    color: #1e293b;
     font-size: 0.875rem;
     font-weight: 500;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     position: relative;
     overflow: hidden;
+}
+
+/* Modo escuro */
+[data-theme="dark"] .phone-cooldown-timer {
+    background: linear-gradient(135deg, #334155 0%, #475569 100%);
+    border-color: #64748b;
+    color: #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .phone-cooldown-timer::before {
@@ -2332,25 +2368,38 @@ body.modal-open {
 
 /* Container do reCAPTCHA invisível */
 .phone-recaptcha-container {
-    height: 0;
+    height: 1px;
+    width: 1px;
     overflow: hidden;
     border: none;
     background: transparent;
     padding: 0;
     margin: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: relative;
+    visibility: hidden;
 }
 
 /* Mensagens de erro para telefone */
 .phone-error-message {
     border: 1px solid #fecaca;
     background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    color: #dc2626;
+    color: #991b1b;
     font-size: 0.875rem;
     padding: 0.75rem 1rem;
     border-radius: 0.75rem;
     box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
     position: relative;
     border-left: 4px solid #dc2626;
+}
+
+/* Modo escuro */
+[data-theme="dark"] .phone-error-message {
+    background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
+    border-color: #dc2626;
+    color: #fecaca;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
 }
 
 /* Botão de registro no login SMS - estilo igual ao da aba de email */
@@ -2361,11 +2410,23 @@ body.modal-open {
     transition: all 0.2s ease;
     outline: none;
     text-decoration: none;
+    color: #dc2626;
+    font-weight: 600;
 }
 
 #switch-register-phone:hover {
     text-decoration: underline;
     opacity: 0.8;
+    color: #b91c1c;
+}
+
+/* Modo escuro */
+[data-theme="dark"] #switch-register-phone {
+    color: #f87171;
+}
+
+[data-theme="dark"] #switch-register-phone:hover {
+    color: #ef4444;
 }
 
 /* Botões de método de registro */
@@ -2393,6 +2454,20 @@ body.modal-open {
 
 .reg-method-btn:hover div {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Modo escuro - ajustes de contraste */
+[data-theme="dark"] .reg-method-btn div {
+    background: #374151;
+    border-color: #6b7280;
+}
+
+[data-theme="dark"] .reg-method-btn span {
+    color: #d1d5db;
+}
+
+[data-theme="dark"] .reg-method-btn svg {
+    color: #9ca3af;
 }
 
 /* Campos específicos para cada método */
@@ -2428,4 +2503,29 @@ body.modal-open {
     .reg-method-btn span {
         font-size: 0.75rem;
     }
+}
+
+/* Garantir contraste adequado para todos os textos */
+.phone-input-group label,
+.phone-input-group .text-sm,
+.phone-input-group .text-xs {
+    color: #111827;
+    font-weight: 500;
+}
+
+[data-theme="dark"] .phone-input-group label,
+[data-theme="dark"] .phone-input-group .text-sm,
+[data-theme="dark"] .phone-input-group .text-xs {
+    color: #f9fafb;
+}
+
+/* Melhorar contraste dos placeholders */
+.phone-input::placeholder {
+    color: #6b7280;
+    font-weight: 400;
+}
+
+[data-theme="dark"] .phone-input::placeholder {
+    color: #9ca3af;
+    font-weight: 400;
 }

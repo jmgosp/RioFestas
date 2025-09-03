@@ -1641,6 +1641,15 @@ Reenviar em <span id="sms-countdown">60</span>s
     const closeLogin = ()=> { 
       hide($('#auth-login')); 
       document.body.classList.remove('modal-open'); 
+      
+      // Limpar reCAPTCHA
+      if (recaptchaVerifierLogin) {
+        try {
+          recaptchaVerifierLogin.clear();
+          recaptchaVerifierLogin = null;
+        } catch(e) {}
+      }
+      
       // Limpar campos SMS
       if (document.getElementById('login-phone')) document.getElementById('login-phone').value = '';
       if (document.getElementById('login-sms-code')) document.getElementById('login-sms-code').value = '';
@@ -1655,7 +1664,18 @@ Reenviar em <span id="sms-countdown">60</span>s
         _resendTimer = null;
       }
     };
-    const closeRegister = ()=> { hide($('#auth-register')); document.body.classList.remove('modal-open'); };
+    const closeRegister = ()=> { 
+      hide($('#auth-register')); 
+      document.body.classList.remove('modal-open'); 
+      
+      // Limpar reCAPTCHA
+      if (recaptchaVerifierRegister) {
+        try {
+          recaptchaVerifierRegister.clear();
+          recaptchaVerifierRegister = null;
+        } catch(e) {}
+      }
+    };
 
     // (removido) Inicialização antecipada do reCAPTCHA para evitar múltiplas instâncias
 
@@ -1793,43 +1813,109 @@ Reenviar em <span id="sms-countdown">60</span>s
     function ensureRecaptcha(){
       try{
         const container = document.getElementById('recaptcha-container-login');
-        if (!container) return null;
-        if (recaptchaVerifierLogin) return recaptchaVerifierLogin;
+        if (!container) {
+          console.warn('reCAPTCHA container not found');
+          return null;
+        }
+        
+        // Verificar se o container está visível no DOM
+        if (!document.body.contains(container)) {
+          console.warn('reCAPTCHA container not in DOM');
+          return null;
+        }
+        
+        // Limpar instância anterior se existir
+        if (recaptchaVerifierLogin) {
+          try {
+            recaptchaVerifierLogin.clear();
+          } catch(e) {}
+          recaptchaVerifierLogin = null;
+        }
+        
+        // Criar nova instância
         recaptchaVerifierLogin = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
           size: 'invisible',
           callback: () => {},
           'expired-callback': () => {}
         });
+        
         return recaptchaVerifierLogin;
-      }catch(e){ console.warn('recaptcha init failed', e); return null; }
+      }catch(e){ 
+        console.warn('recaptcha init failed', e); 
+        return null; 
+      }
     }
     
     function ensureRecaptchaRegister(){
       try{
         const container = document.getElementById('recaptcha-container-register');
-        if (!container) return null;
-        if (recaptchaVerifierRegister) return recaptchaVerifierRegister;
+        if (!container) {
+          console.warn('reCAPTCHA register container not found');
+          return null;
+        }
+        
+        // Verificar se o container está visível no DOM
+        if (!document.body.contains(container)) {
+          console.warn('reCAPTCHA register container not in DOM');
+          return null;
+        }
+        
+        // Limpar instância anterior se existir
+        if (recaptchaVerifierRegister) {
+          try {
+            recaptchaVerifierRegister.clear();
+          } catch(e) {}
+          recaptchaVerifierRegister = null;
+        }
+        
+        // Criar nova instância
         recaptchaVerifierRegister = new RecaptchaVerifier(auth, 'recaptcha-container-register', {
           size: 'invisible',
           callback: () => {},
           'expired-callback': () => {}
         });
+        
         return recaptchaVerifierRegister;
-      }catch(e){ console.warn('recaptcha register init failed', e); return null; }
+      }catch(e){ 
+        console.warn('recaptcha register init failed', e); 
+        return null; 
+      }
     }
     
     function ensureRecaptchaProfile(){
       try{
         const container = document.getElementById('recaptcha-container-profile');
-        if (!container) return null;
-        if (recaptchaVerifierProfile) return recaptchaVerifierProfile;
+        if (!container) {
+          console.warn('reCAPTCHA profile container not found');
+          return null;
+        }
+        
+        // Verificar se o container está visível no DOM
+        if (!document.body.contains(container)) {
+          console.warn('reCAPTCHA profile container not in DOM');
+          return null;
+        }
+        
+        // Limpar instância anterior se existir
+        if (recaptchaVerifierProfile) {
+          try {
+            recaptchaVerifierProfile.clear();
+          } catch(e) {}
+          recaptchaVerifierProfile = null;
+        }
+        
+        // Criar nova instância
         recaptchaVerifierProfile = new RecaptchaVerifier(auth, 'recaptcha-container-profile', {
           size: 'invisible',
           callback: () => {},
           'expired-callback': () => {}
         });
+        
         return recaptchaVerifierProfile;
-      }catch(e){ console.warn('recaptcha profile init failed', e); return null; }
+      }catch(e){ 
+        console.warn('reCAPTCHA profile init failed', e); 
+        return null; 
+      }
     }
 
     function ensureRecaptchaVisible(){
@@ -1915,6 +2001,14 @@ Reenviar em <span id="sms-countdown">60</span>s
           
           const verifier = ensureRecaptcha();
           if (!verifier){ errLoginPhone.textContent='Falha ao iniciar verificação. Recarregue a página.'; show(errLoginPhone); return; }
+          
+          // Garantir que o reCAPTCHA seja renderizado
+          try {
+            await verifier.render();
+          } catch(e) {
+            console.warn('reCAPTCHA render failed, trying to continue:', e);
+          }
+          
           sendSmsBtn.disabled = true; sendSmsBtn.textContent = 'Enviando…';
           await setPersistence(auth, browserLocalPersistence);
           _smsConfirmation = await signInWithPhoneNumber(auth, phone, verifier);
@@ -2063,6 +2157,14 @@ Reenviar em <span id="sms-countdown">60</span>s
           // Cadastro por telefone: exige verificação SMS
           const recaptcha = ensureRecaptchaRegister();
           if (!recaptcha) throw new Error('Erro ao iniciar verificação do telefone.');
+          
+          // Garantir que o reCAPTCHA seja renderizado
+          try {
+            await recaptcha.render();
+          } catch(e) {
+            console.warn('reCAPTCHA register render failed, trying to continue:', e);
+          }
+          
           const confirmation = await signInWithPhoneNumber(auth, phone, recaptcha);
           const code = window.prompt('Digite o código enviado por SMS:');
           if (!code) throw new Error('Código não informado.');
@@ -4838,6 +4940,13 @@ const generoNames = generoIds.map(id => state.generos.find(g=>g.id===id)?.name).
             errEl.textContent = 'Erro ao iniciar verificação do telefone.';
             show(errEl);
             return;
+          }
+          
+          // Garantir que o reCAPTCHA seja renderizado
+          try {
+            await recaptcha.render();
+          } catch(e) {
+            console.warn('reCAPTCHA profile render failed, trying to continue:', e);
           }
           
           try {
