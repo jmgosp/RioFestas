@@ -1816,16 +1816,44 @@ Excluir Conta
           cred = await createUserWithEmailAndPassword(auth, email, pass);
         } else {
           // Cadastro por telefone: exige verificação SMS
-          const recaptcha = (function(){
-            try{
-              return new RecaptchaVerifier(auth, 'recaptcha-container-register', { size: 'invisible' });
-            }catch(e){ return null; }
-          })();
-          if (!recaptcha) throw new Error('Erro ao iniciar verificação do telefone.');
-          const confirmation = await signInWithPhoneNumber(auth, phone, recaptcha);
-          const code = window.prompt('Digite o código enviado por SMS:');
-          if (!code) throw new Error('Código não informado.');
-          cred = await confirmation.confirm(code);
+          function normalizePhone(raw){
+            if (!raw) return '';
+            let p = String(raw).trim().replace(/\s+/g,'');
+            p = p.replace(/(?!^)\+/g, '');
+            p = p.replace(/[^\d+]/g, '');
+            return p;
+          }
+          const phoneE164 = normalizePhone(phone);
+          if (!/^\+\d{10,15}$/.test(phoneE164)) throw new Error('Informe o celular no formato internacional (ex: +5521999999999).');
+
+          let recaptchaReg = null;
+          try {
+            recaptchaReg = new RecaptchaVerifier(auth, 'recaptcha-container-register', { size: 'invisible' });
+            try { recaptchaReg.render(); } catch(e) {}
+          } catch(e) { recaptchaReg = null; }
+
+          try {
+            if (!recaptchaReg) throw new Error('captcha');
+            const confirmation = await signInWithPhoneNumber(auth, phoneE164, recaptchaReg);
+            const code = window.prompt('Digite o código enviado por SMS:');
+            if (!code) throw new Error('Código não informado.');
+            cred = await confirmation.confirm(code);
+          } catch(err) {
+            const code = err?.code || '';
+            // fallback reCAPTCHA visível
+            try { recaptchaReg?.clear(); } catch(e){}
+            recaptchaReg = null;
+            if (code.includes('captcha') || code.includes('app-credential') || code.includes('internal-error')){
+              recaptchaReg = new RecaptchaVerifier(auth, 'recaptcha-container-register', { size: 'normal' });
+              try { await recaptchaReg.render(); } catch(e) {}
+              const confirmation = await signInWithPhoneNumber(auth, phoneE164, recaptchaReg);
+              const codeInput = window.prompt('Digite o código enviado por SMS:');
+              if (!codeInput) throw new Error('Código não informado.');
+              cred = await confirmation.confirm(codeInput);
+            } else {
+              throw err;
+            }
+          }
         }
         await updateProfile(cred.user, { displayName: name });
 
