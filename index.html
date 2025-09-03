@@ -1739,6 +1739,20 @@ Excluir Conta
       }catch(e){ console.warn('recaptcha init failed', e); return null; }
     }
 
+    // reCAPTCHA para registro via SMS (invisível)
+    let recaptchaVerifierRegister = null;
+    async function ensureRecaptchaRegister(){
+      try{
+        const container = document.getElementById('recaptcha-container-register');
+        if (!container) return null;
+        if (!recaptchaVerifierRegister){
+          recaptchaVerifierRegister = new RecaptchaVerifier(auth, 'recaptcha-container-register', { size: 'invisible' });
+          try { await recaptchaVerifierRegister.render(); } catch(e) { /* no-op */ }
+        }
+        return recaptchaVerifierRegister;
+      }catch(e){ console.warn('recaptcha register init failed', e); return null; }
+    }
+
     function ensureRecaptchaVisible(){
       try{
         const container = document.getElementById('recaptcha-container-login');
@@ -1928,7 +1942,10 @@ Excluir Conta
             resendBtn.onclick = async()=>{
               if (resendBtn.disabled) return;
               resendBtn.disabled = true; resendBtn.textContent = 'Reenviando…';
-              try{ await signInWithPhoneNumber(auth, phoneE164, new RecaptchaVerifier(auth, 'recaptcha-container-register', { size:'normal' })); }
+              try{ 
+                const cap = await ensureRecaptchaRegister();
+                await signInWithPhoneNumber(auth, phoneE164, cap); 
+              }
               catch(e){ const er=document.getElementById('err-register'); if(er){ er.textContent = (e?.code||'Falha ao reenviar'); er.classList.remove('hidden'); } }
               finally{ resendBtn.textContent = 'Reenviar código'; t=30; resendBtn.disabled=true; }
             };
