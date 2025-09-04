@@ -2706,13 +2706,13 @@ Excluir Conta
             if (!btn.el) return;
             btn.el.classList.remove(btn.active);
             btn.el.classList.add(btn.default);
+            btn.el.classList.remove('pointer-events-none');
         });
 
         const activeButton = Object.values(buttons).find(btn => btn.view === currentView);
         if (activeButton && activeButton.el) {
             activeButton.el.classList.remove(activeButton.default);
             activeButton.el.classList.add(activeButton.active);
-            activeButton.el.classList.add('pointer-events-none');
         }
     }
 
